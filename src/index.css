@@ -1,0 +1,236 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply text-text-primary bg-background-main font-sans;
+  }
+
+  /* Add smooth scrolling for anchor links */
+  :target {
+    scroll-margin-top: 2rem;
+  }
+}
+
+.hero-gradient {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.9));
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.testimonials-scroll {
+  animation: scroll 40s linear infinite;
+}
+
+.testimonials-container:hover .testimonials-scroll {
+  animation-play-state: paused;
+}
+
+.brands-scroll {
+  animation: scroll 30s linear infinite;
+}
+
+.brands-container:hover .brands-scroll {
+  animation-play-state: paused;
+}
+
+.promotional-scroll {
+  animation: promotional-slide 20s linear infinite;
+}
+
+.timeline-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.timeline-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(to bottom, transparent, theme('colors.background.main'));
+  pointer-events: none;
+}
+
+.timeline-scroll {
+  animation: timeline 120s linear infinite;
+}
+
+.timeline-container:hover .timeline-scroll {
+  animation-play-state: paused;
+}
+
+/* Add styles for blog content */
+.blog-content {
+  @apply prose prose-lg prose-invert mx-auto;
+}
+
+.blog-content > *:first-child {
+  @apply mt-0;
+}
+
+.blog-content img {
+  @apply rounded-lg my-8 w-full;
+}
+
+.blog-content blockquote {
+  @apply not-italic text-lg border-l-4 border-accent-primary pl-6 py-1 my-8;
+}
+
+.blog-content pre {
+  @apply bg-background-section rounded-lg p-6 overflow-x-auto;
+}
+
+.blog-content code {
+  @apply text-accent-primary bg-background-section px-1.5 py-0.5 rounded text-sm;
+}
+
+.blog-content pre code {
+  @apply p-0 bg-transparent text-base;
+}
+
+/* React Quill Editor Styles */
+.prose-editor {
+  @apply text-text-primary;
+}
+
+.prose-editor .ql-toolbar {
+  @apply bg-background-section border-ui-border rounded-t-lg !important;
+}
+
+.prose-editor .ql-container {
+  @apply bg-background-main border-ui-border rounded-b-lg !important;
+}
+
+.prose-editor .ql-editor {
+  @apply min-h-[400px] text-text-primary !important;
+}
+
+.prose-editor .ql-picker {
+  @apply text-text-primary !important;
+}
+
+.prose-editor .ql-stroke {
+  @apply stroke-text-primary !important;
+}
+
+.prose-editor .ql-fill {
+  @apply fill-text-primary !important;
+}
+
+.prose-editor .ql-picker-options {
+  @apply bg-background-card border-ui-border !important;
+}
+
+.prose-editor .ql-picker-item {
+  @apply text-text-primary !important;
+}
+
+.prose-editor .ql-active {
+  @apply text-accent-primary !important;
+}
+
+.prose-editor .ql-active .ql-stroke {
+  @apply stroke-accent-primary !important;
+}
+
+.prose-editor .ql-active .ql-fill {
+  @apply fill-accent-primary !important;
+}
+
+/* Animations */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100% - 2rem));
+  }
+}
+
+@keyframes promotional-slide {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-5%);
+  }
+}
+
+@keyframes timeline {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(calc(-100% + 600px));
+  }
+}
+
+/* 👇 NEW SCROLL IMAGE ANIMATION 👇 */
+@keyframes scrollImage {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.animate-scrollImage {
+  animation: scrollImage 20s linear infinite;
+}
+
+/* 👇 NEW FADE IN UP ANIMATION 👇 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.8s ease forwards;
+  opacity: 0; /* Hide initially */
+}
+
+/* Animation delays */
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+.delay-400 {
+  animation-delay: 0.4s;
+}
+
+.delay-500 {
+  animation-delay: 0.5s;
+}
+
+.delay-600 {
+  animation-delay: 0.6s;
+}
+
+.delay-700 {
+  animation-delay: 0.7s;
+}

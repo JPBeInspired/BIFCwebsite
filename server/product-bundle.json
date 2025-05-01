@@ -1,0 +1,66 @@
+{
+  "productName": "Personal Trainer Business Bundle",
+  "price": 499,
+  "regularPrice": 724,
+  "currency": "USD",
+  "description": "Transform your fitness business online with our comprehensive bundle designed for personal trainers and fitness professionals.",
+  "longDescription": "In 2024 and beyond, your digital presence is your storefront. This bundle gives you everything you need to build a professional online coaching business that stands out and converts followers into paying clients.",
+  "items": [
+    {
+      "name": "Professional Landing Page",
+      "value": 249,
+      "description": "A professionally designed landing page optimized for client conversion"
+    },
+    {
+      "name": "Social Media Content Templates (30-day pack)",
+      "value": 199,
+      "description": "Ready-to-use social media templates to maintain a consistent online presence"
+    },
+    {
+      "name": "Direct Inquiry Routing System",
+      "value": 149,
+      "description": "Automated system to capture and route client inquiries directly to you"
+    },
+    {
+      "name": "12 White-Labeled Healthy Recipes",
+      "value": 127,
+      "description": "Professionally designed recipe guides you can brand as your own"
+    }
+  ],
+  "targetAudience": [
+    "Personal Trainers ready to take their coaching business online",
+    "Fitness professionals looking to build a consistent brand presence",
+    "Coaches who want to save time on marketing and focus on clients"
+  ],
+  "process": [
+    {
+      "step": 1,
+      "title": "Purchase the bundle",
+      "description": "Get immediate access to all digital materials"
+    },
+    {
+      "step": 2,
+      "title": "Set up your landing page",
+      "description": "We'll help you customize your professional page"
+    },
+    {
+      "step": 3,
+      "title": "Implement the marketing systems",
+      "description": "Follow our guides to set up your client acquisition funnel"
+    },
+    {
+      "step": 4,
+      "title": "Start growing your business",
+      "description": "Use the templates and systems to consistently attract new clients"
+    }
+  ],
+  "notes": "This bundle does not include ongoing website hosting costs or domain registration.",
+  "guarantee": {
+    "days": 30,
+    "description": "We're so confident in the value of this bundle that we offer a 30-day satisfaction guarantee. If you're not completely satisfied, we'll work with you to make it right."
+  },
+  "callToAction": "GET STARTED NOW",
+  "productId": "pt-business-bundle-2024",
+  "category": "Digital Products",
+  "tags": ["fitness business", "personal trainer", "digital marketing", "landing page", "social media"]
+} 
