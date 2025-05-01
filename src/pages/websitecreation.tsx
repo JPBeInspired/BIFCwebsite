@@ -186,9 +186,8 @@ export default function WebsiteCreation() {
             <div className="text-left max-w-2xl mx-auto space-y-6">
               {[
                 { title: 'Professional Landing Page', value: '$199', extra: '' },
-                { title: 'Social Media Content Templates (+1500 ready to go templates)', value: '$78', extra: '' },
+                { title: 'Social Media Content Templates (+1500 ready to go templates)', value: '$151', extra: '' },
                 { title: 'Direct Inquiry Routing System', value: '$149', extra: '' },
-                { title: '12 White-Labeled Healthy Recipes', value: '$73', extra: '' }
               ].map((item, index) => (
                 <div key={index} className={`flex items-start space-x-4 animate-fadeInUp delay-${(index + 2) * 100}`}>
                   <span className="text-green-400 text-2xl">✅</span>
