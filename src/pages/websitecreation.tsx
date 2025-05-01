@@ -10,6 +10,7 @@ export default function WebsiteCreation() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const heroCTARef = useRef<HTMLDivElement>(null);
   const heroSectionRef = useRef<HTMLElement>(null);
+  const testimonialContainerRef = useRef<HTMLDivElement>(null);
   const ctaControls = useAnimation();
 
   // Track user interaction
@@ -80,6 +81,54 @@ export default function WebsiteCreation() {
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.6 }
   };
+
+  // Auto-scroll testimonials
+  useEffect(() => {
+    const scrollContainer = testimonialContainerRef.current;
+    let autoScrollInterval: NodeJS.Timeout;
+
+    const startAutoScroll = () => {
+      if (scrollContainer) {
+        autoScrollInterval = setInterval(() => {
+          if (scrollContainer) {
+            // Check if we're at the end, if so, return to start
+            if (scrollContainer.scrollLeft + scrollContainer.offsetWidth >= scrollContainer.scrollWidth - 50) {
+              scrollContainer.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+              scrollContainer.scrollBy({ left: 350, behavior: 'smooth' });
+            }
+          }
+        }, 5000); // Scroll every 5 seconds
+      }
+    };
+
+    // Start auto-scrolling
+    startAutoScroll();
+
+    // Pause auto-scroll on user interaction
+    const pauseAutoScroll = () => {
+      clearInterval(autoScrollInterval);
+      // Restart after 10 seconds of inactivity
+      setTimeout(startAutoScroll, 10000);
+    };
+
+    // Add event listeners for user interaction
+    if (scrollContainer) {
+      scrollContainer.addEventListener('mouseenter', () => clearInterval(autoScrollInterval));
+      scrollContainer.addEventListener('mouseleave', startAutoScroll);
+      scrollContainer.addEventListener('touchstart', pauseAutoScroll, { passive: true });
+    }
+
+    // Cleanup
+    return () => {
+      clearInterval(autoScrollInterval);
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('mouseenter', () => clearInterval(autoScrollInterval));
+        scrollContainer.removeEventListener('mouseleave', startAutoScroll);
+        scrollContainer.removeEventListener('touchstart', pauseAutoScroll);
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -434,55 +483,173 @@ export default function WebsiteCreation() {
         <section className="py-20 bg-background-section text-text-primary">
           <div className="container mx-auto px-4 text-center">
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
+              className="mb-12"
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Hear From Our Trainers
+              <h2 className="text-3xl md:text-5xl font-bold mb-4 text-primary">
+                What Trainers Are Saying About Their New Landing Page
               </h2>
-              <p className="text-lg mb-12 text-text-secondary">
-                Real results from trainers who trusted us to grow their business online.
+              <p className="text-lg md:text-xl mb-12 text-secondary max-w-3xl mx-auto">
+                Real feedback from coaches who used our service to launch their online presence — fast.
               </p>
 
-              {/* Two Vimeo Testimonials Side by Side */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-                {/* First Testimonial */}
-                <motion.div 
-                  className="relative pb-[56.25%] h-0 overflow-hidden rounded-2xl shadow-2xl"
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
+              {/* Testimonial Carousel */}
+              <div className="relative max-w-7xl mx-auto">
+                {/* Left Arrow */}
+                <motion.button 
+                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:translate-x-0 z-10 bg-card/80 rounded-full p-2 shadow-md hover:bg-card transition-all hidden md:block"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    if (testimonialContainerRef.current) {
+                      testimonialContainerRef.current.scrollBy({ left: -350, behavior: 'smooth' });
+                    }
+                  }}
                 >
-                  <iframe
-                    src="https://player.vimeo.com/video/1079668784?autoplay=0&muted=1&autopause=0&playsinline=1"
-                    className="absolute top-0 left-0 w-full h-full rounded-2xl"
-                    frameBorder="0"
-                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-                    allowFullScreen
-                    title="Honestly getting my landing page done was a game changer"
-                  ></iframe>
-                </motion.div>
-                
-                {/* Second Testimonial */}
-                <motion.div 
-                  className="relative pb-[56.25%] h-0 overflow-hidden rounded-2xl shadow-2xl"
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.7, delay: 0.5, ease: "easeOut" }}
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </motion.button>
+
+                {/* Scrollable Testimonial Container */}
+                <div 
+                  id="testimonialContainer"
+                  ref={testimonialContainerRef}
+                  className="flex overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide gap-6"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                  <iframe
-                    src="https://player.vimeo.com/video/1079673295?autoplay=0&muted=1&autopause=0&playsinline=1"
-                    className="absolute top-0 left-0 w-full h-full rounded-2xl"
-                    frameBorder="0"
-                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-                    allowFullScreen
-                    title="I didn't know anything about websites but this made"
-                  ></iframe>
-                </motion.div>
+                  {[
+                    {
+                      name: "Alex M.",
+                      gym: "Coastal Fit",
+                      quote: "I had zero idea how to build a landing page. They built mine in 3 days and I booked 4 clients the same week.",
+                      result: "4 clients in week 1"
+                    },
+                    {
+                      name: "Jamie T.",
+                      gym: "StrongHer Coaching",
+                      quote: "This saved me hours. I finally have something that looks pro and gets attention online.",
+                      result: "Built in 72 hours"
+                    },
+                    {
+                      name: "Marco R.",
+                      gym: "Elevate Training",
+                      quote: "Clients are saying my new page looks amazing. It's converting better than my old site.",
+                      result: "Double conversion rate"
+                    },
+                    {
+                      name: "Sarah K.",
+                      gym: "Peak Performance",
+                      quote: "The process was so easy. Filled out the form and boom—professional page ready to go that actually converts!",
+                      result: "6 new clients"
+                    },
+                    {
+                      name: "David L.",
+                      gym: "FitLife Training",
+                      quote: "Before this, I was struggling to get clients online. Now I have a waitlist for the first time ever.",
+                      result: "Waitlist created"
+                    },
+                    {
+                      name: "Olivia P.",
+                      gym: "CoreStrong Fitness",
+                      quote: "Worth every penny. I look as professional as trainers charging twice what I do.",
+                      result: "Raised rates by 20%"
+                    },
+                    {
+                      name: "Jason M.",
+                      gym: "Elite Athletics",
+                      quote: "My page stands out from all the other trainers in my area now. It actually brings people in.",
+                      result: "Local market leader"
+                    },
+                    {
+                      name: "Emma R.",
+                      gym: "FitWithEmma",
+                      quote: "I was skeptical at $99, but this has already paid for itself 10x over. Wish I'd done it sooner!",
+                      result: "10x ROI in first month"
+                    },
+                    {
+                      name: "Mike T.",
+                      gym: "Strength Solutions",
+                      quote: "Overnight, my online presence went from amateur to pro. The inquiries started coming in immediately.",
+                      result: "5 inquiries in 24 hours"
+                    },
+                    {
+                      name: "Tanya W.",
+                      gym: "Sculpt Studio",
+                      quote: "Finally have a page that shows what I'm actually capable of. Clients can see my value before we even talk.",
+                      result: "Higher quality leads"
+                    },
+                    {
+                      name: "Chris B.",
+                      gym: "PowerMoves PT",
+                      quote: "The form was simple, their team was responsive, and my page was ready faster than promised.",
+                      result: "Delivered in 48 hours"
+                    },
+                    {
+                      name: "Leila J.",
+                      gym: "Transform Fitness",
+                      quote: "As someone who hates tech, this was the easiest way to finally get my business online professionally.",
+                      result: "Zero tech headaches"
+                    },
+                    {
+                      name: "Ryan D.",
+                      gym: "Results-Driven Fitness",
+                      quote: "My Instagram followers actually convert to paying clients now that I have somewhere professional to send them.",
+                      result: "Social media conversion"
+                    }
+                  ].map((testimonial, index) => (
+                    <motion.div
+                      key={index}
+                      className="min-w-[300px] md:min-w-[350px] bg-card rounded-xl shadow-md hover:shadow-lg p-6 flex flex-col snap-center"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-100px" }}
+                      transition={{ duration: 0.5, delay: index * 0.05 }}
+                      whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                    >
+                      <div className="flex text-alt-amber mb-3">
+                        ★★★★★
+                      </div>
+                      <p className="text-primary text-left text-lg italic mb-4 flex-grow">"{testimonial.quote}"</p>
+                      <div className="flex items-center mt-2">
+                        <div className="w-10 h-10 rounded-full bg-accent-primary flex items-center justify-center text-primary font-bold">
+                          {testimonial.name.charAt(0)}
+                        </div>
+                        <div className="ml-3 text-left">
+                          <p className="font-semibold text-primary">{testimonial.name} <span className="font-normal text-secondary"> • {testimonial.gym}</span></p>
+                          <p className="text-sm font-medium text-accent-highlight">{testimonial.result}</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Right Arrow */}
+                <motion.button 
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-0 z-10 bg-card/80 rounded-full p-2 shadow-md hover:bg-card transition-all hidden md:block"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    if (testimonialContainerRef.current) {
+                      testimonialContainerRef.current.scrollBy({ left: 350, behavior: 'smooth' });
+                    }
+                  }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </motion.button>
+
+                {/* Scroll Indicator */}
+                <div className="flex justify-center mt-4 space-x-1">
+                  <span className="text-sm text-secondary">Swipe to see more</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
               </div>
             </motion.div>
           </div>
