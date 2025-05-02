@@ -161,7 +161,7 @@ export const PRODUCTS: { [key: string]: Product } = {
       'website-creation',
       'online-coaching-bundle'
     ],
-    checkoutUrl: 'https://buy.stripe.com/pt-starter-pack'
+    checkoutUrl: 'https://buy.stripe.com/6oE7tCe0Q6oPaw84gm'
   },
   'website-creation': {
     id: 'website-creation',
