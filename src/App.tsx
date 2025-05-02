@@ -23,6 +23,7 @@ import PromotionalBanner from './components/PromotionalBanner';
 import ScrollToTop from './components/ScrollToTop';
 import WebsiteCreation from './pages/websitecreation';
 import WebsiteCreationPaymentConfirmation from './pages/websitecreationpaymentconfirmation';
+import PTStarterPack from './pages/PTStarterPack';
 
 function AppContent() {
   const { showPromotion, togglePromotion } = usePromotional();
@@ -57,6 +58,7 @@ function AppContent() {
             <Route path="/admin/edit-blog/:id" element={<BlogForm />} />
             <Route path="/websitecreation" element={<WebsiteCreation />} />
             <Route path="/websitecreation/payment-confirmation" element={<WebsiteCreationPaymentConfirmation />} />
+            <Route path="/pt-starter-pack" element={<PTStarterPack />} />
           </Routes>
         </main>
         <PromotionalBanner />

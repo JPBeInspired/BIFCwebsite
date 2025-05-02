@@ -63,6 +63,106 @@ export interface Product {
 
 // Define all products
 export const PRODUCTS: { [key: string]: Product } = {
+  'pt-starter-pack': {
+    id: 'pt-starter-pack',
+    name: 'Personal Trainer Starter Pack',
+    hook: 'The ultimate toolkit to launch your PT business with confidence and professionalism.',
+    description: 'The PT Starter Pack is an all-in-one digital bundle featuring 20+ professionally designed, fully editable Canva templates tailored for new and experienced Personal Trainers.',
+    detailedDescription: 'The PT Starter Pack is an all-in-one digital bundle featuring 20+ professionally designed, fully editable Canva templates tailored for new and experienced Personal Trainers. These templates are built to help you streamline onboarding, automate client management, showcase your services, and instantly upgrade your brand. From service pricing sheets to social media content, client forms, and done-for-you training programs — it\'s everything you need to start strong and grow faster.',
+    price: 39.99,
+    category: 'business',
+    image: 'https://i.imgur.com/nOXf3RT.png',
+    forProfessionals: true,
+    rating: 4.8,
+    usersCount: 250,
+    inStock: true,
+    personas: ['trainer'],
+    tags: ['new', 'business', 'templates'],
+    specifications: [
+      { name: 'Type', value: 'Digital Bundle' },
+      { name: 'Format', value: 'Canva Templates' },
+      { name: 'Templates', value: '20+ Professional Templates' },
+      { name: 'Customization', value: 'Fully Editable in Canva' },
+      { name: 'Delivery', value: 'Instant Download' },
+      { name: 'Support', value: 'Email Support Included' }
+    ],
+    features: [
+      {
+        title: 'Client Onboarding Tools',
+        description: 'Welcome packs, contracts, invoices & more',
+        icon: FileText
+      },
+      {
+        title: 'Training Program Templates',
+        description: 'Ready-to-use workout programs for clients',
+        icon: Dumbbell
+      },
+      {
+        title: 'Social Media Templates',
+        description: 'Professional IG posts, reels & stories',
+        icon: Palette
+      },
+      {
+        title: 'Tracking & Goal Tools',
+        description: 'Client progress tracking made simple',
+        icon: Target
+      }
+    ],
+    includes: [
+      'Client Onboarding Pack (Welcome Pack, Goodbye Pack, Contract, Invoice)',
+      'Services & Pricing Sheet Template',
+      'Business Card Template',
+      'Client Forms (PAR-Q, Questionnaire)',
+      'Workout Program Templates (Male & Female versions)',
+      'Social Media Templates (IG Posts, Reels, Stories)',
+      'Weight Loss Tracker Template'
+    ],
+    perfectFor: [
+      'New Personal Trainers just starting their business',
+      'Aspiring coaches looking to fast-track their setup',
+      'Solo PTs who want to save time and look polished',
+      'Experienced PTs who want to refresh their brand',
+      'Fitness business managers helping trainers onboard'
+    ],
+    notFor: [
+      'Trainers who prefer creating everything from scratch',
+      'Those not using Canva for their design work',
+      'Businesses needing completely custom branding'
+    ],
+    faqs: [
+      {
+        question: 'How does the product work?',
+        answer: 'Open the PDF and click on any template button. You\'ll be taken to a Canva preview page — no Canva Pro required. Click "Use Template", customize with your brand, and you\'re done.'
+      },
+      {
+        question: 'Do I need Canva Pro to use these templates?',
+        answer: 'No, you can use these templates with a free Canva account. Some premium Canva elements may require a Canva Pro subscription if you want to customize further.'
+      },
+      {
+        question: 'Can I reuse the templates for multiple clients?',
+        answer: 'Yes! The templates can be reused again and again for different clients or promotions, giving you endless value.'
+      },
+      {
+        question: 'Can I resell this product?',
+        answer: 'This pack can be resold or bundled as part of a PT coaching course, mentorship offer, or onboarding toolkit for gym chains.'
+      }
+    ],
+    gallery: [
+      'https://i.imgur.com/nOXf3RT.png',
+      'https://i.imgur.com/NGamAGW.png',
+      'https://i.imgur.com/hMYbAmi.png',
+      'https://i.imgur.com/kWcHlcx.png',
+      'https://i.imgur.com/nxesBTW.png',
+      'https://i.imgur.com/4vEnQzG.png',
+      'https://i.imgur.com/bltP0f3.png',
+      'https://i.imgur.com/1g7LVJF.png'      
+    ],
+    relatedProducts: [
+      'website-creation',
+      'online-coaching-bundle'
+    ],
+    checkoutUrl: 'https://buy.stripe.com/pt-starter-pack'
+  },
   'website-creation': {
     id: 'website-creation',
     name: 'Professional Landing Page for Personal Trainers',
@@ -157,7 +257,8 @@ export const PRODUCTS: { [key: string]: Product } = {
     ],
     relatedProducts: [
       'online-coaching-bundle',
-      'pt-business-toolkit'
+      'pt-business-toolkit',
+      'pt-starter-pack'
     ],
     checkoutUrl: 'https://buy.stripe.com/dR69BK9KA3cD8o0cMR'
   },
@@ -225,6 +326,10 @@ export const PRODUCTS: { [key: string]: Product } = {
       'Trainers not ready to commit to online coaching',
       'Those who prefer to create everything from scratch',
       'Businesses needing complex e-commerce solutions'
+    ],
+    relatedProducts: [
+      'website-creation',
+      'pt-starter-pack'
     ]
   },
   'ultimate-beginners-guide': {
