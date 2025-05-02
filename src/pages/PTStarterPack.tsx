@@ -87,7 +87,7 @@ export default function PTStarterPack() {
         <title>Personal Trainer Starter Pack - The Ultimate PT Business Templates</title>
         <meta 
           name="description" 
-          content="Launch your PT business with confidence using 20+ professionally designed, editable Canva templates. The ultimate toolkit for new and experienced Personal Trainers."
+          content="Launch your PT business with confidence using professionally designed, editable Canva templates. The ultimate toolkit for new and experienced Personal Trainers."
         />
       </Helmet>
 
@@ -121,7 +121,7 @@ export default function PTStarterPack() {
                   onClick={scrollToCTA}
                 >
                   <span className="animate-pulse h-2 w-2 bg-white rounded-full"></span>
-                  ✨ 20+ Pro Templates for Personal Trainers
+                  ✨ Professional Templates for Personal Trainers
                 </motion.span>
                 <h1 className="text-5xl md:text-7xl font-bold text-text-primary mb-6 leading-tight">
                   The Ultimate Starter Pack for Personal Trainers
@@ -525,7 +525,7 @@ export default function PTStarterPack() {
                 Ready to Launch Your PT Business Like a Pro?
               </h2>
               <p className="text-lg md:text-xl text-blue-50 mb-10 max-w-3xl mx-auto">
-                Get instant access to 20+ professional templates built for trainers who want to save time, look polished, and grow faster.
+                Get instant access to professional templates built for trainers who want to save time, look polished, and grow faster.
               </p>
 
               <motion.div
