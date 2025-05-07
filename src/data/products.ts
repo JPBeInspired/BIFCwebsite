@@ -8,7 +8,8 @@ import {
   Video, 
   FileText, 
   Building2, 
-  Users 
+  Users,
+  CheckCircle
 } from 'lucide-react';
 
 // Define Product types
@@ -379,6 +380,63 @@ export const PRODUCTS: { [key: string]: Product } = {
         icon: Users
       }
     ]
+  },
+  'pt-intro-offer': {
+    id: 'pt-intro-offer',
+    name: "3 x Online Personal Training Sessions – Only $99",
+    hook: "Limited-time: 3 x 30-minute Online PT sessions for just $99 (normally $199). No commitment, no upsells. Only 20 spots available!",
+    description: "Kickstart your fitness journey with 3 x 1:1 online personal training sessions. Get expert support, a personalized assessment, and real results – risk-free.",
+    detailedDescription: "This exclusive intro offer gives you three 30-minute sessions with a certified personal trainer. You'll get a personalised fitness and goal assessment, expert advice on technique and motivation, and a chance to try PT with no pressure to continue. Limited to the first 20 people only.",
+    price: 99,
+    originalPrice: 199,
+    category: 'programs',
+    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=1920',
+    forProfessionals: false,
+    rating: 4.9,
+    usersCount: 500,
+    inStock: true,
+    personas: ['individual'],
+    tags: ['intro', 'personal training', 'limited'],
+    features: [
+      { title: '3 x 30-minute 1:1 Online Sessions', description: 'Work directly with a certified PT', icon: Dumbbell },
+      { title: 'Personalised Assessment', description: 'Get a fitness and goal review', icon: Target },
+      { title: 'Expert Technique Coaching', description: 'Learn proper form and structure', icon: Brain },
+      { title: 'No Commitment', description: 'Try PT risk-free, no upsells', icon: CheckCircle }
+    ],
+    includes: [
+      '3 x 30-minute 1:1 online sessions',
+      'Personalised fitness and goal assessment',
+      'Expert advice on technique, training, and motivation',
+      'No upsells or hidden extras'
+    ],
+    perfectFor: [
+      'New to the gym or unsure where to start',
+      'Returning to training after time off',
+      'Struggling with motivation',
+      'Want to learn proper technique and structure',
+      'Curious about working with a PT, but not ready to commit long-term'
+    ],
+    notFor: [
+      'Those looking for a long-term commitment right away',
+      'People not interested in online coaching',
+      'Anyone wanting in-person only sessions'
+    ],
+    faqs: [
+      { question: 'Is this really only $99?', answer: "Yes! This is a genuine, limited-time offer for new clients. You get 3 x 30-minute sessions for just $99 (normally $199)." },
+      { question: 'Will I be pressured to buy more sessions?', answer: "Nope. This is a no-obligation, risk-free intro offer. It is up to you if you want to continue with a PT after the 3 sessions." },
+      { question: 'How quickly can I start?', answer: "You'll be matched with a trainer and can usually book your first session within a few days of purchase." },
+      { question: 'Can I choose my trainer?', answer: "We'll do our best to match you with a trainer who fits your goals and preferences. You can always request a change if needed." },
+      { question: 'Do I need gym access?', answer: 'No – we have trainers who can work with you in a gym, outdoors, or even at home, depending on your needs.' }
+    ],
+    gallery: [
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=1920',
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&q=80&w=800'
+    ],
+    relatedProducts: [
+      'pt-starter-pack',
+      'ultimate-beginners-guide'
+    ],
+    checkoutUrl: 'https://buy.stripe.com/7sI4hqaOE3cDbAcbIP'
   }
 };
 

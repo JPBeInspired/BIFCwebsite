@@ -136,10 +136,10 @@ export default function PTIntroOffer() {
   return (
     <>
       <Helmet>
-        <title>3 x Online Personal Training Sesssions – Only $99 | Be Inspired Fitness</title>
+        <title>3 x Online Personal Training Coaching Sesssions – Only $99 | Be Inspired Fitness</title>
         <meta
           name="description"
-          content="Claim 3 x 30-minute Online PT sessions for just $99 (normally $199). Limited to the first 20 people. No commitment, no upsells. Start your fitness journey with expert support!"
+          content="Claim 3 x 30-minute Online PT Coaching Sessions for just $99 (normally $199). Limited to the first 20 people. No commitment, no upsells. Spend 3 sessions with an expert online coach — discuss your goals, training questions, nutrition, your current program, and anything else you need to move forward with confidence."
         />
       </Helmet>
       <div className="min-h-screen bg-background-main">
@@ -177,7 +177,7 @@ export default function PTIntroOffer() {
                   🚨 Only 20 Spots Available
                 </motion.span>
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-text-primary mb-6 leading-tight">
-                  🔥 3 Online PT sessions for $99 – Normally $199
+                  🔥 3 Online PT coaching sessions for $99 – Normally $199
                 </h1>
                 <p className="text-xl text-text-secondary mb-8 max-w-2xl leading-relaxed">
                   Start your fitness journey with expert support – no hidden fees, no commitment.
@@ -192,9 +192,9 @@ export default function PTIntroOffer() {
                   >
                     <a
                       href="https://buy.stripe.com/7sI4hqaOE3cDbAcbIP"
-                      className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-gradient-to-r from-blue-500 to-teal-400 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out hover:ring-2 hover:ring-offset-2 hover:ring-teal-400"
+                      className="inline-flex items-center justify-center px-12 py-6 text-2xl font-bold text-white bg-gradient-to-r from-blue-500 to-teal-400 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out hover:ring-2 hover:ring-offset-2 hover:ring-teal-400"
                     >
-                      Claim My 3 Sessions – $99
+                      Claim My 3 coaching Sessions NOW – $99
                     </a>
                   </motion.div>
                 </div>
@@ -236,10 +236,10 @@ export default function PTIntroOffer() {
             </h2>
             <div className="text-left max-w-xl mx-auto space-y-6">
               {[ 
-                { icon: <CheckCircle className="text-accent-primary w-7 h-7 mr-3 inline" />, text: '3 x 30-minute 1:1 Online sessions with a certified personal trainer' },
-                { icon: <CheckCircle className="text-accent-primary w-7 h-7 mr-3 inline" />, text: 'Personalised fitness and goal assessment' },
-                { icon: <CheckCircle className="text-accent-primary w-7 h-7 mr-3 inline" />, text: 'Expert advice on technique, training, and motivation' },
-                { icon: <CheckCircle className="text-accent-primary w-7 h-7 mr-3 inline" />, text: 'Try PT risk-free – no upsells or hidden extras' },
+                { icon: <CheckCircle className="text-accent-primary w-7 h-7 mr-3 inline" />, text: '3 x 30-minute 1:1 Online coaching sessions with a certified personal trainer' },
+                { icon: <CheckCircle className="text-accent-primary w-7 h-7 mr-3 inline" />, text: 'Tailored and customised support personal to you' },
+                { icon: <CheckCircle className="text-accent-primary w-7 h-7 mr-3 inline" />, text: 'Expert advice on technique, training, nutrition and motivation' },
+                { icon: <CheckCircle className="text-accent-primary w-7 h-7 mr-3 inline" />, text: 'No upsells or hidden extras' },
               ].map((item, idx) => (
                 <div key={idx} className="flex items-start text-lg">
                   {item.icon}
@@ -258,10 +258,10 @@ export default function PTIntroOffer() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               {[
                 { icon: <User className="text-accent-primary w-7 h-7 mb-2" />, text: 'New to the gym or unsure where to start' },
-                { icon: <Dumbbell className="text-accent-primary w-7 h-7 mb-2" />, text: 'Returning to training after time off' },
+                { icon: <Dumbbell className="text-accent-primary w-7 h-7 mb-2" />, text: 'Looking for nutritional advice' },
                 { icon: <Target className="text-accent-primary w-7 h-7 mb-2" />, text: 'Struggling with motivation' },
                 { icon: <Clock className="text-accent-primary w-7 h-7 mb-2" />, text: 'Want to learn proper technique and structure' },
-                { icon: <Users className="text-accent-primary w-7 h-7 mb-2" />, text: 'Curious about working with a PT, but not ready to commit long-term' },
+                { icon: <Users className="text-accent-primary w-7 h-7 mb-2" />, text: 'Struggling with acheiving your goals' },
               ].map((item, idx) => (
                 <div key={idx} className="flex items-center gap-4 bg-background-section rounded-xl p-6 shadow-md">
                   {item.icon}
@@ -269,6 +269,23 @@ export default function PTIntroOffer() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+        {/* Mid-Page CTA Section */}
+        <section className="py-16 px-4 bg-background-main text-white text-center relative overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 bg-gradient-to-r from-background-main/95 via-background-main/80 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background-main via-background-main/50 to-transparent" />
+          </div>
+          <div className="relative max-w-2xl mx-auto z-10">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">Ready to Get Started?</h2>
+            <p className="text-lg mb-8 text-accent-primary font-semibold">Only 20 spots available. Don't miss your chance to claim this exclusive intro offer!</p>
+            <a
+              href="https://buy.stripe.com/7sI4hqaOE3cDbAcbIP"
+              className="inline-flex items-center justify-center px-12 py-6 text-2xl font-bold text-white bg-gradient-to-r from-blue-500 to-teal-400 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out hover:ring-2 hover:ring-offset-2 hover:ring-teal-400"
+            >
+              Claim My 3 Coaching Sessions NOW – $99
+            </a>
           </div>
         </section>
         {/* How It Works */}
@@ -281,7 +298,7 @@ export default function PTIntroOffer() {
               {[
                 { num: 1, title: 'Purchase your $99 intro pack', desc: 'Secure your spot with our limited-time Stripe checkout.' },
                 { num: 2, title: 'Complete a quick form after checkout', desc: 'Tell us your goals and preferences.' },
-                { num: 3, title: `We'll match you with a certified PT to schedule your sessions`, desc: 'All our coaches are fully qualified and insured.' },
+                { num: 3, title: `We'll match you with a certified PT to schedule your coaching sessions`, desc: 'All our coaches are fully qualified and insured.' },
               ].map((item, idx) => (
                 <div key={idx} className="flex-1 bg-background-main rounded-xl p-6 shadow-md flex flex-col items-center text-center">
                   <div className="w-12 h-12 flex items-center justify-center rounded-full bg-accent-primary text-background-main text-2xl font-bold mb-4">
@@ -301,10 +318,10 @@ export default function PTIntroOffer() {
         <section className="py-16 px-6 bg-background-main text-text-primary">
           <div className="max-w-5xl mx-auto text-center">
             <h2 className="text-3xl sm:text-4xl font-extrabold mb-8 leading-tight">
-              Trusted by Over 500 Clients
+              Trusted by Over 5000 Clients
             </h2>
             <p className="text-lg md:text-xl mb-12 text-secondary max-w-3xl mx-auto">
-              Real feedback from clients who have transformed their fitness with our online PT sessions.
+              Real feedback from clients who have transformed their fitness with our online PT coaching sessions.
             </p>
             
             {/* Infinite Scroll Testimonial Container */}
@@ -327,7 +344,7 @@ export default function PTIntroOffer() {
                     location: "Melbourne",
                     quote: [
                       "I got great advice on how to improve my technique",
-                      "and get more out of my training in the 3 sessions.",
+                      "and get more out of my training in the 3 coaching sessions.",
                       "No pressure, no sales pitch – just great coaching."
                     ],
                     result: "Fixed running form"
@@ -499,11 +516,11 @@ export default function PTIntroOffer() {
               {[
                 {
                   q: 'Is this really only $99?',
-                  a: 'Yes! This is a genuine, limited-time offer for new clients. You get 3 x 30-minute sessions for just $99 (normally $199).',
+                  a: 'Yes! This is a genuine, limited-time offer for new clients. You get 3 x 30-minute coaching sessions for just $99 (normally $199).',
                 },
                 {
-                  q: 'Will I be pressured to buy more sessions?',
-                  a: 'Nope. This is a no-obligation, risk-free intro offer. It is up to you if you want to continue with a PT after the 3 sessions.',
+                  q: 'Will I be pressured to buy more coaching sessions?',
+                  a: 'Nope. This is a no-obligation, risk-free intro offer. It is up to you if you want to continue with a PT after the 3 coachingsessions.',
                 },
                 {
                   q: 'How quickly can I start?',
@@ -571,7 +588,7 @@ export default function PTIntroOffer() {
                   href="https://buy.stripe.com/7sI4hqaOE3cDbAcbIP"
                   className="block w-full sm:w-auto sm:inline-block px-10 py-5 bg-gradient-to-r from-yellow-400 to-yellow-500 text-blue-900 text-xl font-bold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out hover:ring-4 hover:ring-white/30"
                 >
-                  ⚡ Claim My 3 Online PT Sessions
+                  ⚡ Claim My 3 Online PT Coaching Sessions NOW
                 </a>
               </motion.div>
               
@@ -582,12 +599,26 @@ export default function PTIntroOffer() {
                 
                 <div className="flex items-center justify-center space-x-1 text-sm">
                   <span>⭐⭐⭐⭐⭐</span>
-                  <span className="font-medium">4.9/5 based on 500+ client reviews</span>
+                  <span className="font-medium">4.9/5 based on 5000+ client reviews</span>
                 </div>
               </div>
             </motion.div>
           </div>
         </section>
+        {/* Business Info - small print */}
+        <div className="mt-8 text-xs text-blue-100 text-center opacity-80 select-none">
+          <div>ABN 93 153 967 483</div>
+          <div>84 Pier Street, Altona, VIC 3018</div>
+          <div>0428 187 895</div>
+          <div className="flex justify-center gap-4 mt-2">
+            <a href="https://www.facebook.com/BeInspiredFitnessAndCoaching" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors" aria-label="Facebook">
+              <svg xmlns="http://www.w3.org/2000/svg" className="inline h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22.675 0h-21.35C.593 0 0 .593 0 1.326v21.348C0 23.406.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.127V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116C23.406 24 24 23.406 24 22.674V1.326C24 .593 23.406 0 22.675 0"/></svg>
+            </a>
+            <a href="https://www.instagram.com/beinspiredfitnessandcoaching/" target="_blank" rel="noopener noreferrer" className="hover:text-pink-400 transition-colors" aria-label="Instagram">
+              <svg xmlns="http://www.w3.org/2000/svg" className="inline h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.668-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            </a>
+          </div>
+        </div>
         {/* Mobile Sticky CTA Button */}
         {showStickyButton && (
           <div className={`fixed bottom-4 left-0 right-0 px-4 sm:hidden z-50 animate-fadeInUpSmall ${shakeButton ? 'animate-shakeSmall' : ''}`}>
@@ -613,7 +644,7 @@ export default function PTIntroOffer() {
                 rel="noopener noreferrer"
                 className="block w-full text-center bg-gradient-to-r from-blue-500 to-teal-400 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out hover:ring-2 hover:ring-teal-400"
               >
-                Claim My 3 PT Sessions – $99
+                Claim My 3 PT Sessions NOW – $99
               </a>
             </motion.div>
           </div>
