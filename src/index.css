@@ -153,7 +153,7 @@
     transform: translateX(0);
   }
   100% {
-    transform: translateX(calc(-100% - 2rem));
+    transform: translateX(-50%);
   }
 }
 
@@ -233,4 +233,14 @@
 
 .delay-700 {
   animation-delay: 0.7s;
+}
+
+.animate-scroll {
+  animation: scroll 45s linear infinite;
+  display: flex;
+  width: max-content;
+}
+
+.animate-scroll:hover {
+  animation-play-state: paused;
 }
