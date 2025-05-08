@@ -26,6 +26,7 @@ import WebsiteCreation from './pages/websitecreation';
 import WebsiteCreationPaymentConfirmation from './pages/websitecreationpaymentconfirmation';
 import PTStarterPack from './pages/PTStarterPack';
 import PTIntroOffer from './pages/PTIntroOffer';
+import PTIntroOfferF from './pages/PTIntroOfferPlum';
 
 function AppContent() {
   const { showPromotion, togglePromotion } = usePromotional();
@@ -37,7 +38,7 @@ function AppContent() {
   }, [showPromotion, togglePromotion]);
 
   // Determine which navigation to show
-  const isPTIntroOffer = location.pathname.toLowerCase() === '/ptintrooffer';
+  const isPTIntroOffer = location.pathname.toLowerCase() === '/ptintrooffer' || location.pathname.toLowerCase() === '/ptintroofferf';
   const Navigation = isPTIntroOffer ? SimpleNav : Navbar;
 
   return (
@@ -67,6 +68,7 @@ function AppContent() {
             <Route path="/websitecreation/payment-confirmation" element={<WebsiteCreationPaymentConfirmation />} />
             <Route path="/pt-starter-pack" element={<PTStarterPack />} />
             <Route path="/ptintrooffer" element={<PTIntroOffer />} />
+            <Route path="/ptintroofferf" element={<PTIntroOfferF />} />
           </Routes>
         </main>
         <PromotionalBanner />
