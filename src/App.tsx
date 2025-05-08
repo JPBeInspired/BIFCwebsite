@@ -39,7 +39,30 @@ function AppContent() {
 
   // Determine which navigation to show
   const isPTIntroOffer = location.pathname.toLowerCase() === '/ptintrooffer' || location.pathname.toLowerCase() === '/ptintroofferf';
-  const Navigation = isPTIntroOffer ? SimpleNav : Navbar;
+  
+  // Get color scheme based on route
+  const getNavColors = () => {
+    if (location.pathname.toLowerCase() === '/ptintrooffer') {
+      return {
+        bgColor: "bg-background-main/90",
+        textColor: "text-text-primary",
+        hoverColor: "hover:text-accent-primary"
+      };
+    } else if (location.pathname.toLowerCase() === '/ptintroofferf') {
+      return {
+        bgColor: "bg-rose-50/90",
+        textColor: "text-gray-900",
+        hoverColor: "hover:text-pink-500"
+      };
+    }
+    return {
+      bgColor: "bg-background-main/90",
+      textColor: "text-text-primary",
+      hoverColor: "hover:text-accent-primary"
+    };
+  };
+
+  const Navigation = isPTIntroOffer ? () => <SimpleNav {...getNavColors()} /> : Navbar;
 
   return (
     <>
