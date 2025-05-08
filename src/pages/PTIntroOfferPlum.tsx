@@ -273,17 +273,16 @@ export default function PTIntroOffer() {
           </div>
         </section>
         {/* Mid-Page CTA Section */}
-        <section className="py-16 px-4 bg-gradient-to-br from-pink-400 to-rose-500 text-white text-center relative overflow-hidden">
+        <section className="py-16 px-4 bg-white text-gray-900 text-center relative overflow-hidden">
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute inset-0 bg-gradient-to-r from-pink-400/95 via-pink-400/80 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-pink-400 via-pink-400/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-50 via-rose-50 to-pink-50" />
           </div>
           <div className="relative max-w-2xl mx-auto z-10">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">Ready to Get Started?</h2>
-            <p className="text-lg mb-8 text-white font-semibold">Only 20 spots available. Don't miss your chance to claim this exclusive intro offer!</p>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-900">Ready to Get Started?</h2>
+            <p className="text-lg mb-8 text-pink-600 font-semibold">Only 20 spots available. Don't miss your chance to claim this exclusive intro offer!</p>
             <a
               href="https://buy.stripe.com/7sI4hqaOE3cDbAcbIP"
-              className="inline-flex items-center justify-center px-12 py-6 text-2xl font-bold text-white bg-gradient-to-r from-pink-400 to-rose-500 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out hover:ring-2 hover:ring-offset-2 hover:ring-rose-400"
+              className="inline-flex items-center justify-center px-12 py-6 text-2xl font-bold text-white bg-gradient-to-r from-pink-500 to-rose-600 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out hover:ring-4 hover:ring-pink-200"
             >
               Claim My 3 Coaching Sessions NOW – $99
             </a>
@@ -545,7 +544,7 @@ export default function PTIntroOffer() {
           </div>
         </section>
         {/* Urgency CTA Section */}
-        <section className="py-24 md:py-32 bg-gradient-to-br from-pink-400 to-rose-500 text-white">
+        <section className="py-24 md:py-32 bg-gradient-to-br from-pink-500 to-rose-600 text-white">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <motion.div 
               className="max-w-2xl mx-auto" 
@@ -587,7 +586,7 @@ export default function PTIntroOffer() {
               >
                 <a 
                   href="https://buy.stripe.com/7sI4hqaOE3cDbAcbIP"
-                  className="block w-full sm:w-auto sm:inline-block px-10 py-5 bg-gradient-to-r from-pink-400 to-rose-500 text-white text-xl font-bold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out hover:ring-4 hover:ring-white/30"
+                  className="block w-full sm:w-auto sm:inline-block px-10 py-5 bg-white text-pink-600 text-xl font-bold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out hover:ring-4 hover:ring-pink-200"
                 >
                   ⚡ Claim My 3 Online PT Coaching Sessions NOW
                 </a>
