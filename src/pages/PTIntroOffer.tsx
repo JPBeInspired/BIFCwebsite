@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { motion, useAnimation } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
-import { ArrowDown, CheckCircle, Dumbbell, User, Target, Clock, Users } from 'lucide-react';
+import { ArrowDown, CheckCircle, Dumbbell, User, Target, Clock, Users, HeartPulse } from 'lucide-react';
 
 export default function PTIntroOffer() {
   const [showStickyButton, setShowStickyButton] = useState(false);
@@ -194,7 +194,7 @@ export default function PTIntroOffer() {
                       href="https://buy.stripe.com/7sI4hqaOE3cDbAcbIP"
                       className="inline-flex items-center justify-center px-12 py-6 text-2xl font-bold text-white bg-gradient-to-r from-blue-500 to-teal-400 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out hover:ring-2 hover:ring-offset-2 hover:ring-teal-400"
                     >
-                      Claim My 3 coaching Sessions NOW – $99
+                      Claim My 3 Coaching Sessions NOW – $99
                     </a>
                   </motion.div>
                 </div>
@@ -262,6 +262,8 @@ export default function PTIntroOffer() {
                 { icon: <Target className="text-accent-primary w-7 h-7 mb-2" />, text: 'Struggling with motivation' },
                 { icon: <Clock className="text-accent-primary w-7 h-7 mb-2" />, text: 'Want to learn proper technique and structure' },
                 { icon: <Users className="text-accent-primary w-7 h-7 mb-2" />, text: 'Struggling with acheiving your goals' },
+                { icon: <HeartPulse className="text-accent-primary w-7 h-7 mb-2" />, text: 'Want to improve your health, fitness, or lifestyle with expert support' },
+
               ].map((item, idx) => (
                 <div key={idx} className="flex items-center gap-4 bg-background-section rounded-xl p-6 shadow-md">
                   {item.icon}
@@ -520,7 +522,7 @@ export default function PTIntroOffer() {
                 },
                 {
                   q: 'Will I be pressured to buy more coaching sessions?',
-                  a: 'Nope. This is a no-obligation, risk-free intro offer. It is up to you if you want to continue with a PT after the 3 coachingsessions.',
+                  a: 'Nope. This is a no-obligation, risk-free intro offer. It is up to you if you want to continue with a PT after the 3 coaching sessions.',
                 },
                 {
                   q: 'How quickly can I start?',
@@ -599,7 +601,7 @@ export default function PTIntroOffer() {
                 
                 <div className="flex items-center justify-center space-x-1 text-sm">
                   <span>⭐⭐⭐⭐⭐</span>
-                  <span className="font-medium">4.9/5 based on 5000+ client reviews</span>
+                  <span className="font-medium">4.8/5 based on 5000+ client reviews</span>
                 </div>
               </div>
             </motion.div>
@@ -607,6 +609,7 @@ export default function PTIntroOffer() {
         </section>
         {/* Business Info - small print */}
         <div className="mt-8 text-xs text-blue-100 text-center opacity-80 select-none">
+          <div>Be Inspired Fitenss and Coaching PTY LTD</div>
           <div>ABN 93 153 967 483</div>
           <div>84 Pier Street, Altona, VIC 3018</div>
           <div>0428 187 895</div>

@@ -1,8 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { HelmetProvider } from 'react-helmet-async';
 import Navbar from './components/Navbar';
+import SimpleNav from './components/SimpleNav';
 import Home from './pages/Home';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -28,17 +29,22 @@ import PTIntroOffer from './pages/PTIntroOffer';
 
 function AppContent() {
   const { showPromotion, togglePromotion } = usePromotional();
+  const location = useLocation();
 
   useEffect(() => {
     showPromotion('Use code', 'BIFC50');
     togglePromotion(false);
   }, [showPromotion, togglePromotion]);
 
+  // Determine which navigation to show
+  const isPTIntroOffer = location.pathname.toLowerCase() === '/ptintrooffer';
+  const Navigation = isPTIntroOffer ? SimpleNav : Navbar;
+
   return (
-    <Router>
+    <>
       <ScrollToTop />
       <div className="min-h-screen bg-background-main">
-        <Navbar />
+        <Navigation />
         <main>
           <Routes>
             <Route path="/" element={<Home />} />
@@ -66,7 +72,7 @@ function AppContent() {
         <PromotionalBanner />
         <Toaster position="top-right" />
       </div>
-    </Router>
+    </>
   );
 }
 
@@ -75,7 +81,9 @@ function App() {
     <HelmetProvider>
       <ContentProvider>
         <PromotionalProvider>
-          <AppContent />
+          <Router>
+            <AppContent />
+          </Router>
         </PromotionalProvider>
       </ContentProvider>
     </HelmetProvider>
