@@ -3,7 +3,7 @@ import { motion, useAnimation } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { ArrowDown, CheckCircle, Dumbbell, User, Target, Clock, Users, HeartPulse } from 'lucide-react';
 
-export default function PTIntroOffer() {
+export default function PTIntroOfferF() {
   const [showStickyButton, setShowStickyButton] = useState(false);
   const [shakeButton, setShakeButton] = useState(false);
   const [shakeCount, setShakeCount] = useState(0);
@@ -136,10 +136,10 @@ export default function PTIntroOffer() {
   return (
     <>
       <Helmet>
-        <title>3 x Online Personal Training Coaching Sesssions – Only $99 | Be Inspired Fitness</title>
+        <title>3 x Online Personal Training Coaching Sesssions – Only $49 | Be Inspired Fitness</title>
         <meta
           name="description"
-          content="Claim 3 x 30-minute Online PT Coaching Sessions for just $99 (normally $199). Limited to the first 20 people. No commitment, no upsells. Spend 3 sessions with an expert online coach — discuss your goals, training questions, nutrition, your current program, and anything else you need to move forward with confidence."
+          content="Claim 3 x 30-minute Online PT Coaching Sessions for just $49 (normally $199). Limited to the first 20 people. No commitment, no upsells. Spend 3 sessions with an expert online coach — discuss your goals, training questions, nutrition, your current program, and anything else you need to move forward with confidence."
         />
       </Helmet>
       <div className="min-h-screen bg-rose-50">
@@ -177,7 +177,7 @@ export default function PTIntroOffer() {
                   🚨 Only 20 Spots Available
                 </motion.span>
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                  🔥 3 Online PT coaching sessions for $99 – Normally $199
+                  🔥 3 Online PT coaching sessions for $49 – Normally $199
                 </h1>
                 <p className="text-xl text-gray-600 mb-8 max-w-2xl leading-relaxed">
                   Start your fitness journey with expert support – no hidden fees, no commitment.
@@ -191,10 +191,10 @@ export default function PTIntroOffer() {
                     viewport={{ once: false }}
                   >
                     <a
-                      href="https://buy.stripe.com/7sI4hqaOE3cDbAcbIP"
+                      href="https://buy.stripe.com/4gw29ie0Q7sTdIk4go"
                       className="inline-flex items-center justify-center px-12 py-6 text-2xl font-bold text-white bg-gradient-to-r from-pink-400 to-rose-500 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out hover:ring-2 hover:ring-offset-2 hover:ring-rose-400"
                     >
-                      Claim My 3 Coaching Sessions NOW – $99
+                      Claim My 3 Coaching Sessions NOW – $49
                     </a>
                   </motion.div>
                 </div>
@@ -281,10 +281,10 @@ export default function PTIntroOffer() {
             <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-900">Ready to Get Started?</h2>
             <p className="text-lg mb-8 text-pink-600 font-semibold">Only 20 spots available. Don't miss your chance to claim this exclusive intro offer!</p>
             <a
-              href="https://buy.stripe.com/7sI4hqaOE3cDbAcbIP"
+              href="https://buy.stripe.com/4gw29ie0Q7sTdIk4go"
               className="inline-flex items-center justify-center px-12 py-6 text-2xl font-bold text-white bg-gradient-to-r from-pink-500 to-rose-600 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out hover:ring-4 hover:ring-pink-200"
             >
-              Claim My 3 Coaching Sessions NOW – $99
+              Claim My 3 Coaching Sessions NOW – $49
             </a>
           </div>
         </section>
@@ -296,7 +296,7 @@ export default function PTIntroOffer() {
             </h2>
             <div className="flex flex-col md:flex-row gap-8 justify-center items-start">
               {[
-                { num: 1, title: 'Purchase your $99 intro pack', desc: 'Secure your spot with our limited-time Stripe checkout.' },
+                { num: 1, title: 'Purchase your $49 intro pack', desc: 'Secure your spot with our limited-time Stripe checkout.' },
                 { num: 2, title: 'Complete a quick form after checkout', desc: 'Tell us your goals and preferences.' },
                 { num: 3, title: `We'll match you with a certified PT to schedule your coaching sessions`, desc: 'All our coaches are fully qualified and insured.' },
               ].map((item, idx) => (
@@ -507,16 +507,25 @@ export default function PTIntroOffer() {
           </div>
         </section>
         {/* FAQ Section */}
-        <section className="py-16 px-6 bg-white text-gray-900">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl sm:text-4xl font-extrabold mb-8 leading-tight text-center">
+        <section className="py-16 px-6 relative">
+          <div className="absolute inset-0">
+            <img
+              src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=1920"
+              alt="Personal Training Session"
+              className="absolute inset-0 w-full h-full object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-rose-50/95 via-rose-50/90 to-rose-50/95" />
+            <div className="absolute inset-0 bg-gradient-to-t from-rose-50 via-rose-50/80 to-rose-50/90" />
+          </div>
+          <div className="max-w-3xl mx-auto relative z-10">
+            <h2 className="text-3xl sm:text-4xl font-extrabold mb-8 leading-tight text-center text-gray-900">
               Frequently Asked Questions
             </h2>
             <div className="space-y-6">
               {[
                 {
-                  q: 'Is this really only $99?',
-                  a: 'Yes! This is a genuine, limited-time offer for new clients. You get 3 x 30-minute coaching sessions for just $99 (normally $199).',
+                  q: 'Is this really only $49?',
+                  a: 'Yes! This is a genuine, limited-time offer for new clients. You get 3 x 30-minute coaching sessions for just $49 (normally $199).',
                 },
                 {
                   q: 'Will I be pressured to buy more coaching sessions?',
@@ -535,8 +544,8 @@ export default function PTIntroOffer() {
                   a: 'No – we have trainers who can work with you in a gym, outdoors, or even at home, depending on your needs.',
                 },
               ].map((item, idx) => (
-                <div key={idx} className="bg-rose-50 rounded-xl p-6 shadow-md">
-                  <h3 className="text-lg font-bold mb-2">{item.q}</h3>
+                <div key={idx} className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
+                  <h3 className="text-lg font-bold mb-2 text-gray-900">{item.q}</h3>
                   <p className="text-gray-600">{item.a}</p>
                 </div>
               ))}
@@ -585,7 +594,7 @@ export default function PTIntroOffer() {
                 whileHover={{ scale: 1 }}
               >
                 <a 
-                  href="https://buy.stripe.com/7sI4hqaOE3cDbAcbIP"
+                  href="https://buy.stripe.com/4gw29ie0Q7sTdIk4go"
                   className="block w-full sm:w-auto sm:inline-block px-10 py-5 bg-white text-pink-600 text-xl font-bold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out hover:ring-4 hover:ring-pink-200"
                 >
                   ⚡ Claim My 3 Online PT Coaching Sessions NOW
@@ -640,12 +649,12 @@ export default function PTIntroOffer() {
                 </span>
               </div>
               <a
-                href="https://buy.stripe.com/7sI4hqaOE3cDbAcbIP"
+                href="https://buy.stripe.com/4gw29ie0Q7sTdIk4go"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full text-center bg-gradient-to-r from-pink-400 to-rose-500 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out hover:ring-2 hover:ring-rose-400"
               >
-                Claim My 3 PT Sessions NOW – $99
+                Claim My 3 PT Sessions NOW – $49
               </a>
             </motion.div>
           </div>

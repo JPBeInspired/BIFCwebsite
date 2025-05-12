@@ -27,6 +27,7 @@ import WebsiteCreationPaymentConfirmation from './pages/websitecreationpaymentco
 import PTStarterPack from './pages/PTStarterPack';
 import PTIntroOffer from './pages/PTIntroOffer';
 import PTIntroOfferF from './pages/PTIntroOfferPlum';
+import TestPage from './pages/TestPage';
 
 function AppContent() {
   const { showPromotion, togglePromotion } = usePromotional();
@@ -92,6 +93,7 @@ function AppContent() {
             <Route path="/pt-starter-pack" element={<PTStarterPack />} />
             <Route path="/ptintrooffer" element={<PTIntroOffer />} />
             <Route path="/ptintroofferf" element={<PTIntroOfferF />} />
+            <Route path="/test" element={<TestPage />} />
           </Routes>
         </main>
         <PromotionalBanner />
