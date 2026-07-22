@@ -31,6 +31,7 @@ import {
 } from '../lib/careersMarketplace';
 import {
   approveCandidateDisclosure,
+  createEmployerMarketplaceJob,
   getCareersDashboard,
   registerCareersCandidate,
   registerCareersEmployer,
@@ -43,6 +44,33 @@ interface CareersProps {
 }
 
 const STATES = ['all', 'VIC', 'NSW', 'QLD', 'WA', 'SA', 'ACT', 'TAS', 'NT'];
+const JOB_STEPS = ['Classify', 'Ad Type', 'Write', 'Manage'];
+const AD_PACKAGES = [
+  {
+    id: 'standard',
+    name: 'Standard',
+    caption: 'Core job ad',
+    price: 'Included',
+    multiplier: '1x reach',
+    features: ['Public marketplace listing', 'Applicant management', 'Candidate privacy workflow']
+  },
+  {
+    id: 'featured',
+    name: 'Featured',
+    caption: 'Recommended',
+    price: 'Review first',
+    multiplier: '2x reach',
+    features: ['Highlighted listing', 'Matched candidate previews', 'Priority BIFC review']
+  },
+  {
+    id: 'concierge',
+    name: 'Concierge',
+    caption: 'BIFC writes it with you',
+    price: 'Contact BIFC',
+    multiplier: 'Managed',
+    features: ['BIFC copy support', 'Shortlist assistance', 'Recruitment workflow support']
+  }
+];
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
@@ -731,9 +759,336 @@ function Dashboard({ title, role }: { title: string; role: 'candidate' | 'employ
               </div>
             ))}
           </div>
+          {role === 'employer' && (
+            <div className="mt-8 border border-accent-primary bg-accent-primary/10 p-6">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-text-primary">Create a job ad</h2>
+                  <p className="mt-2 text-text-secondary">Classify the role, choose visibility, write the ad, and submit it into the BIFC review queue.</p>
+                </div>
+                <PrimaryLink to="/careers/employer/jobs/new">Start job ad</PrimaryLink>
+              </div>
+            </div>
+          )}
           {role === 'employer' && <CandidatePreviewPanel />}
           {role === 'candidate' && <DisclosurePanel />}
           {role === 'admin' && <AdminOpsPanel />}
+        </div>
+      </section>
+    </>
+  );
+}
+
+type JobDraft = {
+  title: string;
+  location: string;
+  workplace_type: string;
+  engagement_model: string;
+  role_category: string;
+  experience_level: string;
+  pay_type: string;
+  pay_min: string;
+  pay_max: string;
+  pay_shown: boolean;
+  compensation_summary: string;
+  ad_package: string;
+  description: string;
+  summary: string;
+  selling_points: string[];
+  brand_name: string;
+  video_url: string;
+  application_questions: string[];
+};
+
+const INITIAL_JOB_DRAFT: JobDraft = {
+  title: '',
+  location: '',
+  workplace_type: 'onsite',
+  engagement_model: 'Full-time',
+  role_category: 'Personal Training',
+  experience_level: 'Open',
+  pay_type: 'annual',
+  pay_min: '',
+  pay_max: '',
+  pay_shown: true,
+  compensation_summary: '',
+  ad_package: 'featured',
+  description: '',
+  summary: '',
+  selling_points: ['', '', ''],
+  brand_name: 'BIFC',
+  video_url: '',
+  application_questions: [
+    'Do you hold current Australian work rights?',
+    'What fitness qualifications do you currently hold?',
+    'When would you be available to start?'
+  ]
+};
+
+function EmployerJobPost() {
+  const navigate = useNavigate();
+  const [step, setStep] = useState(0);
+  const [draft, setDraft] = useState<JobDraft>(INITIAL_JOB_DRAFT);
+  const [status, setStatus] = useState<'idle' | 'saving' | 'submitted' | 'error'>('idle');
+  const [message, setMessage] = useState('');
+
+  const updateDraft = (patch: Partial<JobDraft>) => setDraft(current => ({ ...current, ...patch }));
+  const selectedPackage = AD_PACKAGES.find(item => item.id === draft.ad_package) || AD_PACKAGES[0];
+
+  const payload = (action: 'draft' | 'submit') => ({
+    ...draft,
+    action,
+    pay_min: draft.pay_min ? Number(draft.pay_min) : null,
+    pay_max: draft.pay_max ? Number(draft.pay_max) : null,
+    responsibilities: draft.selling_points.filter(Boolean).join('\n'),
+    required_qualifications: draft.application_questions.filter(Boolean).join('\n'),
+    support_and_onboarding: `Ad package: ${selectedPackage.name}`
+  });
+
+  const saveJob = async (action: 'draft' | 'submit') => {
+    setStatus('saving');
+    setMessage('');
+
+    try {
+      await createEmployerMarketplaceJob(payload(action));
+      setStatus(action === 'submit' ? 'submitted' : 'idle');
+      setMessage(action === 'submit' ? 'Job submitted for BIFC review.' : 'Draft saved.');
+      if (action === 'submit') {
+        setTimeout(() => navigate('/careers/employer'), 900);
+      }
+    } catch (error) {
+      setStatus('error');
+      setMessage(error instanceof Error ? error.message : 'Unable to save this job ad.');
+    }
+  };
+
+  const writeWithTemplate = () => {
+    const title = draft.title || 'Fitness Coach';
+    const location = draft.location || 'your club';
+    updateDraft({
+      summary: `Join a growing fitness team in ${location} and help members build confidence through structured coaching, accountability and great service.`,
+      description: `We are looking for a ${title} to support members with safe, effective and motivating coaching. This role suits someone who communicates clearly, cares about member outcomes and wants to grow inside a professional fitness environment.`,
+      selling_points: ['Supportive team and onboarding', 'Opportunity to grow your client base', 'Member-focused coaching environment']
+    });
+  };
+
+  return (
+    <>
+      <Helmet>
+        <title>Create a Job Ad | BIFC Careers</title>
+        <meta name="robots" content="noindex" />
+      </Helmet>
+      <section className="border-b border-ui-border bg-background-section pt-32 pb-10">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-primary">Employer workflow</p>
+          <h1 className="mt-4 text-4xl font-bold text-text-primary md:text-6xl">Create a job ad</h1>
+          <div className="mt-8 grid gap-3 md:grid-cols-4">
+            {JOB_STEPS.map((label, index) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setStep(index)}
+                className={`border px-4 py-3 text-left font-semibold transition-colors ${index <= step ? 'border-accent-primary bg-accent-primary/10 text-accent-primary' : 'border-ui-border text-text-secondary'}`}
+              >
+                <span className="block text-xs uppercase tracking-[0.14em]">Step {index + 1}</span>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="py-12">
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_320px] lg:px-8">
+          <div className="border border-ui-border bg-background-card p-6">
+            {step === 0 && (
+              <div className="grid gap-5">
+                <h2 className="text-3xl font-bold text-text-primary">Classify the role</h2>
+                <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                  Job title
+                  <input value={draft.title} onChange={event => updateDraft({ title: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" placeholder="e.g. Personal Trainer" />
+                </label>
+                <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                  Location
+                  <input value={draft.location} onChange={event => updateDraft({ location: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" placeholder="e.g. Coburg, VIC" />
+                </label>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                    Workplace option
+                    <select value={draft.workplace_type} onChange={event => updateDraft({ workplace_type: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary">
+                      <option value="onsite">On-site</option>
+                      <option value="hybrid">Hybrid</option>
+                      <option value="remote">Remote</option>
+                    </select>
+                  </label>
+                  <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                    Work type
+                    <select value={draft.engagement_model} onChange={event => updateDraft({ engagement_model: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary">
+                      {ENGAGEMENT_MODELS.map(model => <option key={model}>{model}</option>)}
+                    </select>
+                  </label>
+                  <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                    Role category
+                    <select value={draft.role_category} onChange={event => updateDraft({ role_category: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary">
+                      {ROLE_CATEGORIES.map(category => <option key={category}>{category}</option>)}
+                    </select>
+                  </label>
+                  <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                    Experience level
+                    <select value={draft.experience_level} onChange={event => updateDraft({ experience_level: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary">
+                      {['Open', 'Entry level', 'Experienced', 'Manager', 'Senior'].map(level => <option key={level}>{level}</option>)}
+                    </select>
+                  </label>
+                </div>
+                <div className="grid gap-4 md:grid-cols-4">
+                  <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                    Pay type
+                    <select value={draft.pay_type} onChange={event => updateDraft({ pay_type: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary">
+                      <option value="hourly">Hourly</option>
+                      <option value="monthly">Monthly</option>
+                      <option value="annual">Annually</option>
+                    </select>
+                  </label>
+                  <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                    From
+                    <input value={draft.pay_min} onChange={event => updateDraft({ pay_min: event.target.value })} inputMode="numeric" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+                  </label>
+                  <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                    To
+                    <input value={draft.pay_max} onChange={event => updateDraft({ pay_max: event.target.value })} inputMode="numeric" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+                  </label>
+                  <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                    Show pay
+                    <select value={draft.pay_shown ? 'yes' : 'no'} onChange={event => updateDraft({ pay_shown: event.target.value === 'yes' })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary">
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                  </label>
+                </div>
+                <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                  Pay shown on ad
+                  <input value={draft.compensation_summary} onChange={event => updateDraft({ compensation_summary: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" placeholder="e.g. $70,000 + bonus" />
+                </label>
+              </div>
+            )}
+            {step === 1 && (
+              <div>
+                <h2 className="text-3xl font-bold text-text-primary">Choose visibility</h2>
+                <div className="mt-6 grid gap-4 lg:grid-cols-3">
+                  {AD_PACKAGES.map(item => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => updateDraft({ ad_package: item.id })}
+                      className={`min-h-80 border p-5 text-left transition-colors ${draft.ad_package === item.id ? 'border-accent-primary bg-accent-primary/10' : 'border-ui-border bg-background-main'}`}
+                    >
+                      <span className="text-sm font-semibold text-accent-primary">{item.caption}</span>
+                      <h3 className="mt-3 text-2xl font-bold text-text-primary">{item.name}</h3>
+                      <p className="mt-3 text-text-secondary">{item.multiplier}</p>
+                      <p className="mt-6 text-2xl font-bold text-text-primary">{item.price}</p>
+                      <div className="mt-6 grid gap-3 text-sm text-text-secondary">
+                        {item.features.map(feature => <span key={feature}>Included: {feature}</span>)}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {step === 2 && (
+              <div className="grid gap-5">
+                <div className="flex flex-wrap items-center justify-between gap-4 bg-accent-primary/10 p-5">
+                  <p className="font-semibold text-text-primary">Generate a practical first draft from your role details.</p>
+                  <button type="button" onClick={writeWithTemplate} className="bg-accent-primary px-5 py-3 font-semibold text-background-main">Write with template</button>
+                </div>
+                <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                  Job description
+                  <textarea value={draft.description} onChange={event => updateDraft({ description: event.target.value })} rows={10} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+                </label>
+                <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                  Job summary
+                  <textarea value={draft.summary} onChange={event => updateDraft({ summary: event.target.value })} rows={4} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+                </label>
+                <div className="grid gap-3">
+                  <p className="font-semibold text-text-secondary">Key selling points</p>
+                  {draft.selling_points.map((point, index) => (
+                    <input
+                      key={index}
+                      value={point}
+                      onChange={event => {
+                        const next = [...draft.selling_points];
+                        next[index] = event.target.value;
+                        updateDraft({ selling_points: next });
+                      }}
+                      className="border border-ui-border bg-background-main px-4 py-3 text-text-primary"
+                      placeholder={`Selling point ${index + 1}`}
+                    />
+                  ))}
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                    Company brand
+                    <input value={draft.brand_name} onChange={event => updateDraft({ brand_name: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+                  </label>
+                  <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                    Video URL
+                    <input value={draft.video_url} onChange={event => updateDraft({ video_url: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" placeholder="https://youtube.com/..." />
+                  </label>
+                </div>
+              </div>
+            )}
+            {step === 3 && (
+              <div className="grid gap-5">
+                <h2 className="text-3xl font-bold text-text-primary">Refine candidate preferences</h2>
+                <div className="grid gap-3">
+                  {draft.application_questions.map((question, index) => (
+                    <label key={index} className="grid gap-2 text-sm font-semibold text-text-secondary">
+                      Question {index + 1}
+                      <input
+                        value={question}
+                        onChange={event => {
+                          const next = [...draft.application_questions];
+                          next[index] = event.target.value;
+                          updateDraft({ application_questions: next });
+                        }}
+                        className="border border-ui-border bg-background-main px-4 py-3 text-text-primary"
+                      />
+                    </label>
+                  ))}
+                  <button type="button" onClick={() => updateDraft({ application_questions: [...draft.application_questions, ''] })} className="border border-ui-border px-5 py-3 font-semibold text-text-primary">Add a question</button>
+                </div>
+                <div className="border border-ui-border bg-background-main p-5">
+                  <h3 className="text-2xl font-bold text-text-primary">Review</h3>
+                  <dl className="mt-4 grid gap-3 text-sm text-text-secondary md:grid-cols-2">
+                    <div><dt className="font-semibold text-text-primary">Role</dt><dd>{draft.title || 'Untitled job draft'}</dd></div>
+                    <div><dt className="font-semibold text-text-primary">Location</dt><dd>{draft.location || 'Not set'}</dd></div>
+                    <div><dt className="font-semibold text-text-primary">Work type</dt><dd>{draft.engagement_model}</dd></div>
+                    <div><dt className="font-semibold text-text-primary">Package</dt><dd>{selectedPackage.name}</dd></div>
+                  </dl>
+                </div>
+              </div>
+            )}
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-ui-border pt-6">
+              <button type="button" onClick={() => setStep(Math.max(0, step - 1))} className="border border-ui-border px-5 py-3 font-semibold text-text-primary">Back</button>
+              <div className="flex flex-wrap gap-3">
+                <button type="button" onClick={() => void saveJob('draft')} disabled={status === 'saving'} className="px-5 py-3 font-semibold text-text-secondary disabled:opacity-60">Save draft</button>
+                {step < JOB_STEPS.length - 1 ? (
+                  <button type="button" onClick={() => setStep(step + 1)} className="bg-accent-primary px-6 py-3 font-semibold text-background-main">Continue</button>
+                ) : (
+                  <button type="button" onClick={() => void saveJob('submit')} disabled={status === 'saving'} className="bg-accent-primary px-6 py-3 font-semibold text-background-main disabled:opacity-60">Submit for review</button>
+                )}
+              </div>
+            </div>
+            {message && <p className={`mt-4 text-sm ${status === 'error' ? 'text-red-300' : 'text-accent-primary'}`} role="status">{message}</p>}
+          </div>
+          <aside className="h-fit border border-ui-border bg-background-card p-5">
+            <h2 className="text-xl font-bold text-text-primary">Ad preview</h2>
+            <div className="mt-5 border border-ui-border bg-background-main p-5">
+              <Badge>{selectedPackage.name}</Badge>
+              <h3 className="mt-4 text-2xl font-bold text-text-primary">{draft.title || 'Your job title'}</h3>
+              <p className="mt-2 text-text-secondary">{draft.brand_name || 'Your brand'} · {draft.location || 'Location'}</p>
+              <p className="mt-4 text-text-secondary">{draft.summary || 'Your short role summary will appear here.'}</p>
+              {draft.compensation_summary && <p className="mt-4 font-semibold text-accent-primary">{draft.compensation_summary}</p>}
+            </div>
+          </aside>
         </div>
       </section>
     </>
@@ -869,6 +1224,7 @@ export default function Careers({ mode = 'home' }: CareersProps) {
       {mode === 'talent' && <Talent />}
       {mode === 'register' && <Register />}
       {mode === 'employerRegister' && <EmployerRegister />}
+      {mode === 'employerJobPost' && <EmployerJobPost />}
       {mode === 'login' && <Login />}
       {mode === 'candidate' && <CandidateDashboard />}
       {mode === 'employer' && <EmployerDashboard />}

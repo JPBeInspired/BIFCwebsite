@@ -48,6 +48,7 @@ Current migrations:
 - `migrations/0002_bifc_careers_marketplace.sql`
 - `migrations/0003_bifc_careers_policy_seed.sql`
 - `migrations/0004_bifc_careers_password_auth.sql`
+- `migrations/0005_bifc_careers_employer_job_workflow.sql`
 
 ## Seed instructions
 

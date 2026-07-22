@@ -5,6 +5,7 @@ Migrations:
 - `migrations/0002_bifc_careers_marketplace.sql`
 - `migrations/0003_bifc_careers_policy_seed.sql`
 - `migrations/0004_bifc_careers_password_auth.sql`
+- `migrations/0005_bifc_careers_employer_job_workflow.sql`
 
 Core tables:
 
@@ -21,6 +22,7 @@ Important constraints:
 
 - One user can have one central candidate profile.
 - Employer interest is tied to one employer, one job and one candidate.
+- Employer job drafts can be created immediately after registration and submitted for BIFC review.
 - Disclosure approval is tied to one employer and one job.
 - Audit events are append-only operational records.
 - Passwords are stored only as salted PBKDF2-SHA256 hashes.

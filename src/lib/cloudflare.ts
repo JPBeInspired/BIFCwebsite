@@ -172,6 +172,13 @@ export async function getCareersDashboard(role: 'candidate' | 'employer' | 'admi
   return apiRequest<{ cards: string[]; recent?: any[] }>(`/api/careers/dashboard?role=${encodeURIComponent(role)}`);
 }
 
+export async function createEmployerMarketplaceJob(data: Record<string, any>) {
+  return apiRequest<{ success: boolean; job: any }>('/api/careers/employer-jobs', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+}
+
 export async function getLimitedCandidatePreviews(jobId = 'demo') {
   return apiRequest<any[]>(`/api/careers/previews?job_id=${encodeURIComponent(jobId)}`);
 }

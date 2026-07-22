@@ -29,6 +29,7 @@ This preserves the marketing website and adds a secure application surface witho
 - One central `candidate_profiles` record per person. Employers never own duplicate candidate records.
 - Candidate previews are intentionally limited and do not include contact details, full surname, resume keys or internal BIFC notes.
 - Employer interest creates an event only. It does not release private information.
+- Employers can create draft job ads immediately after signup and submit them for BIFC review.
 - Candidate disclosure approval records fields, employer, job, timestamp and statement version.
 - BIFC admin and recruiter visibility is modelled separately from employer visibility.
 - Public pages are SEO-friendly; private dashboards are marked `noindex`.

@@ -6,6 +6,7 @@
    - `0002_bifc_careers_marketplace.sql`
    - `0003_bifc_careers_policy_seed.sql`
    - `0004_bifc_careers_password_auth.sql`
+   - `0005_bifc_careers_employer_job_workflow.sql`
 3. Configure Cloudflare Pages bindings:
    - `DB`
    - `RESUME_BUCKET`
@@ -18,6 +19,7 @@
    - `/careers/talent`
    - `/careers/candidate`
    - `/careers/employer`
+   - `/careers/employer/jobs/new`
    - `/careers/admin`
 6. Confirm policy and consent write paths:
    - Candidate registration accepts `collection-notice-v0`
@@ -28,3 +30,7 @@
    - Candidate registration creates an immediate active account session.
    - Password hashes are stored server-side; raw passwords are never stored.
    - Sessions are issued as `HttpOnly`, `Secure`, `SameSite=Lax` cookies.
+8. Confirm employer job posting:
+   - Logged-in employer can save a draft.
+   - Logged-in employer can submit a job for BIFC review.
+   - Anonymous users receive `Employer login required`.
