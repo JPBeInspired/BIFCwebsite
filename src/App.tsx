@@ -77,6 +77,21 @@ function AppContent() {
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/careers" element={<Careers />} />
+              <Route path="/careers/jobs" element={<Careers mode="jobs" />} />
+              <Route path="/careers/employers" element={<Careers mode="employers" />} />
+              <Route path="/careers/employers/:slug" element={<Careers mode="employers" />} />
+              <Route path="/careers/talent" element={<Careers mode="talent" />} />
+              <Route path="/careers/register" element={<Careers mode="register" />} />
+              <Route path="/careers/login" element={<Careers mode="login" />} />
+              <Route path="/careers/candidate" element={<Careers mode="candidate" />} />
+              <Route path="/careers/employer" element={<Careers mode="employer" />} />
+              <Route path="/careers/admin" element={<Careers mode="admin" />} />
+              <Route path="/careers/privacy" element={<Careers mode="privacy" />} />
+              <Route path="/careers/terms" element={<Careers mode="terms" />} />
+              <Route path="/careers/candidate-terms" element={<Careers mode="candidateTerms" />} />
+              <Route path="/careers/employer-terms" element={<Careers mode="employerTerms" />} />
+              <Route path="/careers/collection-notice" element={<Careers mode="collectionNotice" />} />
+              <Route path="/careers/jobs/:id" element={<JobDetail />} />
               <Route path="/careers/:id" element={<JobDetail />} />
               <Route path="/admin" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />

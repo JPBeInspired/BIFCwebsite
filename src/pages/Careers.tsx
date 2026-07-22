@@ -1,317 +1,708 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Search, MapPin, Building2, Users, Star, ArrowRight, Brain, Trophy, Target, Video, FileText, Dumbbell } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { formatDistanceToNow } from 'date-fns';
-import DynamicCounter from '../components/DynamicCounter';
-import { getPublicJobListings } from '../lib/cloudflare';
-import { JobFilter } from '../types/careers';
-import toast from 'react-hot-toast';
+import {
+  ArrowRight,
+  BadgeCheck,
+  Briefcase,
+  Building2,
+  CheckCircle,
+  EyeOff,
+  FileText,
+  Lock,
+  Mail,
+  MapPin,
+  MessageSquare,
+  Search,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles,
+  Users
+} from 'lucide-react';
+import { CareersRouteMode } from '../types/careers';
+import {
+  CAREERS_EMPLOYERS,
+  ENGAGEMENT_MODELS,
+  FEATURED_CAREERS_JOBS,
+  LIMITED_CANDIDATE_PREVIEWS,
+  ROLE_CATEGORIES,
+  WORKFLOW_STAGES,
+  filterCareersJobs
+} from '../lib/careersMarketplace';
 
-const STATES = [
-  { value: 'all', label: 'All Locations' },
-  { value: 'nsw', label: 'New South Wales' },
-  { value: 'vic', label: 'Victoria' },
-  { value: 'qld', label: 'Queensland' },
-  { value: 'wa', label: 'Western Australia' },
-  { value: 'sa', label: 'South Australia' },
-];
+interface CareersProps {
+  mode?: CareersRouteMode;
+}
 
-const EMPLOYMENT_TYPES = [
-  { value: 'all', label: 'All Types' },
-  { value: 'rent-based', label: 'Rent-Based' },
-  { value: 'employed', label: 'Employed' },
-  { value: 'contractor', label: 'Contractor' },
-];
+const STATES = ['all', 'VIC', 'NSW', 'QLD', 'WA', 'SA', 'ACT', 'TAS', 'NT'];
 
-const BENEFITS = [
-  {
-    title: 'Ongoing Education',
-    description: 'Regular workshops, certifications, and skill development programs.',
-    icon: Brain
-  },
-  {
-    title: 'Career Growth',
-    description: 'Clear pathways for advancement and leadership opportunities.',
-    icon: Target
-  },
-  {
-    title: 'Business Support',
-    description: 'Full marketing, sales, and business development coaching.',
-    icon: Trophy
-  },
-  {
-    title: 'Premium Network',
-    description: "Access to Australia's leading gym brands and facilities.",
-    icon: Star
-  }
-];
-
-export default function Careers() {
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<JobFilter>({
-    state: 'all',
-    employmentType: 'all',
-    search: ''
-  });
-
-  useEffect(() => {
-    fetchJobs();
-  }, []);
-
-  const fetchJobs = async () => {
-    try {
-      setLoading(true);
-      const data = await getPublicJobListings();
-      setJobs(data || []);
-    } catch (error) {
-      console.error('Error fetching jobs:', error);
-      toast.error('Failed to load job listings');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredJobs = jobs.filter(job => {
-    const matchesSearch = !filters.search || 
-      job.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-      job.location.toLowerCase().includes(filters.search.toLowerCase());
-
-    const matchesState = filters.state === 'all' || 
-      job.location.toLowerCase().includes(filters.state.toLowerCase());
-
-    const matchesType = filters.employmentType === 'all' || 
-      job.job_type.toLowerCase() === filters.employmentType.toLowerCase();
-
-    return matchesSearch && matchesState && matchesType;
-  });
-
+function Badge({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background-main pt-20">
+    <span className="inline-flex items-center gap-1 border border-accent-primary/40 bg-accent-primary/10 px-3 py-1 text-sm font-semibold text-accent-primary">
+      {children}
+    </span>
+  );
+}
+
+function PrimaryLink({ to, children }: { to: string; children: React.ReactNode }) {
+  return (
+    <Link
+      to={to}
+      className="inline-flex items-center justify-center gap-2 bg-accent-primary px-6 py-3 font-semibold text-background-main hover:bg-accent-hover transition-colors"
+    >
+      {children}
+      <ArrowRight className="h-4 w-4" />
+    </Link>
+  );
+}
+
+function SecondaryLink({ to, children }: { to: string; children: React.ReactNode }) {
+  return (
+    <Link
+      to={to}
+      className="inline-flex items-center justify-center gap-2 border border-ui-border px-6 py-3 font-semibold text-text-primary hover:border-accent-primary hover:text-accent-primary transition-colors"
+    >
+      {children}
+    </Link>
+  );
+}
+
+function CareersHeader({ eyebrow, title, intro }: { eyebrow: string; title: string; intro: string }) {
+  return (
+    <section className="border-b border-ui-border bg-background-section pt-32 pb-14">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <p className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-accent-primary">{eyebrow}</p>
+        <h1 className="max-w-4xl text-4xl font-bold text-text-primary md:text-6xl">{title}</h1>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-text-secondary">{intro}</p>
+      </div>
+    </section>
+  );
+}
+
+function JobCard({ job }: { job: (typeof FEATURED_CAREERS_JOBS)[number] }) {
+  return (
+    <article className="border border-ui-border bg-background-card p-6 transition-colors hover:border-accent-primary">
+      <div className="mb-4 flex flex-wrap gap-2">
+        <Badge>{job.managementType}</Badge>
+        {job.verifiedEmployer && <Badge>Verified Employer</Badge>}
+        {job.featured && <Badge>Featured</Badge>}
+      </div>
+      <h2 className="text-2xl font-bold text-text-primary">{job.title}</h2>
+      <div className="mt-4 grid gap-3 text-sm text-text-secondary sm:grid-cols-2">
+        <span className="flex items-center gap-2">
+          <Building2 className="h-4 w-4 text-accent-primary" />
+          {job.employerName}
+        </span>
+        <span className="flex items-center gap-2">
+          <MapPin className="h-4 w-4 text-accent-primary" />
+          {job.location}
+        </span>
+        <span className="flex items-center gap-2">
+          <Briefcase className="h-4 w-4 text-accent-primary" />
+          {job.engagementModel}
+        </span>
+        <span className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-accent-primary" />
+          {job.experienceLevel}
+        </span>
+      </div>
+      <p className="mt-5 text-text-secondary">{job.summary}</p>
+      <p className="mt-4 font-semibold text-accent-primary">{job.compensation}</p>
+      <div className="mt-5 flex flex-wrap gap-2">
+        {job.specialisations.slice(0, 3).map(item => (
+          <span key={item} className="bg-background-section px-3 py-1 text-sm text-text-secondary">
+            {item}
+          </span>
+        ))}
+      </div>
+      <div className="mt-6 flex flex-wrap items-center gap-4">
+        <PrimaryLink to={`/careers/jobs/${job.slug}`}>View role</PrimaryLink>
+        <button className="text-sm font-semibold text-text-secondary hover:text-accent-primary">Save job</button>
+        {job.matchPercentage && (
+          <span className="ml-auto text-sm font-bold text-accent-primary">{job.matchPercentage}% match preview</span>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function CareersHome() {
+  return (
+    <>
       <Helmet>
-        <title>Careers | Be Inspired Fitness</title>
-        <meta name="description" content="Join a community of driven Personal Trainers building a career with purpose. Explore the latest job opportunities across Australia with Be Inspired Fitness." />
+        <title>BIFC Careers | Australia's Fitness Career Network</title>
+        <meta
+          name="description"
+          content="Create one BIFC fitness career profile, find suitable roles, and control which employers receive your information."
+        />
+        <link rel="canonical" href="https://www.beinspiredfitnessandcoaching.com/careers" />
       </Helmet>
-
-      {/* Hero Section */}
-      <section className="relative min-h-[80vh] flex items-center">
+      <section className="relative overflow-hidden border-b border-ui-border bg-background-main pt-32">
         <div className="absolute inset-0">
-          <div className="relative h-full">
-            <img
-              src="https://i.imgur.com/OudFHZd.jpeg"
-              alt="Personal trainers working together"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-background-main/95 via-background-main/80 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background-main via-background-main/50 to-transparent" />
-          </div>
+          <img
+            src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&q=80&w=1600"
+            srcSet="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&q=75&w=800 800w, https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&q=80&w=1600 1600w"
+            sizes="100vw"
+            alt="Fitness professionals coaching in a gym"
+            className="h-full w-full object-cover opacity-30"
+            width="1600"
+            height="900"
+            loading="eager"
+            fetchPriority="high"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-background-main via-background-main/90 to-background-main/60" />
         </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
-            <h1 className="text-5xl md:text-7xl font-bold text-text-primary mb-6 leading-tight">
-              Work With Be Inspired
+        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 pb-20 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
+          <div>
+            <Badge>Australia's Fitness Career Network</Badge>
+            <h1 className="mt-6 max-w-4xl text-5xl font-bold leading-tight text-text-primary md:text-7xl">
+              Build your career in fitness
             </h1>
-            <p className="text-xl text-text-secondary mb-8 max-w-2xl leading-relaxed">
-              Join a community of driven Personal Trainers building a career with purpose. 
-              Explore the latest job opportunities across Australia.
+            <p className="mt-6 max-w-2xl text-xl leading-relaxed text-text-secondary">
+              Find personal training, coaching, management and fitness-industry opportunities across Australia.
             </p>
-            <div className="flex flex-wrap gap-6">
-              <a
-                href="#jobs-section"
-                className="inline-flex items-center px-8 py-4 bg-accent-primary text-text-primary hover:bg-accent-hover transition-colors group"
-              >
-                View Open Positions
-                <ArrowRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
-              </a>
-              <a
-                href="/contact#enquiry-form"
-                className="inline-flex items-center px-8 py-4 border-2 border-text-primary text-text-primary hover:bg-text-primary hover:text-background-main transition-colors"
-              >
-                Get in Touch
-              </a>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <PrimaryLink to="/careers/jobs">Find Fitness Jobs</PrimaryLink>
+              <SecondaryLink to="/careers/register">Create Your Career Profile</SecondaryLink>
+              <SecondaryLink to="/careers/employers">Find Fitness Professionals</SecondaryLink>
+            </div>
+          </div>
+          <div className="border border-ui-border bg-background-card/95 p-6">
+            <h2 className="text-2xl font-bold text-text-primary">Search fitness roles</h2>
+            <div className="mt-6 grid gap-4">
+              <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                Keyword or role
+                <input className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" placeholder="Personal trainer, manager, Pilates" />
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                Location
+                <input className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" placeholder="Melbourne, Sydney, Brisbane" />
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                Distance
+                <select className="border border-ui-border bg-background-main px-4 py-3 text-text-primary">
+                  <option>Within 10 km</option>
+                  <option>Within 25 km</option>
+                  <option>Within 50 km</option>
+                  <option>Remote or relocation</option>
+                </select>
+              </label>
+              <PrimaryLink to="/careers/jobs">Search jobs</PrimaryLink>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Search & Filter Section */}
-      <section className="sticky top-20 bg-background-section border-y border-ui-border z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative md:col-span-2">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-text-secondary h-5 w-5" />
-              <input
-                type="text"
-                value={filters.search}
-                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                placeholder="Search by location or job title..."
-                className="w-full pl-12 pr-4 py-3 bg-background-card border border-ui-border text-text-primary focus:border-accent-primary transition-colors"
-              />
+      <section className="bg-background-section py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-primary">Featured jobs</p>
+              <h2 className="mt-3 text-4xl font-bold text-text-primary">Current fitness opportunities</h2>
             </div>
-            <select
-              value={filters.state}
-              onChange={(e) => setFilters({ ...filters, state: e.target.value })}
-              className="px-4 py-3 bg-background-card border border-ui-border text-text-primary focus:border-accent-primary transition-colors"
-            >
-              {STATES.map(state => (
-                <option key={state.value} value={state.value}>
-                  {state.label}
-                </option>
-              ))}
-            </select>
-            <select
-              value={filters.employmentType}
-              onChange={(e) => setFilters({ ...filters, employmentType: e.target.value })}
-              className="px-4 py-3 bg-background-card border border-ui-border text-text-primary focus:border-accent-primary transition-colors"
-            >
-              {EMPLOYMENT_TYPES.map(type => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
+            <SecondaryLink to="/careers/jobs">View all jobs</SecondaryLink>
+          </div>
+          <div className="grid gap-6 lg:grid-cols-3">
+            {FEATURED_CAREERS_JOBS.map(job => <JobCard key={job.id} job={job} />)}
           </div>
         </div>
       </section>
 
-      {/* Job Listings */}
-      <section id="jobs-section" className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {loading ? (
-            <div className="text-center py-12">
-              <p className="text-text-secondary">Loading jobs...</p>
-            </div>
-          ) : filteredJobs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredJobs.map(job => (
-                <Link
-                  key={job.id}
-                  to={`/careers/${job.id}`}
-                  className="group relative bg-background-card border border-ui-border hover:border-accent-primary transition-all duration-300 p-8 rounded-xl hover:shadow-lg"
-                >
-                  {/* Listed X days ago */}
-                  <div className="absolute top-4 right-4 text-sm text-text-secondary bg-background-section px-3 py-1 rounded-full">
-                    Listed {formatDistanceToNow(new Date(job.created_at))} ago
-                  </div>
-
-                  {/* Title and Location Info */}
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-text-primary group-hover:text-accent-primary transition-colors mb-2">
-                      {job.title}
-                    </h2>
-                    <div className="flex flex-wrap gap-6 text-text-secondary mb-4">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-5 w-5 text-accent-primary" />
-                        <span>{job.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-5 w-5 text-accent-primary" />
-                        <span>{job.club_name}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-accent-primary" />
-                        <span>{job.job_type}</span>
-                      </div>
-                    </div>
-                    <p className="text-lg text-accent-primary italic">
-                      {job.headline}
-                    </p>
-                  </div>
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {job.tags.split(',').map((tag: string, index: number) => (
-                      <span
-                        key={index}
-                        className={`px-3 py-1 text-sm rounded-full ${
-                          tag.trim().toLowerCase() === 'pt' 
-                            ? 'bg-[#003340] text-accent-primary'
-                            : 'bg-background-section text-text-secondary'
-                        }`}
-                      >
-                        {tag.trim()}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* CTA */}
-                  <div className="flex items-center text-accent-primary group-hover:text-accent-hover transition-colors">
-                    View Position
-                    <ArrowRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-text-secondary">No jobs found matching your criteria.</p>
-            </div>
-          )}
+      <section className="py-20">
+        <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+          <ProcessBlock
+            title="How it works for fitness professionals"
+            steps={[
+              'Create your BIFC career profile.',
+              'Find and receive suitable opportunities.',
+              'Control which employers receive your information.',
+              'Connect and progress through the recruitment process.'
+            ]}
+          />
+          <ProcessBlock
+            title="How it works for employers"
+            steps={[
+              'Create your employer profile.',
+              'Advertise a fitness-industry opportunity.',
+              'Review applicants and matched profile previews.',
+              'Invite suitable professionals to consider the role.'
+            ]}
+          />
         </div>
       </section>
 
-      {/* Why Join Section */}
-      <section className="py-24 bg-background-section">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-text-primary mb-6">
-              Why Trainers Choose Be Inspired
-            </h2>
-            <p className="text-xl text-text-secondary max-w-3xl mx-auto">
-              We've helped over 10,000 trainers launch successful careers across Australia.
+      <section className="border-y border-ui-border bg-background-section py-20">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+          <div>
+            <ShieldCheck className="h-12 w-12 text-accent-primary" />
+            <h2 className="mt-5 text-4xl font-bold text-text-primary">Candidate privacy and control</h2>
+            <p className="mt-5 text-lg leading-relaxed text-text-secondary">
+              Your information is not shared with an employer until you choose to share it.
             </p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            {BENEFITS.map((benefit, index) => (
-              <div key={index} className="bg-background-card p-8 border border-ui-border">
-                <benefit.icon className="h-12 w-12 text-accent-primary mb-6" />
-                <h3 className="text-xl font-bold text-text-primary mb-4">
-                  {benefit.title}
-                </h3>
-                <p className="text-text-secondary">
-                  {benefit.description}
-                </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            {[
+              'Employers see limited previews only.',
+              'Direct contact details stay hidden by default.',
+              'Each disclosure is tied to a specific employer and role.',
+              'BIFC keeps the candidate relationship visible and attributable.'
+            ].map(item => (
+              <div key={item} className="border border-ui-border bg-background-card p-5">
+                <CheckCircle className="mb-4 h-6 w-6 text-accent-primary" />
+                <p className="text-text-secondary">{item}</p>
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div>
-              <DynamicCounter baseValue={9536} minIncrease={1} maxIncrease={5} />
-              <p className="text-text-secondary mt-2">Personal Trainers Supported</p>
+      <section className="py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <h2 className="text-4xl font-bold text-text-primary">BIFC recruitment experience, built into the platform</h2>
+              <p className="mt-5 max-w-3xl text-lg leading-relaxed text-text-secondary">
+                BIFC Careers is owned and operated by Be Inspired Fitness and Coaching. It supports BIFC-managed opportunities, verified employer roles and recruitment partner workflows while keeping candidate ownership centralised inside BIFC.
+              </p>
             </div>
-            <div>
-              <span className="text-3xl font-bold text-accent-primary">98%</span>
-              <p className="text-text-secondary mt-2">Satisfaction Rate</p>
-            </div>
-            <div>
-              <span className="text-3xl font-bold text-accent-primary">24/7</span>
-              <p className="text-text-secondary mt-2">Expert Support</p>
+            <div className="border border-accent-primary bg-accent-primary/10 p-6">
+              <h3 className="text-2xl font-bold text-text-primary">Build your fitness team</h3>
+              <p className="mt-3 text-text-secondary">Advertise your opportunity and discover fitness professionals who may suit your team.</p>
+              <div className="mt-6">
+                <PrimaryLink to="/careers/employer">Post a Job</PrimaryLink>
+              </div>
             </div>
           </div>
         </div>
       </section>
+    </>
+  );
+}
 
-      {/* Final CTA */}
-      <section className="py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-text-primary mb-6">
-            Don't See Your Role Listed?
-          </h2>
-          <p className="text-xl text-text-secondary mb-12 max-w-2xl mx-auto">
-            We're always looking for talented trainers. Get in touch with us and we'll be in touch when the right role opens up.
-          </p>
-          <a
-            href="/contact#enquiry-form"
-            className="px-8 py-4 bg-accent-primary text-text-primary hover:bg-accent-hover transition-colors"
+function ProcessBlock({ title, steps }: { title: string; steps: string[] }) {
+  return (
+    <div className="border border-ui-border bg-background-card p-8">
+      <h2 className="text-3xl font-bold text-text-primary">{title}</h2>
+      <ol className="mt-8 space-y-5">
+        {steps.map((step, index) => (
+          <li key={step} className="flex gap-4">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center bg-accent-primary font-bold text-background-main">
+              {index + 1}
+            </span>
+            <span className="text-text-secondary">{step}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+function CareersJobs() {
+  const [filters, setFilters] = useState({ search: '', state: 'all', engagementModel: 'all', category: 'all' });
+  const jobs = useMemo(() => filterCareersJobs(FEATURED_CAREERS_JOBS, filters), [filters]);
+
+  return (
+    <>
+      <Helmet>
+        <title>Fitness Jobs | BIFC Careers</title>
+        <meta name="description" content="Search BIFC Careers fitness jobs across Australia." />
+        <link rel="canonical" href="https://www.beinspiredfitnessandcoaching.com/careers/jobs" />
+      </Helmet>
+      <CareersHeader
+        eyebrow="Fitness jobs"
+        title="Find fitness-industry opportunities across Australia"
+        intro="Search roles by location, category, engagement model and BIFC management status. Every job should disclose how the opportunity works."
+      />
+      <section className="border-b border-ui-border bg-background-main py-8">
+        <div className="mx-auto grid max-w-7xl gap-4 px-4 sm:px-6 md:grid-cols-4 lg:px-8">
+          <label className="relative md:col-span-2">
+            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-text-secondary" />
+            <input
+              value={filters.search}
+              onChange={event => setFilters({ ...filters, search: event.target.value })}
+              className="w-full border border-ui-border bg-background-card py-3 pl-12 pr-4 text-text-primary"
+              placeholder="Keyword, role or employer"
+            />
+          </label>
+          <select
+            value={filters.state}
+            onChange={event => setFilters({ ...filters, state: event.target.value })}
+            className="border border-ui-border bg-background-card px-4 py-3 text-text-primary"
+            aria-label="State"
           >
-            Get in Touch
-          </a>
+            {STATES.map(state => <option key={state} value={state}>{state === 'all' ? 'All states' : state}</option>)}
+          </select>
+          <select
+            value={filters.category}
+            onChange={event => setFilters({ ...filters, category: event.target.value })}
+            className="border border-ui-border bg-background-card px-4 py-3 text-text-primary"
+            aria-label="Role category"
+          >
+            <option value="all">All role categories</option>
+            {ROLE_CATEGORIES.map(category => <option key={category}>{category}</option>)}
+          </select>
         </div>
       </section>
+      <section className="py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 flex items-center gap-3 text-text-secondary">
+            <SlidersHorizontal className="h-5 w-5 text-accent-primary" />
+            Showing {jobs.length} curated marketplace roles
+          </div>
+          <div className="grid gap-6 lg:grid-cols-2">
+            {jobs.map(job => <JobCard key={job.id} job={job} />)}
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function Employers() {
+  return (
+    <>
+      <Helmet>
+        <title>Fitness Employers | BIFC Careers</title>
+        <meta name="description" content="Browse verified BIFC Careers employers and recruitment partners." />
+      </Helmet>
+      <CareersHeader
+        eyebrow="Employers"
+        title="Verified fitness employers and BIFC recruitment partners"
+        intro="Employer profiles show culture, support, locations and current roles. Private employer analytics are never shown publicly."
+      />
+      <section className="py-16">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">
+          {CAREERS_EMPLOYERS.map(employer => (
+            <article key={employer.id} className="border border-ui-border bg-background-card p-6">
+              <Badge>{employer.relationship}</Badge>
+              <h2 className="mt-5 text-2xl font-bold text-text-primary">{employer.name}</h2>
+              <p className="mt-2 text-accent-primary">{employer.type}</p>
+              <p className="mt-4 text-text-secondary">{employer.description}</p>
+              <div className="mt-5 space-y-2">
+                {employer.support.map(item => (
+                  <p key={item} className="flex items-center gap-2 text-sm text-text-secondary">
+                    <BadgeCheck className="h-4 w-4 text-accent-primary" />
+                    {item}
+                  </p>
+                ))}
+              </div>
+              <div className="mt-6">
+                <SecondaryLink to={`/careers/employers/${employer.slug}`}>View employer profile</SecondaryLink>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function Talent() {
+  return (
+    <>
+      <Helmet>
+        <title>Join the BIFC Talent Network | BIFC Careers</title>
+        <meta name="description" content="Create one BIFC career profile and control how employers can discover you." />
+      </Helmet>
+      <CareersHeader
+        eyebrow="Talent network"
+        title="Create one fitness career profile and discover opportunities that match your goals"
+        intro="BIFC can support you across BIFC-managed roles and suitable third-party opportunities, while employers only receive information you approve."
+      />
+      <section className="py-16">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">
+          {[
+            ['Profile control', 'Choose employer discovery, BIFC-only, visible on application or hidden visibility.'],
+            ['Opportunity matching', 'Receive explainable job matches based on location, qualifications, preferences and availability.'],
+            ['Disclosure approval', 'Review exactly what will be shared before any employer receives private information.']
+          ].map(([title, body]) => (
+            <div key={title} className="border border-ui-border bg-background-card p-8">
+              <Lock className="mb-5 h-10 w-10 text-accent-primary" />
+              <h2 className="text-2xl font-bold text-text-primary">{title}</h2>
+              <p className="mt-4 text-text-secondary">{body}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-8">
+          <PrimaryLink to="/careers/register">Create your career profile</PrimaryLink>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function Register() {
+  return (
+    <>
+      <Helmet>
+        <title>Register | BIFC Careers</title>
+        <meta name="robots" content="noindex" />
+      </Helmet>
+      <CareersHeader
+        eyebrow="Registration"
+        title="Join the BIFC Careers talent network"
+        intro="This foundation form records the required consent model. Production launch requires final Australian legal and privacy review before accepting live candidates."
+      />
+      <FormShell type="candidate" />
+    </>
+  );
+}
+
+function Login() {
+  return (
+    <>
+      <Helmet>
+        <title>Login | BIFC Careers</title>
+        <meta name="robots" content="noindex" />
+      </Helmet>
+      <CareersHeader
+        eyebrow="Secure access"
+        title="Sign in to BIFC Careers"
+        intro="Candidate, employer and BIFC dashboards are designed for server-side role checks through Cloudflare Access and the marketplace API."
+      />
+      <section className="py-16">
+        <div className="mx-auto max-w-xl border border-ui-border bg-background-card p-8">
+          <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+            Email
+            <input type="email" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+          </label>
+          <label className="mt-4 grid gap-2 text-sm font-semibold text-text-secondary">
+            Password
+            <input type="password" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+          </label>
+          <button className="mt-6 w-full bg-accent-primary px-6 py-3 font-semibold text-background-main">Continue</button>
+          <p className="mt-4 text-sm text-text-secondary">
+            Production authentication must use established password hashing, email verification, reset tokens and MFA for administrators.
+          </p>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function FormShell({ type }: { type: 'candidate' | 'employer' }) {
+  const isCandidate = type === 'candidate';
+  return (
+    <section className="py-16">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+        <div className="border border-ui-border bg-background-card p-8">
+          <h2 className="text-2xl font-bold text-text-primary">{isCandidate ? 'Candidate commitments' : 'Employer obligations'}</h2>
+          <div className="mt-6 space-y-4 text-text-secondary">
+            {(isCandidate
+              ? [
+                  'You are joining the broader BIFC Careers talent network.',
+                  'BIFC may contact you about BIFC-managed and suitable third-party fitness opportunities.',
+                  'Employer disclosure is controlled through the platform process.',
+                  'Optional marketing consent must be separate and not preselected.'
+                ]
+              : [
+                  'Employer accounts require BIFC approval before publishing jobs or viewing candidate previews.',
+                  'Candidate previews are limited and cannot be exported.',
+                  'Interest requests do not reveal direct contact details.',
+                  'Candidate information may only be used for the approved role workflow.'
+                ]).map(item => (
+              <p key={item} className="flex gap-3">
+                <ShieldCheck className="mt-1 h-5 w-5 shrink-0 text-accent-primary" />
+                <span>{item}</span>
+              </p>
+            ))}
+          </div>
+        </div>
+        <form className="border border-ui-border bg-background-card p-8">
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+              {isCandidate ? 'First name' : 'Trading name'}
+              <input className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+            </label>
+            <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+              {isCandidate ? 'Surname' : 'ABN'}
+              <input className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+            </label>
+            <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+              Email
+              <input type="email" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+            </label>
+            <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+              Mobile
+              <input type="tel" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+            </label>
+          </div>
+          <label className="mt-5 flex gap-3 text-sm text-text-secondary">
+            <input type="checkbox" className="mt-1" />
+            <span>I accept the current BIFC Careers collection notice, terms and privacy acknowledgement. Final wording requires Australian legal review before production launch.</span>
+          </label>
+          <button type="button" className="mt-6 bg-accent-primary px-6 py-3 font-semibold text-background-main">
+            {isCandidate ? 'Start profile' : 'Submit employer registration'}
+          </button>
+        </form>
+      </div>
+    </section>
+  );
+}
+
+function CandidateDashboard() {
+  return <Dashboard title="Candidate dashboard" role="candidate" />;
+}
+
+function EmployerDashboard() {
+  return <Dashboard title="Employer dashboard" role="employer" />;
+}
+
+function AdminDashboard() {
+  return <Dashboard title="BIFC recruitment admin" role="admin" />;
+}
+
+function Dashboard({ title, role }: { title: string; role: 'candidate' | 'employer' | 'admin' }) {
+  const cards =
+    role === 'candidate'
+      ? ['Profile completion 64%', '2 employer interest requests', '3 recommended jobs', '1 qualification expiry alert']
+      : role === 'employer'
+        ? ['2 active jobs', '6 matched previews', '3 interests awaiting response', 'No candidate exports available']
+        : ['18 active candidates', '4 pending employer approvals', '3 jobs awaiting review', '25 audit events today'];
+
+  return (
+    <>
+      <Helmet>
+        <title>{title} | BIFC Careers</title>
+        <meta name="robots" content="noindex" />
+      </Helmet>
+      <CareersHeader
+        eyebrow="Protected workspace"
+        title={title}
+        intro="Dashboard foundations are built around server-side role checks, limited disclosure, BIFC visibility and audit trails."
+      />
+      <section className="py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-4 md:grid-cols-4">
+            {cards.map(card => (
+              <div key={card} className="border border-ui-border bg-background-card p-5">
+                <p className="font-semibold text-text-primary">{card}</p>
+              </div>
+            ))}
+          </div>
+          {role === 'employer' && <CandidatePreviewPanel />}
+          {role === 'candidate' && <DisclosurePanel />}
+          {role === 'admin' && <AdminOpsPanel />}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function CandidatePreviewPanel() {
+  return (
+    <div className="mt-10">
+      <h2 className="text-3xl font-bold text-text-primary">Limited matched candidate previews</h2>
+      <p className="mt-3 text-text-secondary">No email, phone, resume, full surname or exact home suburb is included in these cards.</p>
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        {LIMITED_CANDIDATE_PREVIEWS.map(candidate => (
+          <article key={candidate.id} className="border border-ui-border bg-background-card p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-2xl font-bold text-text-primary">{candidate.firstName} {candidate.surnameInitial}.</h3>
+                <p className="mt-1 text-accent-primary">{candidate.headline}</p>
+              </div>
+              <span className="text-2xl font-bold text-accent-primary">{candidate.matchPercentage}%</span>
+            </div>
+            <p className="mt-4 text-text-secondary">{candidate.summary}</p>
+            <div className="mt-4 grid gap-2 text-sm text-text-secondary">
+              <span>{candidate.broadArea} - {candidate.distance}</span>
+              <span>{candidate.availability}</span>
+              <span>{candidate.preferredModel}</span>
+              <span>{candidate.lastActive}</span>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {candidate.specialisations.map(item => <span key={item} className="bg-background-section px-3 py-1 text-sm text-text-secondary">{item}</span>)}
+            </div>
+            <button className="mt-6 w-full bg-accent-primary px-5 py-3 font-semibold text-background-main">
+              This person may be a good fit
+            </button>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DisclosurePanel() {
+  return (
+    <div className="mt-10 border border-accent-primary bg-accent-primary/10 p-8">
+      <h2 className="text-3xl font-bold text-text-primary">Disclosure approval example</h2>
+      <p className="mt-3 text-text-secondary">
+        Candidate approval is specific to Summit Performance Studio and the Strength and Conditioning Coach role.
+      </p>
+      <div className="mt-6 grid gap-3 md:grid-cols-2">
+        {['Full name', 'Professional headline', 'Career summary', 'Relevant employment history', 'Qualifications', 'General availability'].map(item => (
+          <label key={item} className="flex gap-3 border border-ui-border bg-background-card p-4 text-text-secondary">
+            <input type="checkbox" defaultChecked />
+            <span>{item}</span>
+          </label>
+        ))}
+      </div>
+      <button className="mt-6 bg-accent-primary px-6 py-3 font-semibold text-background-main">Approve selected information</button>
+    </div>
+  );
+}
+
+function AdminOpsPanel() {
+  return (
+    <div className="mt-10 grid gap-6 lg:grid-cols-2">
+      <div className="border border-ui-border bg-background-card p-6">
+        <h2 className="text-2xl font-bold text-text-primary">Recruitment pipeline</h2>
+        <div className="mt-5 grid gap-2">
+          {WORKFLOW_STAGES.map(stage => <p key={stage} className="border border-ui-border bg-background-main px-4 py-2 text-text-secondary">{stage}</p>)}
+        </div>
+      </div>
+      <div className="border border-ui-border bg-background-card p-6">
+        <h2 className="text-2xl font-bold text-text-primary">Audit-first operations</h2>
+        <p className="mt-4 text-text-secondary">
+          Admin access, candidate preview views, interest requests, disclosure approvals, document access and placement records are modelled as immutable audit events.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function LegalPlaceholder({ title }: { title: string }) {
+  return (
+    <>
+      <Helmet>
+        <title>{title} | BIFC Careers</title>
+        <meta name="robots" content="noindex" />
+      </Helmet>
+      <CareersHeader
+        eyebrow="Legal review required"
+        title={title}
+        intro="Placeholder content only. Final wording must be reviewed by Australian legal and privacy advisers before production use."
+      />
+      <section className="py-16">
+        <div className="mx-auto max-w-4xl px-4 text-text-secondary sm:px-6 lg:px-8">
+          <p>
+            This page marks the required policy surface for BIFC Careers. The implementation records policy versions and acceptances, but this placeholder must not be treated as final legal wording.
+          </p>
+        </div>
+      </section>
+    </>
+  );
+}
+
+export default function Careers({ mode = 'home' }: CareersProps) {
+  return (
+    <div className="min-h-screen bg-background-main">
+      {mode === 'home' && <CareersHome />}
+      {mode === 'jobs' && <CareersJobs />}
+      {mode === 'employers' && <Employers />}
+      {mode === 'talent' && <Talent />}
+      {mode === 'register' && <Register />}
+      {mode === 'login' && <Login />}
+      {mode === 'candidate' && <CandidateDashboard />}
+      {mode === 'employer' && <EmployerDashboard />}
+      {mode === 'admin' && <AdminDashboard />}
+      {mode === 'privacy' && <LegalPlaceholder title="BIFC Careers Privacy Notice" />}
+      {mode === 'terms' && <LegalPlaceholder title="BIFC Careers Platform Terms" />}
+      {mode === 'candidateTerms' && <LegalPlaceholder title="BIFC Careers Candidate Terms" />}
+      {mode === 'employerTerms' && <LegalPlaceholder title="BIFC Careers Employer Terms" />}
+      {mode === 'collectionNotice' && <LegalPlaceholder title="BIFC Careers Collection Notice" />}
     </div>
   );
 }

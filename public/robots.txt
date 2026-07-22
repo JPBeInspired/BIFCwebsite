@@ -3,6 +3,10 @@ Allow: /
 
 Disallow: /admin
 Disallow: /admin/
+Disallow: /careers/admin
+Disallow: /careers/candidate
+Disallow: /careers/employer
+Disallow: /careers/login
 Disallow: /test
 Disallow: /websitecreation/payment-confirmation
 

@@ -5,6 +5,7 @@ import { ArrowLeft, MapPin, Building2, Users, Star, Upload, ArrowRight } from 'l
 import { getJobListing, submitJobApplication } from '../lib/cloudflare';
 import FileUpload from '../components/FileUpload';
 import toast from 'react-hot-toast';
+import { FEATURED_CAREERS_JOBS } from '../lib/careersMarketplace';
 
 export default function JobDetail() {
   const { id } = useParams();
@@ -27,6 +28,29 @@ export default function JobDetail() {
   const fetchJob = async () => {
     try {
       if (!id) return;
+      const marketplaceJob = FEATURED_CAREERS_JOBS.find(item => item.slug === id || item.id === id);
+
+      if (marketplaceJob) {
+        setJob({
+          id: marketplaceJob.id,
+          title: marketplaceJob.title,
+          headline: marketplaceJob.summary,
+          location: marketplaceJob.location,
+          club_name: marketplaceJob.employerName,
+          job_type: marketplaceJob.engagementModel,
+          summary: marketplaceJob.description,
+          requirements: marketplaceJob.requirements.join('\n'),
+          benefits: marketplaceJob.benefits.join('\n'),
+          about_club: `${marketplaceJob.employerName} is listed through BIFC Careers as ${marketplaceJob.managementType}. Candidate information is only shared through the approved disclosure workflow.`,
+          compensation: marketplaceJob.compensation,
+          management_type: marketplaceJob.managementType,
+          verified_employer: marketplaceJob.verifiedEmployer,
+          closing_date: marketplaceJob.closingDate,
+          specialisations: marketplaceJob.specialisations
+        });
+        return;
+      }
+
       const data = await getJobListing(id);
       setJob(data);
     } catch (error) {
@@ -143,6 +167,29 @@ export default function JobDetail() {
                 <span>{job.job_type}</span>
               </div>
             </div>
+
+            {(job.management_type || job.verified_employer || job.compensation) && (
+              <div className="mb-12 grid gap-4 md:grid-cols-3">
+                {job.management_type && (
+                  <div className="border border-ui-border bg-background-card p-4">
+                    <p className="text-sm text-text-secondary">Listing type</p>
+                    <p className="mt-1 font-bold text-accent-primary">{job.management_type}</p>
+                  </div>
+                )}
+                {job.verified_employer && (
+                  <div className="border border-ui-border bg-background-card p-4">
+                    <p className="text-sm text-text-secondary">Employer status</p>
+                    <p className="mt-1 font-bold text-accent-primary">Verified Employer</p>
+                  </div>
+                )}
+                {job.compensation && (
+                  <div className="border border-ui-border bg-background-card p-4">
+                    <p className="text-sm text-text-secondary">Commercial arrangement</p>
+                    <p className="mt-1 font-bold text-accent-primary">{job.compensation}</p>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Summary */}
             <div className="mb-12">
