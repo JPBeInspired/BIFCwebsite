@@ -62,6 +62,20 @@ function trackCareersEvent(action: string, params: Record<string, string | numbe
   });
 }
 
+function useSingleMetaDescription(content: string) {
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    document
+      .querySelectorAll<HTMLMetaElement>('meta[name="description"]')
+      .forEach(meta => {
+        if (meta.getAttribute('content') !== content) {
+          meta.remove();
+        }
+      });
+  }, [content]);
+}
+
 function formatCareersDate(date: string) {
   return new Intl.DateTimeFormat('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(`${date}T00:00:00`));
 }
@@ -1071,6 +1085,7 @@ function EmployerRegister() {
 function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const metaDescription = 'Sign in to your BIFC Careers account to manage your career profile, saved fitness jobs, applications or employer activity.';
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -1078,6 +1093,8 @@ function Login() {
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [authError, setAuthError] = useState('');
   const errorSummaryRef = useRef<HTMLDivElement>(null);
+
+  useSingleMetaDescription(metaDescription);
 
   useEffect(() => {
     trackCareersEvent('sign_in_page_viewed');
@@ -1143,10 +1160,17 @@ function Login() {
       }
 
       navigate(next || '/careers');
-    } catch {
+    } catch (error) {
       setStatus('error');
       setPassword('');
-      setAuthError('The email address or password is incorrect. Try again or reset your password.');
+      const errorMessage = error instanceof Error ? error.message : '';
+      setAuthError(
+        errorMessage.includes('Too many sign-in attempts')
+          ? 'Too many sign-in attempts. Try again later or reset your password.'
+          : errorMessage.includes('Request failed with 5')
+            ? "We couldn't sign you in right now. Please try again in a moment."
+            : 'The email address or password is incorrect. Try again or reset your password.'
+      );
       trackCareersEvent('sign_in_failed');
     } finally {
       setStatus(currentStatus => currentStatus === 'submitting' ? 'idle' : currentStatus);
@@ -1155,7 +1179,7 @@ function Login() {
 
   const emailErrorId = fieldErrors.email ? 'careers-login-email-error' : undefined;
   const passwordErrorId = fieldErrors.password ? 'careers-login-password-error' : undefined;
-  const isSubmitDisabled = status === 'submitting' || !email.trim() || !password;
+  const isSubmitting = status === 'submitting';
 
   return (
     <>
@@ -1163,19 +1187,19 @@ function Login() {
         <title>Sign in | BIFC Careers</title>
         <meta
           name="description"
-          content="Sign in to your BIFC Careers account to manage your career profile, saved fitness jobs, applications or employer activity."
+          content={metaDescription}
         />
         <meta name="robots" content="noindex" />
       </Helmet>
-      <section className="min-h-screen bg-background-main px-5 pb-10 pt-24 sm:px-6 md:pt-32 lg:px-8">
+      <section className="min-h-screen scroll-pt-24 bg-background-main px-5 pb-8 pt-24 sm:px-6 md:scroll-pt-28 md:pt-32 lg:px-8">
         <div className="mx-auto grid max-w-6xl gap-7 lg:grid-cols-[minmax(0,0.9fr)_minmax(440px,480px)] lg:items-center lg:gap-10">
           <div className="max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-widest text-accent-primary">BIFC Careers</p>
-            <h1 className="mt-3 text-4xl font-black leading-tight text-text-primary sm:mt-4 sm:text-5xl">Welcome back</h1>
+            <h1 className="mt-3 scroll-mt-24 text-4xl font-black leading-tight text-text-primary sm:mt-4 sm:text-5xl md:scroll-mt-28">Welcome back</h1>
             <p className="mt-3 text-base leading-7 text-text-secondary sm:mt-5 sm:text-lg sm:leading-8">
               Sign in to access your career profile, saved jobs, applications or employer activity.
             </p>
-            <div className="mt-6 hidden max-w-xl gap-3 rounded-lg border border-ui-border bg-background-card p-4 lg:flex">
+            <div className="mt-6 hidden max-w-xl gap-3 rounded-lg border border-ui-border bg-background-card p-6 lg:flex">
               <ShieldCheck className="mt-1 h-5 w-5 flex-none text-accent-primary" aria-hidden="true" />
               <div>
                 <p className="text-sm font-semibold text-text-primary">Candidate privacy is protected</p>
@@ -1184,7 +1208,7 @@ function Login() {
                 </p>
                 <Link
                   to="/careers/collection-notice"
-                  className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-accent-primary hover:text-accent-hover"
+                  className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-accent-primary hover:text-accent-hover"
                 >
                   Learn how candidate privacy works
                   <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
@@ -1212,7 +1236,7 @@ function Login() {
                   id="careers-login-error-summary"
                   role="alert"
                   tabIndex={-1}
-                  className="mt-5 border border-red-400/40 bg-red-950/30 p-4 text-sm leading-6 text-red-100 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-background-card"
+                  className="mt-5 scroll-mt-24 border border-red-400/40 bg-red-950/30 p-4 text-sm leading-6 text-red-100 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-background-card md:scroll-mt-28"
                 >
                   <p>{authError}</p>
                   <div className="mt-3 flex flex-wrap gap-4">
@@ -1317,21 +1341,21 @@ function Login() {
 
               <button
                 type="submit"
-                disabled={isSubmitDisabled}
-                aria-busy={status === 'submitting'}
-                className="mt-3 flex min-h-12 w-full items-center justify-center gap-3 bg-accent-primary px-6 py-3 font-semibold text-background-main transition hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent-primary focus:ring-offset-2 focus:ring-offset-background-card active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={isSubmitting}
+                aria-busy={isSubmitting}
+                className="mt-3 flex min-h-12 w-full items-center justify-center gap-3 bg-accent-primary px-6 py-3 font-semibold text-background-main transition hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent-primary focus:ring-offset-2 focus:ring-offset-background-card active:translate-y-px active:bg-accent-primary/80 disabled:cursor-wait disabled:opacity-90"
               >
-                {status === 'submitting' && (
+                {isSubmitting && (
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-background-main/30 border-t-background-main" aria-hidden="true" />
                 )}
-                <span>{status === 'submitting' ? 'Signing in...' : 'Sign in'}</span>
+                <span>{isSubmitting ? 'Signing in...' : 'Sign in'}</span>
               </button>
 
               <div className="mt-7 border-t border-ui-border pt-6">
                 <h3 className="text-base font-bold text-text-primary">New to BIFC Careers?</h3>
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <div className="mt-4 grid gap-4 min-[520px]:grid-cols-2">
                   <div>
-                    <p className="text-sm font-semibold text-text-primary">Looking for fitness opportunities?</p>
+                    <p className="text-sm font-semibold text-text-primary">Candidates</p>
                     <p className="mt-1 text-sm leading-6 text-text-secondary">Create a free private career profile.</p>
                     <Link
                       to="/careers/register"
@@ -1343,8 +1367,8 @@ function Login() {
                     </Link>
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-text-primary">Hiring fitness professionals?</p>
-                    <p className="mt-1 text-sm leading-6 text-text-secondary">Create an employer account and advertise an opportunity.</p>
+                    <p className="text-sm font-semibold text-text-primary">Employers</p>
+                    <p className="mt-1 text-sm leading-6 text-text-secondary">Advertise roles and manage applicants.</p>
                     <Link
                       to="/careers/employers/register"
                       onClick={() => trackCareersEvent('employer_registration_clicked')}
@@ -1357,24 +1381,26 @@ function Login() {
                 </div>
               </div>
             </form>
-
-            <div className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-3 text-sm text-text-secondary">
-              <Link to="/careers/privacy" className="hover:text-accent-primary">Privacy policy</Link>
-              <Link to="/careers/collection-notice" className="hover:text-accent-primary">Candidate collection notice</Link>
-              <Link to="/careers/terms" className="hover:text-accent-primary">Terms of use</Link>
-              <Link to="/contact" className="hover:text-accent-primary">Contact support</Link>
-            </div>
           </div>
         </div>
+        <footer className="mx-auto mt-8 flex max-w-6xl flex-wrap justify-center gap-x-4 gap-y-3 pb-6 text-center text-sm text-text-secondary">
+          <Link to="/careers/privacy" className="hover:text-accent-primary">Privacy policy</Link>
+          <Link to="/careers/collection-notice" className="hover:text-accent-primary">Candidate collection notice</Link>
+          <Link to="/careers/terms" className="hover:text-accent-primary">Terms of use</Link>
+          <Link to="/contact" className="hover:text-accent-primary">Contact support</Link>
+        </footer>
       </section>
     </>
   );
 }
 
 function ForgotPassword() {
+  const metaDescription = 'Reset the password for your BIFC Careers account.';
   const [submitted, setSubmitted] = useState(false);
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
+
+  useSingleMetaDescription(metaDescription);
 
   const handlePasswordReset = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -1401,11 +1427,11 @@ function ForgotPassword() {
         <title>Reset your password | BIFC Careers</title>
         <meta
           name="description"
-          content="Reset the password for your BIFC Careers account."
+          content={metaDescription}
         />
         <meta name="robots" content="noindex" />
       </Helmet>
-      <section className="min-h-screen bg-background-main px-5 pb-10 pt-28 sm:px-6 md:pt-32 lg:px-8">
+      <section className="min-h-screen scroll-pt-24 bg-background-main px-5 pb-8 pt-28 sm:px-6 md:scroll-pt-28 md:pt-32 lg:px-8">
         <form
           method="post"
           noValidate
@@ -1413,7 +1439,7 @@ function ForgotPassword() {
           className="mx-auto max-w-xl rounded-lg border border-ui-border bg-background-card p-6 sm:p-8"
         >
           <p className="text-sm font-semibold uppercase tracking-widest text-accent-primary">Account recovery</p>
-          <h1 className="mt-3 text-3xl font-black leading-tight text-text-primary sm:text-4xl">Reset your password</h1>
+          <h1 className="mt-3 scroll-mt-24 text-3xl font-black leading-tight text-text-primary sm:text-4xl md:scroll-mt-28">Reset your password</h1>
           <p className="mt-3 text-sm leading-6 text-text-secondary">
             Enter the email address associated with your BIFC Careers account.
           </p>
@@ -1472,12 +1498,12 @@ function ForgotPassword() {
           </div>
         </form>
 
-        <div className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-3 text-sm text-text-secondary">
+        <footer className="mx-auto mt-8 flex max-w-6xl flex-wrap justify-center gap-x-4 gap-y-3 pb-6 text-center text-sm text-text-secondary">
           <Link to="/careers/privacy" className="hover:text-accent-primary">Privacy policy</Link>
           <Link to="/careers/collection-notice" className="hover:text-accent-primary">Candidate collection notice</Link>
           <Link to="/careers/terms" className="hover:text-accent-primary">Terms of use</Link>
           <Link to="/contact" className="hover:text-accent-primary">Contact support</Link>
-        </div>
+        </footer>
       </section>
     </>
   );
