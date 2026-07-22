@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowRight,
   BadgeCheck,
@@ -15,8 +15,10 @@ import {
   MapPin,
   Search,
   ShieldCheck,
-  SlidersHorizontal
+  SlidersHorizontal,
+  X
 } from 'lucide-react';
+import { BRAND } from '../constants/assets';
 import { CareersRouteMode } from '../types/careers';
 import {
   CAREERS_EMPLOYERS,
@@ -25,7 +27,6 @@ import {
   LIMITED_CANDIDATE_PREVIEWS,
   ROLE_CATEGORIES,
   WORKFLOW_STAGES,
-  filterCareersJobs
 } from '../lib/careersMarketplace';
 import {
   approveCandidateDisclosure,
@@ -41,8 +42,14 @@ interface CareersProps {
   mode?: CareersRouteMode;
 }
 
-const STATES = ['all', 'VIC', 'NSW', 'QLD', 'WA', 'SA', 'ACT', 'TAS', 'NT'];
 const ROLE_STEPS = ['Job Details', 'Job Ad', 'Review'];
+const ROLE_FILTERS = [...ROLE_CATEGORIES, 'Other fitness roles'];
+const DISTANCE_FILTERS = ['Within 10km', 'Within 25km', 'Within 50km', 'Any distance', 'Remote opportunities'];
+const EMPLOYMENT_FILTERS = ['Full-time employee', 'Part-time employee', 'Casual employee', 'Contractor', 'Sole trader', 'Rental model'];
+const WORK_FILTERS = ['On-site', 'Hybrid', 'Remote'];
+const EXPERIENCE_FILTERS = ['Entry level', '1-2 years', '3-5 years', '5+ years', 'Management experience'];
+const POSTED_FILTERS = ['Any time', 'Past 24 hours', 'Past 7 days', 'Past 30 days'];
+const SORT_OPTIONS = ['Newest', 'Closing soon', 'Most relevant'];
 
 function trackCareersEvent(action: string, params: Record<string, string | number | boolean> = {}) {
   if (typeof window === 'undefined') return;
@@ -59,10 +66,82 @@ function formatCareersDate(date: string) {
   return new Intl.DateTimeFormat('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(`${date}T00:00:00`));
 }
 
+function daysBetween(from: Date, to: Date) {
+  return Math.ceil((to.getTime() - from.getTime()) / 86400000);
+}
+
+function postedLabel(date: string) {
+  const days = Math.max(0, daysBetween(new Date(`${date}T00:00:00`), new Date()));
+  if (days === 0) return 'Posted today';
+  if (days === 1) return 'Posted 1 day ago';
+  return `Posted ${days} days ago`;
+}
+
+function closingLabel(date: string) {
+  const days = daysBetween(new Date(), new Date(`${date}T23:59:59`));
+  if (days < 0) return '';
+  if (days <= 7) return `Closing in ${days || 1} day${days === 1 ? '' : 's'}`;
+  if (days <= 14) return `Closes ${formatCareersDate(date).replace(/ \d{4}$/, '')}`;
+  return '';
+}
+
 function managementNote(type: (typeof FEATURED_CAREERS_JOBS)[number]['managementType']) {
   if (type === 'BIFC Managed') return 'Managed by BIFC';
   if (type === 'BIFC Recruitment Partner') return 'Recruitment supported by BIFC';
   return 'Posted directly by the employer';
+}
+
+function workArrangementLabel(value: string) {
+  return value === 'Onsite' ? 'On-site' : value;
+}
+
+function employmentLabel(value: string) {
+  const lower = value.toLowerCase();
+  if (lower.includes('part-time')) return 'Part-time';
+  if (lower.includes('casual')) return 'Casual';
+  if (lower.includes('sole trader')) return 'Sole trader';
+  if (lower.includes('rental')) return 'Rental model';
+  if (lower.includes('contractor')) return 'Contractor';
+  if (lower.includes('permanent')) return 'Full-time';
+  return value;
+}
+
+function compensationParts(value: string) {
+  if (value.includes(' plus ')) {
+    const [primary, secondary] = value.split(' plus ');
+    return { primary, secondary: secondary.charAt(0).toUpperCase() + secondary.slice(1) };
+  }
+  if (value.includes(' based on ')) {
+    const [primary, secondary] = value.split(' based on ');
+    return { primary, secondary: `Based on ${secondary}` };
+  }
+  if (value.includes(' with ')) {
+    const [primary, secondary] = value.split(' with ');
+    return { primary, secondary: secondary.charAt(0).toUpperCase() + secondary.slice(1) };
+  }
+  return { primary: value, secondary: '' };
+}
+
+function employerInitials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 3)
+    .map(part => part[0])
+    .join('')
+    .toUpperCase();
+}
+
+function employerLogo(job: (typeof FEATURED_CAREERS_JOBS)[number]) {
+  return job.employerSlug === 'be-inspired-fitness-and-coaching' ? BRAND.LOGO : '';
+}
+
+function listFromParams(params: URLSearchParams, key: string) {
+  return params.get(key)?.split(',').filter(Boolean) || [];
+}
+
+function toggleListValue(values: string[], value: string) {
+  return values.includes(value) ? values.filter(item => item !== value) : [...values, value];
 }
 
 function Badge({ children }: { children: React.ReactNode }) {
@@ -374,64 +453,511 @@ function ProcessBlock({ title, steps }: { title: string; steps: string[] }) {
   );
 }
 
+type JobQueryState = {
+  q: string;
+  location: string;
+  role: string[];
+  distance: string;
+  employment: string[];
+  work: string[];
+  experience: string[];
+  posted: string;
+  sort: string;
+};
+
 function CareersJobs() {
-  const [filters, setFilters] = useState({ search: '', state: 'all', engagementModel: 'all', category: 'all' });
-  const jobs = useMemo(() => filterCareersJobs(FEATURED_CAREERS_JOBS, filters), [filters]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [savePrompt, setSavePrompt] = useState<(typeof FEATURED_CAREERS_JOBS)[number] | null>(null);
+
+  const query: JobQueryState = useMemo(() => ({
+    q: searchParams.get('q') || '',
+    location: searchParams.get('location') || '',
+    role: listFromParams(searchParams, 'role'),
+    distance: searchParams.get('distance') || 'Any distance',
+    employment: listFromParams(searchParams, 'employment'),
+    work: listFromParams(searchParams, 'work'),
+    experience: listFromParams(searchParams, 'experience'),
+    posted: searchParams.get('posted') || 'Any time',
+    sort: searchParams.get('sort') === 'Most relevant' && !(searchParams.get('q') || '').trim() ? 'Newest' : searchParams.get('sort') || 'Newest'
+  }), [searchParams]);
+  const [qInput, setQInput] = useState(query.q);
+  const [locationInput, setLocationInput] = useState(query.location);
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem('bifc_jobs_scroll');
+    if (saved) {
+      window.scrollTo({ top: Number(saved), behavior: 'instant' });
+      sessionStorage.removeItem('bifc_jobs_scroll');
+    }
+  }, []);
+
+  useEffect(() => {
+    setQInput(query.q);
+    setLocationInput(query.location);
+  }, [query.q, query.location]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = window.setTimeout(() => setIsLoading(false), 300);
+    return () => window.clearTimeout(timer);
+  }, [searchParams]);
+
+  const updateQuery = (next: Partial<JobQueryState>) => {
+    const merged: JobQueryState = { ...query, ...next };
+    const params = new URLSearchParams();
+    if (merged.q.trim()) params.set('q', merged.q.trim());
+    if (merged.location.trim()) params.set('location', merged.location.trim());
+    if (merged.role.length) params.set('role', merged.role.join(','));
+    if (merged.distance !== 'Any distance') params.set('distance', merged.distance);
+    if (merged.employment.length) params.set('employment', merged.employment.join(','));
+    if (merged.work.length) params.set('work', merged.work.join(','));
+    if (merged.experience.length) params.set('experience', merged.experience.join(','));
+    if (merged.posted !== 'Any time') params.set('posted', merged.posted);
+    if (merged.sort !== 'Newest' && (merged.sort !== 'Most relevant' || merged.q.trim())) params.set('sort', merged.sort);
+    setSearchParams(params, { replace: true });
+  };
+
+  const clearFilters = () => updateQuery({ role: [], distance: 'Any distance', employment: [], work: [], experience: [], posted: 'Any time' });
+  const clearAll = () => setSearchParams(new URLSearchParams(), { replace: true });
+
+  const jobs = useMemo(() => {
+    const now = new Date();
+    const filtered = FEATURED_CAREERS_JOBS.filter(job => {
+      const searchMatch =
+        !query.q ||
+        [job.title, job.employerName, job.location, job.summary, job.roleCategory, job.specialisations.join(' ')]
+          .join(' ')
+          .toLowerCase()
+          .includes(query.q.toLowerCase());
+      const locationMatch = !query.location || job.location.toLowerCase().includes(query.location.toLowerCase());
+      const roleMatch = !query.role.length || query.role.includes(job.roleCategory);
+      const distanceMatch = query.distance === 'Any distance' || (query.distance === 'Remote opportunities' ? job.workplaceType === 'Remote' : true);
+      const employmentMatch = !query.employment.length || query.employment.some(item => employmentLabel(job.engagementModel).toLowerCase().includes(item.replace(' employee', '').toLowerCase()));
+      const workMatch = !query.work.length || query.work.includes(workArrangementLabel(job.workplaceType));
+      const experienceMatch = !query.experience.length || query.experience.some(item => job.experienceLevel.toLowerCase().includes(item.replace('Entry level', 'early career').toLowerCase()));
+      const postedDays = daysBetween(new Date(`${job.postedDate}T00:00:00`), now);
+      const postedMatch =
+        query.posted === 'Any time' ||
+        (query.posted === 'Past 24 hours' && postedDays <= 1) ||
+        (query.posted === 'Past 7 days' && postedDays <= 7) ||
+        (query.posted === 'Past 30 days' && postedDays <= 30);
+
+      return searchMatch && locationMatch && roleMatch && distanceMatch && employmentMatch && workMatch && experienceMatch && postedMatch;
+    });
+
+    return [...filtered].sort((a, b) => {
+      if (query.sort === 'Closing soon') return new Date(a.closingDate).getTime() - new Date(b.closingDate).getTime();
+      if (query.sort === 'Most relevant') return Number(b.matchPercentage || 0) - Number(a.matchPercentage || 0);
+      return new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime();
+    });
+  }, [query]);
+
+  const activeFilterCount = query.role.length + query.employment.length + query.work.length + query.experience.length + (query.distance !== 'Any distance' ? 1 : 0) + (query.posted !== 'Any time' ? 1 : 0);
+  const activeChips = [
+    ...query.role.map(value => ({ label: value, clear: () => updateQuery({ role: query.role.filter(item => item !== value) }) })),
+    ...query.employment.map(value => ({ label: value, clear: () => updateQuery({ employment: query.employment.filter(item => item !== value) }) })),
+    ...query.work.map(value => ({ label: value, clear: () => updateQuery({ work: query.work.filter(item => item !== value) }) })),
+    ...query.experience.map(value => ({ label: value, clear: () => updateQuery({ experience: query.experience.filter(item => item !== value) }) })),
+    ...(query.distance !== 'Any distance' ? [{ label: query.distance, clear: () => updateQuery({ distance: 'Any distance' }) }] : []),
+    ...(query.posted !== 'Any time' ? [{ label: query.posted, clear: () => updateQuery({ posted: 'Any time' }) }] : [])
+  ];
+
+  const runSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    updateQuery({ q: qInput, location: locationInput, sort: query.sort === 'Most relevant' && !qInput.trim() ? 'Newest' : query.sort });
+  };
+
+  const openJob = (job: (typeof FEATURED_CAREERS_JOBS)[number]) => {
+    sessionStorage.setItem('bifc_jobs_scroll', String(window.scrollY));
+    trackCareersEvent('job_viewed', { job_id: job.id });
+    navigate(`/careers/jobs/${job.slug}${location.search}`);
+  };
 
   return (
     <>
       <Helmet>
         <title>Fitness Jobs | BIFC Careers</title>
-        <meta name="description" content="Search BIFC Careers fitness jobs across Australia." />
+        <meta name="description" content="Search verified fitness opportunities across Australia." />
         <link rel="canonical" href="https://www.beinspiredfitnessandcoaching.com/careers/jobs" />
       </Helmet>
-      <CareersHeader
-        eyebrow="Fitness jobs"
-        title="Find fitness-industry opportunities across Australia"
-        intro="Search roles by location, category, engagement model and BIFC management status. Every job should disclose how the opportunity works."
-      />
-      <section className="border-b border-ui-border bg-background-main py-8">
-        <div className="mx-auto grid max-w-7xl gap-4 px-4 sm:px-6 md:grid-cols-4 lg:px-8">
-          <label className="relative md:col-span-2">
-            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-text-secondary" />
-            <input
-              value={filters.search}
-              onChange={event => setFilters({ ...filters, search: event.target.value })}
-              className="w-full border border-ui-border bg-background-card py-3 pl-12 pr-4 text-text-primary"
-              placeholder="Keyword, role or employer"
-            />
+
+      <section className="border-b border-ui-border bg-background-section pt-28 pb-8 md:pt-32 md:pb-12">
+        <div className="mx-auto max-w-[1200px] px-5 sm:px-6 lg:px-8">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-primary">Fitness jobs</p>
+          <h1 className="mt-4 max-w-4xl text-[2.25rem] font-bold leading-[1.08] text-text-primary md:text-[3.25rem]">
+            Find your next fitness role
+          </h1>
+          <p className="mt-4 max-w-[680px] text-[17px] leading-relaxed text-text-secondary md:text-lg">
+            Search verified opportunities for personal trainers, coaches, instructors and fitness leaders across Australia.
+          </p>
+          <p className="mt-3 max-w-[680px] text-sm text-text-secondary">
+            Every listing clearly explains the location, work arrangement, compensation and recruitment process.
+          </p>
+        </div>
+      </section>
+
+      <section className="border-b border-ui-border bg-background-main py-5">
+        <form onSubmit={runSearch} className="mx-auto grid max-w-[1200px] gap-4 px-5 sm:px-6 md:grid-cols-[1fr_0.6fr_160px] lg:px-8">
+          <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+            Search jobs
+            <span className="relative">
+              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-text-secondary" />
+              <input name="q" value={qInput} onChange={event => setQInput(event.target.value)} className="min-h-11 w-full rounded-md border border-ui-border bg-background-card py-3 pl-12 pr-4 text-text-primary" placeholder="Job title, skill or employer" />
+            </span>
           </label>
-          <select
-            value={filters.state}
-            onChange={event => setFilters({ ...filters, state: event.target.value })}
-            className="border border-ui-border bg-background-card px-4 py-3 text-text-primary"
-            aria-label="State"
-          >
-            {STATES.map(state => <option key={state} value={state}>{state === 'all' ? 'All states' : state}</option>)}
-          </select>
-          <select
-            value={filters.category}
-            onChange={event => setFilters({ ...filters, category: event.target.value })}
-            className="border border-ui-border bg-background-card px-4 py-3 text-text-primary"
-            aria-label="Role category"
-          >
-            <option value="all">All role categories</option>
-            {ROLE_CATEGORIES.map(category => <option key={category}>{category}</option>)}
-          </select>
+          <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+            Location
+            <input name="location" value={locationInput} onChange={event => setLocationInput(event.target.value)} className="min-h-11 rounded-md border border-ui-border bg-background-card px-4 py-3 text-text-primary" placeholder="Suburb, city or postcode" />
+          </label>
+          <button className="mt-auto min-h-11 rounded-md bg-accent-primary px-5 py-3 font-semibold text-background-main transition-colors hover:bg-accent-hover">
+            Search jobs
+          </button>
+        </form>
+      </section>
+
+      <section className="py-8 md:py-10">
+        <div className="mx-auto grid max-w-[1240px] gap-7 px-5 sm:px-6 lg:grid-cols-[270px_1fr] lg:px-8">
+          <aside className="hidden lg:block">
+            <JobFilterPanel query={query} updateQuery={updateQuery} clearFilters={clearFilters} jobs={FEATURED_CAREERS_JOBS} />
+          </aside>
+
+          <div>
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-lg font-semibold text-text-primary">{jobs.length} jobs found</p>
+                {isLoading && <p className="mt-1 text-sm text-text-secondary">Updating results...</p>}
+              </div>
+              <label className="flex items-center gap-3 text-sm font-semibold text-text-secondary">
+                Sort by
+                <select value={query.sort} onChange={event => updateQuery({ sort: event.target.value })} className="rounded-md border border-ui-border bg-background-card px-3 py-2 text-text-primary">
+                  {SORT_OPTIONS.map(option => <option key={option} disabled={option === 'Most relevant' && !query.q.trim()}>{option}</option>)}
+                </select>
+              </label>
+            </div>
+
+            <div className="mb-5 flex gap-3 lg:hidden">
+              <button type="button" onClick={() => setFiltersOpen(true)} className="min-h-11 flex-1 rounded-md border border-ui-border px-4 py-3 font-semibold text-text-primary">
+                Filters{activeFilterCount ? ` (${activeFilterCount})` : ''}
+              </button>
+              <select value={query.sort} onChange={event => updateQuery({ sort: event.target.value })} className="min-h-11 flex-1 rounded-md border border-ui-border bg-background-card px-4 py-3 font-semibold text-text-primary" aria-label="Sort jobs">
+                {SORT_OPTIONS.map(option => <option key={option} value={option} disabled={option === 'Most relevant' && !query.q.trim()}>Sort: {option}</option>)}
+              </select>
+            </div>
+
+            {activeChips.length > 0 && (
+              <div className="mb-5 flex flex-wrap items-center gap-2">
+                {activeChips.map(chip => (
+                  <button key={chip.label} type="button" onClick={chip.clear} className="rounded-full border border-ui-border bg-background-card px-3 py-1.5 text-sm text-text-secondary hover:border-accent-primary hover:text-accent-primary">
+                    {chip.label} x
+                  </button>
+                ))}
+                <button type="button" onClick={clearAll} className="px-2 py-1.5 text-sm font-semibold text-accent-primary hover:text-accent-hover">Clear all</button>
+              </div>
+            )}
+
+            <div className="grid gap-5">
+              {isLoading ? (
+                [0, 1, 2].map(item => <div key={item} className="h-64 animate-pulse rounded-lg border border-ui-border bg-background-card" />)
+              ) : (
+                jobs.map(job => <JobListingCard key={job.id} job={job} onOpen={() => openJob(job)} onSave={() => setSavePrompt(job)} />)
+              )}
+            </div>
+
+            <div className="mt-8 rounded-lg border border-accent-primary bg-accent-primary/10 p-6 md:flex md:items-center md:justify-between md:gap-6">
+              <div>
+                <h2 className="text-2xl font-bold text-text-primary">Can't see the right role?</h2>
+                <p className="mt-2 text-text-secondary">Create a private profile and choose when employers receive your details.</p>
+              </div>
+              <PrimaryLink to="/careers/register" className="mt-5 w-full md:mt-0 md:w-auto" eventName="create_profile_button_clicked">Create free profile</PrimaryLink>
+            </div>
+          </div>
         </div>
       </section>
-      <section className="py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 flex items-center gap-3 text-text-secondary">
-            <SlidersHorizontal className="h-5 w-5 text-accent-primary" />
-            Showing {jobs.length} curated marketplace roles
-          </div>
-          <div className="grid gap-6 lg:grid-cols-2">
-            {jobs.map(job => <JobCard key={job.id} job={job} />)}
+
+      {filtersOpen && (
+        <div className="fixed inset-0 z-[70] bg-background-main/80 lg:hidden">
+          <div className="ml-auto flex h-full max-w-md flex-col border-l border-ui-border bg-background-section">
+            <div className="flex items-center justify-between border-b border-ui-border p-5">
+              <h2 className="text-xl font-bold text-text-primary">Filter jobs</h2>
+              <button type="button" onClick={() => setFiltersOpen(false)} className="p-2 text-text-secondary hover:text-accent-primary" aria-label="Close filters">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto p-5">
+              <JobFilterPanel query={query} updateQuery={updateQuery} clearFilters={clearFilters} jobs={FEATURED_CAREERS_JOBS} compact />
+            </div>
+            <div className="grid grid-cols-2 gap-3 border-t border-ui-border p-5">
+              <button type="button" onClick={clearFilters} className="min-h-11 rounded-md border border-ui-border px-4 py-3 font-semibold text-text-primary">Clear all</button>
+              <button type="button" onClick={() => setFiltersOpen(false)} className="min-h-11 rounded-md bg-accent-primary px-4 py-3 font-semibold text-background-main">Show {jobs.length} jobs</button>
+            </div>
           </div>
         </div>
-      </section>
+      )}
+
+      {savePrompt && <SaveJobPrompt job={savePrompt} onClose={() => setSavePrompt(null)} />}
     </>
+  );
+}
+
+function filterCount(jobs: typeof FEATURED_CAREERS_JOBS, group: string, value: string) {
+  return jobs.filter(job => {
+    if (group === 'role') return job.roleCategory === value;
+    if (group === 'employment') return employmentLabel(job.engagementModel).toLowerCase().includes(value.replace(' employee', '').toLowerCase());
+    if (group === 'work') return workArrangementLabel(job.workplaceType) === value;
+    if (group === 'experience') return job.experienceLevel.toLowerCase().includes(value.replace('Entry level', 'early career').toLowerCase());
+    if (group === 'posted') {
+      if (value === 'Any time') return true;
+      const days = daysBetween(new Date(`${job.postedDate}T00:00:00`), new Date());
+      if (value === 'Past 24 hours') return days <= 1;
+      if (value === 'Past 7 days') return days <= 7;
+      return days <= 30;
+    }
+    if (group === 'distance') return value === 'Remote opportunities' ? job.workplaceType === 'Remote' : true;
+    return true;
+  }).length;
+}
+
+function FilterGroup({
+  title,
+  options,
+  selected,
+  group,
+  jobs,
+  onToggle
+}: {
+  title: string;
+  options: string[];
+  selected: string[];
+  group: string;
+  jobs: typeof FEATURED_CAREERS_JOBS;
+  onToggle: (value: string) => void;
+}) {
+  return (
+    <fieldset className="border-t border-ui-border pt-5">
+      <legend className="mb-3 font-semibold text-text-primary">{title}</legend>
+      <div className="grid gap-2">
+        {options.map(option => {
+          const count = filterCount(jobs, group, option);
+          const disabled = count === 0;
+          return (
+            <label key={option} className={`flex items-center justify-between gap-3 text-sm ${disabled ? 'text-text-secondary/45' : 'text-text-secondary'}`}>
+              <span className="flex items-center gap-3">
+                <input type="checkbox" checked={selected.includes(option)} disabled={disabled} onChange={() => onToggle(option)} />
+                <span>{option}</span>
+              </span>
+              <span>{count}</span>
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+
+function RadioGroup({
+  title,
+  options,
+  selected,
+  group,
+  jobs,
+  onChange
+}: {
+  title: string;
+  options: string[];
+  selected: string;
+  group: string;
+  jobs: typeof FEATURED_CAREERS_JOBS;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <fieldset className="border-t border-ui-border pt-5">
+      <legend className="mb-3 font-semibold text-text-primary">{title}</legend>
+      <div className="grid gap-2">
+        {options.map(option => {
+          const count = filterCount(jobs, group, option);
+          const disabled = count === 0;
+          return (
+            <label key={option} className={`flex items-center justify-between gap-3 text-sm ${disabled ? 'text-text-secondary/45' : 'text-text-secondary'}`}>
+              <span className="flex items-center gap-3">
+                <input type="radio" name={title} checked={selected === option} disabled={disabled} onChange={() => onChange(option)} />
+                <span>{option}</span>
+              </span>
+              <span>{count}</span>
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+
+function JobFilterPanel({
+  query,
+  updateQuery,
+  clearFilters,
+  jobs,
+  compact = false
+}: {
+  query: JobQueryState;
+  updateQuery: (next: Partial<JobQueryState>) => void;
+  clearFilters: () => void;
+  jobs: typeof FEATURED_CAREERS_JOBS;
+  compact?: boolean;
+}) {
+  return (
+    <div className={`${compact ? '' : 'sticky top-24'} rounded-lg border border-ui-border bg-background-section p-5`}>
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <h2 className="text-xl font-bold text-text-primary">Filter jobs</h2>
+        <SlidersHorizontal className="h-5 w-5 text-text-secondary" />
+      </div>
+      <div className="grid gap-5">
+        <FilterGroup title="Role category" group="role" options={ROLE_FILTERS} selected={query.role} jobs={jobs} onToggle={value => updateQuery({ role: toggleListValue(query.role, value) })} />
+        <RadioGroup title="Location radius" group="distance" options={DISTANCE_FILTERS} selected={query.distance} jobs={jobs} onChange={value => updateQuery({ distance: value })} />
+        <FilterGroup title="Employment arrangement" group="employment" options={EMPLOYMENT_FILTERS} selected={query.employment} jobs={jobs} onToggle={value => updateQuery({ employment: toggleListValue(query.employment, value) })} />
+        <FilterGroup title="Work arrangement" group="work" options={WORK_FILTERS} selected={query.work} jobs={jobs} onToggle={value => updateQuery({ work: toggleListValue(query.work, value) })} />
+        <FilterGroup title="Experience level" group="experience" options={EXPERIENCE_FILTERS} selected={query.experience} jobs={jobs} onToggle={value => updateQuery({ experience: toggleListValue(query.experience, value) })} />
+        <RadioGroup title="Date posted" group="posted" options={POSTED_FILTERS} selected={query.posted} jobs={jobs} onChange={value => updateQuery({ posted: value })} />
+      </div>
+      {!compact && (
+        <button type="button" onClick={clearFilters} className="mt-6 min-h-11 w-full rounded-md border border-ui-border px-4 py-3 font-semibold text-text-primary hover:border-accent-primary hover:text-accent-primary">
+          Clear all filters
+        </button>
+      )}
+    </div>
+  );
+}
+
+function JobListingCard({
+  job,
+  onOpen,
+  onSave
+}: {
+  job: (typeof FEATURED_CAREERS_JOBS)[number];
+  onOpen: () => void;
+  onSave: () => void;
+}) {
+  const compensation = compensationParts(job.compensation);
+  const logo = employerLogo(job);
+  const closing = closingLabel(job.closingDate);
+  const tags = job.specialisations.slice(0, 3);
+  const moreTags = Math.max(0, job.specialisations.length - tags.length);
+  const currentLocation = useLocation();
+
+  return (
+    <article
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={event => {
+        if (event.key === 'Enter') onOpen();
+      }}
+      className="group cursor-pointer rounded-lg border border-ui-border bg-background-card p-5 transition-colors duration-150 hover:border-accent-primary hover:bg-background-card/90 focus:outline-none focus:ring-2 focus:ring-accent-primary md:p-6"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-ui-border bg-background-section p-1">
+            {logo ? (
+              <img src={logo} alt={`${job.employerName} logo`} className="max-h-full max-w-full object-contain" />
+            ) : (
+              <span className="text-sm font-bold text-text-primary">{employerInitials(job.employerName)}</span>
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate font-semibold text-text-primary">{job.employerName}</p>
+            <p className="text-sm text-text-secondary">{managementNote(job.managementType)}</p>
+          </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          {job.verifiedEmployer && <span className="hidden rounded-full border border-accent-primary/40 bg-accent-primary/10 px-3 py-1 text-sm font-semibold text-accent-primary sm:inline-flex">Verified employer</span>}
+          <button
+            type="button"
+            onClick={event => {
+              event.stopPropagation();
+              trackCareersEvent('job_saved', { job_id: job.id });
+              onSave();
+            }}
+            className="rounded-md border border-ui-border p-3 text-text-secondary hover:border-accent-primary hover:text-accent-primary"
+            aria-label={`Save ${job.title}`}
+          >
+            <Bookmark className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      <h2 className="mt-5 line-clamp-2 text-[1.35rem] font-bold leading-tight text-text-primary md:text-2xl">
+        <Link
+          to={`/careers/jobs/${job.slug}${currentLocation.search}`}
+          onClick={event => {
+            event.stopPropagation();
+            sessionStorage.setItem('bifc_jobs_scroll', String(window.scrollY));
+            trackCareersEvent('job_viewed', { job_id: job.id });
+          }}
+          className="hover:text-accent-primary"
+        >
+          {job.title}
+        </Link>
+      </h2>
+
+      <p className="mt-3 text-[15px] font-medium text-text-secondary md:text-base">
+        {job.location} · {employmentLabel(job.engagementModel)} · {workArrangementLabel(job.workplaceType)}
+      </p>
+
+      <div className="mt-4">
+        <p className="text-lg font-semibold text-accent-primary">{compensation.primary}</p>
+        {compensation.secondary && <p className="mt-1 text-sm text-text-secondary">{compensation.secondary}</p>}
+      </div>
+
+      <p className="mt-4 line-clamp-2 text-[15px] leading-relaxed text-text-secondary md:text-base">{job.summary}</p>
+
+      <div className="mt-5 flex flex-wrap gap-2">
+        {tags.map(tag => <span key={tag} className="rounded-full bg-background-section px-3 py-1 text-sm text-text-secondary">{tag}</span>)}
+        {moreTags > 0 && <span className="rounded-full bg-background-section px-3 py-1 text-sm text-text-secondary">+{moreTags} more</span>}
+      </div>
+
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-ui-border pt-5">
+        <p className="text-sm text-text-secondary">
+          {postedLabel(job.postedDate)}
+          {closing && <span className="ml-3 font-semibold text-text-primary">{closing}</span>}
+        </p>
+        <button
+          type="button"
+          onClick={event => {
+            event.stopPropagation();
+            onOpen();
+          }}
+          className="min-h-11 w-full rounded-md bg-accent-primary px-5 py-3 font-semibold text-background-main hover:bg-accent-hover md:w-auto"
+        >
+          View job <ArrowRight className="ml-1 inline h-4 w-4" />
+        </button>
+      </div>
+    </article>
+  );
+}
+
+function SaveJobPrompt({ job, onClose }: { job: (typeof FEATURED_CAREERS_JOBS)[number]; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[80] flex items-end bg-background-main/80 p-4 sm:items-center sm:justify-center">
+      <div className="w-full max-w-md rounded-lg border border-ui-border bg-background-card p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-text-primary">Save jobs and return to them later</h2>
+            <p className="mt-3 text-text-secondary">Create a free profile or sign in to save this opportunity.</p>
+          </div>
+          <button type="button" onClick={onClose} className="p-2 text-text-secondary hover:text-accent-primary" aria-label="Close save prompt">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <p className="mt-5 rounded-md bg-background-section p-3 text-sm font-semibold text-text-primary">{job.title}</p>
+        <div className="mt-6 grid gap-3">
+          <PrimaryLink to="/careers/register" eventName="create_profile_button_clicked">Create free profile</PrimaryLink>
+          <SecondaryLink to="/careers/login">Sign in</SecondaryLink>
+          <button type="button" onClick={onClose} className="min-h-11 rounded-md px-5 py-3 font-semibold text-text-secondary hover:text-accent-primary">Continue browsing</button>
+        </div>
+      </div>
+    </div>
   );
 }
 

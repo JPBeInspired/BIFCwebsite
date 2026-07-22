@@ -31,16 +31,18 @@ export default function Navbar() {
     { name: 'Contact', href: '/contact' },
   ];
 
+  const isActive = (href: string) => href === '/careers' ? location.pathname.startsWith('/careers') : location.pathname === href;
+
   return (
     <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${
+      className={`fixed w-full z-50 border-b transition-all duration-300 ${
         isScrolled 
-          ? 'bg-background-section shadow-xl shadow-ui-shadow/20' 
-          : 'bg-gradient-to-b from-background-main/90 to-transparent backdrop-blur-sm'
+          ? 'border-ui-border bg-background-section shadow-xl shadow-ui-shadow/20'
+          : 'border-transparent bg-gradient-to-b from-background-main/90 to-transparent backdrop-blur-sm'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex h-[4.5rem] items-center justify-between md:h-20">
           <Link
             to="/"
             onClick={handleLogoClick}
@@ -69,7 +71,7 @@ export default function Navbar() {
                 key={item.name}
                 to={item.href}
                 className={`text-sm font-medium tracking-wider transition-colors ${
-                  location.pathname === item.href
+                  isActive(item.href)
                     ? 'text-accent-primary'
                     : 'text-text-primary hover:text-accent-primary'
                 }`}
@@ -121,7 +123,7 @@ export default function Navbar() {
                   key={item.name}
                   to={item.href}
                   className={`block px-3 py-2 text-base font-medium transition-colors ${
-                    location.pathname === item.href
+                    isActive(item.href)
                       ? 'text-accent-primary bg-background-card'
                       : 'text-text-primary hover:bg-background-card hover:text-accent-primary'
                   }`}
