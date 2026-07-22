@@ -84,13 +84,13 @@ export default function Navbar() {
               to="/careers/login"
               className="border border-ui-border px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:border-accent-primary hover:text-accent-primary"
             >
-              Login
+              Sign in
             </Link>
             <Link
               to="/careers/register"
               className="bg-accent-primary px-4 py-2 text-sm font-semibold text-background-main transition-colors hover:bg-accent-hover"
             >
-              Sign up
+              Create profile
             </Link>
             <Link
               to="/careers/employers/register"
@@ -136,14 +136,14 @@ export default function Navbar() {
                   className="border border-ui-border px-3 py-2 text-center text-base font-semibold text-text-primary transition-colors hover:border-accent-primary hover:text-accent-primary"
                   onClick={() => setIsOpen(false)}
                 >
-                  Login
+                  Sign in
                 </Link>
                 <Link
                   to="/careers/register"
                   className="bg-accent-primary px-3 py-2 text-center text-base font-semibold text-background-main transition-colors hover:bg-accent-hover"
                   onClick={() => setIsOpen(false)}
                 >
-                  Sign up
+                  Create profile
                 </Link>
                 <Link
                   to="/careers/employers/register"

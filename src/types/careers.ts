@@ -40,6 +40,7 @@ export type CareersRouteMode =
   | 'employerRegister'
   | 'employerJobPost'
   | 'login'
+  | 'forgotPassword'
   | 'candidate'
   | 'employer'
   | 'admin'

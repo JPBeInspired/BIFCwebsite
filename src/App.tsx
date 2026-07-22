@@ -85,6 +85,7 @@ function AppContent() {
               <Route path="/careers/employers/register" element={<Careers mode="employerRegister" />} />
               <Route path="/careers/employer/jobs/new" element={<Careers mode="employerJobPost" />} />
               <Route path="/careers/login" element={<Careers mode="login" />} />
+              <Route path="/careers/forgot-password" element={<Careers mode="forgotPassword" />} />
               <Route path="/careers/candidate" element={<Careers mode="candidate" />} />
               <Route path="/careers/employer" element={<Careers mode="employer" />} />
               <Route path="/careers/admin" element={<Careers mode="admin" />} />

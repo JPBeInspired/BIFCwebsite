@@ -128,9 +128,6 @@ function JobCard({ job }: { job: (typeof FEATURED_CAREERS_JOBS)[number] }) {
       <div className="mt-6 flex flex-wrap items-center gap-4">
         <PrimaryLink to={`/careers/jobs/${job.slug}`}>View role</PrimaryLink>
         <button className="text-sm font-semibold text-text-secondary hover:text-accent-primary">Save job</button>
-        {job.matchPercentage && (
-          <span className="ml-auto text-sm font-bold text-accent-primary">{job.matchPercentage}% match preview</span>
-        )}
       </div>
     </article>
   );
@@ -143,7 +140,7 @@ function CareersHome() {
         <title>BIFC Careers | Australia's Fitness Career Network</title>
         <meta
           name="description"
-          content="Create one BIFC fitness career profile, find suitable roles, and control which employers receive your information."
+          content="Create a private BIFC fitness career profile, browse relevant roles, and control when employers receive your details."
         />
         <link rel="canonical" href="https://www.beinspiredfitnessandcoaching.com/careers" />
       </Helmet>
@@ -166,41 +163,57 @@ function CareersHome() {
           <div>
             <Badge>Australia's Fitness Career Network</Badge>
             <h1 className="mt-6 max-w-4xl text-5xl font-bold leading-tight text-text-primary md:text-7xl">
-              Build your career in fitness
+              Your next fitness role can find you
             </h1>
             <p className="mt-6 max-w-2xl text-xl leading-relaxed text-text-secondary">
-              Find personal training, coaching, management and fitness-industry opportunities across Australia.
+              Create one private career profile, discover relevant fitness opportunities and hear from verified employers. You control when your personal details are shared.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <PrimaryLink to="/careers/jobs">Find Fitness Jobs</PrimaryLink>
-              <SecondaryLink to="/careers/register">Create Your Career Profile</SecondaryLink>
-              <SecondaryLink to="/careers/login">Login</SecondaryLink>
-              <SecondaryLink to="/careers/employers">Find Fitness Professionals</SecondaryLink>
+              <PrimaryLink to="/careers/register">Create my free profile</PrimaryLink>
+              <SecondaryLink to="/careers/jobs">Browse fitness jobs</SecondaryLink>
             </div>
+            <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-sm text-text-secondary">
+              <span>Free to join</span>
+              <span>Private by default</span>
+              <span>Complete it at your own pace</span>
+              <Link to="/careers/login" className="font-semibold text-accent-primary hover:text-accent-hover">Already have a profile? Sign in</Link>
+            </div>
+            <p className="mt-8 text-sm text-text-secondary">
+              Hiring? <Link to="/careers/employers" className="font-semibold text-accent-primary hover:text-accent-hover">Find fitness professionals</Link>
+            </p>
           </div>
           <div className="border border-ui-border bg-background-card/95 p-6">
-            <h2 className="text-2xl font-bold text-text-primary">Search fitness roles</h2>
+            <h2 className="text-2xl font-bold text-text-primary">Why create a profile?</h2>
             <div className="mt-6 grid gap-4">
-              <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                Keyword or role
-                <input className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" placeholder="Personal trainer, manager, Pilates" />
-              </label>
-              <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                Location
-                <input className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" placeholder="Melbourne, Sydney, Brisbane" />
-              </label>
-              <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                Distance
-                <select className="border border-ui-border bg-background-main px-4 py-3 text-text-primary">
-                  <option>Within 10 km</option>
-                  <option>Within 25 km</option>
-                  <option>Within 50 km</option>
-                  <option>Remote or relocation</option>
-                </select>
-              </label>
-              <PrimaryLink to="/careers/jobs">Search jobs</PrimaryLink>
+              {[
+                'Create one profile instead of repeatedly applying from scratch.',
+                'Be considered for relevant fitness roles, even when you are not actively job hunting.',
+                'Keep your identity and contact details hidden until you choose to share them.',
+                'Update or withdraw your profile when your goals change.'
+              ].map(item => (
+                <p key={item} className="flex gap-3 text-text-secondary">
+                  <CheckCircle className="mt-1 h-5 w-5 shrink-0 text-accent-primary" />
+                  <span>{item}</span>
+                </p>
+              ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="border-b border-ui-border bg-background-section py-8">
+        <div className="mx-auto grid max-w-7xl gap-4 px-4 sm:px-6 md:grid-cols-4 lg:px-8">
+          {[
+            ['Private by default', 'Employers see limited previews first.'],
+            ['Fitness specialist', 'Built for coaches, trainers, managers and studios.'],
+            ['Human support', 'BIFC can help connect the right people to the right roles.'],
+            ['You stay in control', 'Choose when your details are shared.']
+          ].map(([title, body]) => (
+            <div key={title} className="border border-ui-border bg-background-card p-5">
+              <p className="font-bold text-text-primary">{title}</p>
+              <p className="mt-2 text-sm text-text-secondary">{body}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -256,7 +269,7 @@ function CareersHome() {
               'Employers see limited previews only.',
               'Direct contact details stay hidden by default.',
               'Each disclosure is tied to a specific employer and role.',
-              'BIFC keeps the candidate relationship visible and attributable.'
+              'You can update or withdraw your profile at any time.'
             ].map(item => (
               <div key={item} className="border border-ui-border bg-background-card p-5">
                 <CheckCircle className="mb-4 h-6 w-6 text-accent-primary" />
@@ -269,11 +282,40 @@ function CareersHome() {
 
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-primary">Candidate FAQ</p>
+            <h2 className="mt-3 text-4xl font-bold text-text-primary">Before you create a profile</h2>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2">
+            {[
+              ['Does it cost anything?', 'No. Candidate profiles are free to create.'],
+              ['Can employers see my contact details?', 'No. Employers receive limited previews first and only receive contact details after you approve disclosure for a specific opportunity.'],
+              ['Can I join if I am already employed?', 'Yes. You can keep your profile private and only consider suitable opportunities.'],
+              ['Can I change or remove my profile?', 'Yes. You can update your details or ask BIFC to withdraw your profile when your circumstances change.']
+            ].map(([question, answer]) => (
+              <div key={question} className="border border-ui-border bg-background-card p-6">
+                <h3 className="text-xl font-bold text-text-primary">{question}</h3>
+                <p className="mt-3 text-text-secondary">{answer}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-10 border border-accent-primary bg-accent-primary/10 p-8">
+            <h2 className="text-3xl font-bold text-text-primary">Ready for your next opportunity?</h2>
+            <p className="mt-3 text-text-secondary">Create one private profile and decide when employers receive your details.</p>
+            <div className="mt-6">
+              <PrimaryLink to="/careers/register">Create my free profile</PrimaryLink>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2">
-              <h2 className="text-4xl font-bold text-text-primary">BIFC recruitment experience, built into the platform</h2>
+              <h2 className="text-4xl font-bold text-text-primary">Fitness recruitment support, built around your control</h2>
               <p className="mt-5 max-w-3xl text-lg leading-relaxed text-text-secondary">
-                BIFC Careers is owned and operated by Be Inspired Fitness and Coaching. It supports BIFC-managed opportunities, verified employer roles and recruitment partner workflows while keeping candidate ownership centralised inside BIFC.
+                BIFC Careers is owned and operated by Be Inspired Fitness and Coaching. Your profile stays under your control while BIFC helps you discover suitable roles and manage employer disclosure through a clear approval process.
               </p>
             </div>
             <div className="border border-accent-primary bg-accent-primary/10 p-6">
@@ -281,7 +323,7 @@ function CareersHome() {
               <p className="mt-3 text-text-secondary">Advertise your opportunity and discover fitness professionals who may suit your team.</p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <PrimaryLink to="/careers/employers/register">Post a Job</PrimaryLink>
-                <SecondaryLink to="/careers/login">Employer Login</SecondaryLink>
+                <SecondaryLink to="/careers/login">Employer sign in</SecondaryLink>
               </div>
             </div>
           </div>
@@ -452,8 +494,8 @@ function Register() {
       </Helmet>
       <CareersHeader
         eyebrow="Registration"
-        title="Join the BIFC Careers talent network"
-        intro="This foundation form records the required consent model. Production launch requires final Australian legal and privacy review before accepting live candidates."
+        title="Create your private fitness career profile"
+        intro="Start with a few basic details. You can complete the rest of your profile later."
       />
       <FormShell type="candidate" />
     </>
@@ -470,7 +512,7 @@ function EmployerRegister() {
       <CareersHeader
         eyebrow="Employer registration"
         title="Advertise your opportunity through BIFC Careers"
-        intro="Create your employer account, start your dashboard immediately, and keep candidate contact details protected until the proper interest and disclosure workflow is complete."
+        intro="Create your employer account, post fitness job ads and keep candidate contact details protected until the proper interest and disclosure workflow is complete."
       />
       <FormShell type="employer" />
     </>
@@ -527,17 +569,65 @@ function Login() {
           </label>
           <label className="mt-4 grid gap-2 text-sm font-semibold text-text-secondary">
             Password
-            <input name="password" type="password" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
+            <input name="password" type="password" autoComplete="current-password" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
           </label>
+          <div className="mt-3 text-right">
+            <Link to="/careers/forgot-password" className="text-sm font-semibold text-accent-primary hover:text-accent-hover">
+              Forgot password?
+            </Link>
+          </div>
           <button disabled={status === 'submitting'} className="mt-6 w-full bg-accent-primary px-6 py-3 font-semibold text-background-main disabled:opacity-60">
             {status === 'submitting' ? 'Signing in...' : 'Continue'}
           </button>
           {message && <p className="mt-4 text-sm text-red-300" role="status">{message}</p>}
           <p className="mt-4 text-sm text-text-secondary">Employer access starts immediately. Candidate contact details remain unavailable until candidate-approved disclosure.</p>
           <div className="mt-6 grid gap-3 border-t border-ui-border pt-6 sm:grid-cols-2">
-            <SecondaryLink to="/careers/register">Candidate sign up</SecondaryLink>
-            <SecondaryLink to="/careers/employers/register">Employer sign up</SecondaryLink>
+            <SecondaryLink to="/careers/register">Create candidate profile</SecondaryLink>
+            <SecondaryLink to="/careers/employers/register">Create employer account</SecondaryLink>
           </div>
+        </form>
+      </section>
+    </>
+  );
+}
+
+function ForgotPassword() {
+  const [submitted, setSubmitted] = useState(false);
+
+  return (
+    <>
+      <Helmet>
+        <title>Reset Password | BIFC Careers</title>
+        <meta name="robots" content="noindex" />
+      </Helmet>
+      <CareersHeader
+        eyebrow="Account recovery"
+        title="Reset your BIFC Careers password"
+        intro="Enter the email connected to your profile and BIFC support will help you regain access."
+      />
+      <section className="py-16">
+        <form
+          onSubmit={event => {
+            event.preventDefault();
+            setSubmitted(true);
+          }}
+          className="mx-auto max-w-xl border border-ui-border bg-background-card p-8"
+        >
+          <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+            Email
+            <input name="email" type="email" autoComplete="email" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
+          </label>
+          <button className="mt-6 w-full bg-accent-primary px-6 py-3 font-semibold text-background-main">
+            Request password help
+          </button>
+          {submitted && (
+            <p className="mt-4 text-sm text-accent-primary" role="status">
+              Thanks. Please email support@beinspiredfitnessandcoaching.com from the same address so BIFC can verify and reset your access.
+            </p>
+          )}
+          <p className="mt-4 text-sm text-text-secondary">
+            For your security, account access requests are checked before a password is reset.
+          </p>
         </form>
       </section>
     </>
@@ -600,18 +690,18 @@ function FormShell({ type }: { type: 'candidate' | 'employer' }) {
     <section className="py-16">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
         <div className="border border-ui-border bg-background-card p-8">
-          <h2 className="text-2xl font-bold text-text-primary">{isCandidate ? 'Candidate commitments' : 'Employer obligations'}</h2>
+          <h2 className="text-2xl font-bold text-text-primary">{isCandidate ? 'Privacy summary' : 'Employer access'}</h2>
           <div className="mt-6 space-y-4 text-text-secondary">
             {(isCandidate
               ? [
-                  'You are joining the broader BIFC Careers talent network.',
-                  'BIFC may contact you about BIFC-managed and suitable third-party fitness opportunities.',
-                  'Employer disclosure is controlled through the platform process.',
-                  'Optional marketing consent must be separate and not preselected.'
+                  'BIFC uses your information to operate your career profile and identify relevant fitness opportunities.',
+                  'Employers initially see only a limited profile preview.',
+                  'Your contact details are shared only when you approve disclosure for a specific opportunity.',
+                  'You can update or withdraw your profile when your goals change.'
                 ]
               : [
-                  'Employer accounts require BIFC approval before publishing jobs or viewing candidate previews.',
-                  'Candidate previews are limited and cannot be exported.',
+                  'Employer accounts can access the dashboard immediately after sign-up.',
+                  'Candidate previews are limited and cannot be exported or used outside the approved role workflow.',
                   'Interest requests do not reveal direct contact details.',
                   'Candidate information may only be used for the approved role workflow.'
                 ]).map(item => (
@@ -621,36 +711,47 @@ function FormShell({ type }: { type: 'candidate' | 'employer' }) {
               </p>
             ))}
           </div>
+          <div className="mt-6 grid gap-2 border-t border-ui-border pt-6 text-sm">
+            <Link to="/careers/collection-notice" className="font-semibold text-accent-primary hover:text-accent-hover">Collection notice</Link>
+            <Link to="/careers/privacy" className="font-semibold text-accent-primary hover:text-accent-hover">Privacy notice</Link>
+            <Link to={isCandidate ? '/careers/candidate-terms' : '/careers/employer-terms'} className="font-semibold text-accent-primary hover:text-accent-hover">
+              {isCandidate ? 'Candidate terms' : 'Employer terms'}
+            </Link>
+          </div>
         </div>
         <form onSubmit={handleSubmit} className="border border-ui-border bg-background-card p-8">
+          <h2 className="mb-5 text-2xl font-bold text-text-primary">
+            {isCandidate ? 'Start your profile' : 'Create employer account'}
+          </h2>
           <div className="grid gap-4 md:grid-cols-2">
             <label className="grid gap-2 text-sm font-semibold text-text-secondary">
               {isCandidate ? 'First name' : 'Trading name'}
-              <input name={isCandidate ? 'first_name' : 'trading_name'} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
+              <input name={isCandidate ? 'first_name' : 'trading_name'} autoComplete={isCandidate ? 'given-name' : 'organization'} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
             </label>
             <label className="grid gap-2 text-sm font-semibold text-text-secondary">
               {isCandidate ? 'Surname' : 'ABN'}
-              <input name={isCandidate ? 'surname' : 'abn'} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required={isCandidate} />
+              <input name={isCandidate ? 'surname' : 'abn'} autoComplete={isCandidate ? 'family-name' : 'off'} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required={isCandidate} />
             </label>
             {!isCandidate && (
               <>
                 <label className="grid gap-2 text-sm font-semibold text-text-secondary">
                   Legal business name
-                  <input name="legal_business_name" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
+                  <input name="legal_business_name" autoComplete="organization" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-text-secondary">
                   Main contact
-                  <input name="contact_name" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
+                  <input name="contact_name" autoComplete="name" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
                 </label>
               </>
             )}
             <label className="grid gap-2 text-sm font-semibold text-text-secondary">
               Email
-              <input name="email" type="email" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
+              <input name="email" type="email" autoComplete="email" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
             </label>
             <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-              Mobile
-              <input name="mobile" type="tel" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+              Mobile <span className="font-normal text-text-secondary">(optional)</span>
+              <input name="mobile" type="tel" autoComplete="tel" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+              <span className="text-xs font-normal text-text-secondary">Helpful if BIFC needs to confirm a suitable opportunity with you.</span>
             </label>
             <label className="grid gap-2 text-sm font-semibold text-text-secondary">
               Password
@@ -665,15 +766,22 @@ function FormShell({ type }: { type: 'candidate' | 'employer' }) {
                   </select>
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                  Suburb
-                  <input name="suburb" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+                  Suburb <span className="font-normal text-text-secondary">(optional)</span>
+                  <input name="suburb" autoComplete="address-level2" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
                 </label>
               </>
             )}
           </div>
           <label className="mt-5 flex gap-3 text-sm text-text-secondary">
             <input name="accepted_terms" type="checkbox" className="mt-1" required />
-            <span>I accept the current BIFC Careers collection notice, terms and privacy acknowledgement. Final wording requires Australian legal review before production launch.</span>
+            <span>
+              I have read and accept the BIFC Careers{' '}
+              <Link to="/careers/collection-notice" className="font-semibold text-accent-primary hover:text-accent-hover">collection notice</Link>,{' '}
+              <Link to="/careers/privacy" className="font-semibold text-accent-primary hover:text-accent-hover">privacy notice</Link> and{' '}
+              <Link to={isCandidate ? '/careers/candidate-terms' : '/careers/employer-terms'} className="font-semibold text-accent-primary hover:text-accent-hover">
+                {isCandidate ? 'candidate terms' : 'employer terms'}
+              </Link>.
+            </span>
           </label>
           <button type="submit" disabled={status === 'submitting'} className="mt-6 bg-accent-primary px-6 py-3 font-semibold text-background-main disabled:opacity-60">
             {status === 'submitting' ? 'Submitting...' : isCandidate ? 'Start profile' : 'Submit employer registration'}
@@ -728,7 +836,7 @@ function Dashboard({ title, role }: { title: string; role: 'candidate' | 'employ
       <CareersHeader
         eyebrow="Protected workspace"
         title={title}
-        intro="Dashboard foundations are built around server-side role checks, limited disclosure, BIFC visibility and audit trails."
+        intro="Your workspace keeps candidate disclosure, employer interest and profile activity behind the right access checks."
       />
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -1149,23 +1257,80 @@ function AdminOpsPanel() {
   );
 }
 
-function LegalPlaceholder({ title }: { title: string }) {
+const LEGAL_PAGE_COPY: Record<string, { eyebrow: string; intro: string; sections: Array<[string, string]> }> = {
+  privacy: {
+    eyebrow: 'Privacy',
+    intro: 'This notice explains how BIFC Careers handles information provided by candidates and employers using the careers platform.',
+    sections: [
+      ['Information we collect', 'BIFC Careers collects account details, profile information, career preferences, role activity and employer workflow records needed to operate the platform.'],
+      ['How we use it', 'We use this information to maintain accounts, surface relevant opportunities, manage employer interest, support candidate disclosure approvals and keep audit records.'],
+      ['Candidate control', 'Employers initially receive limited previews. Contact details and identifying information are shared only through the approved disclosure workflow.'],
+      ['Questions', 'For privacy questions or access requests, contact support@beinspiredfitnessandcoaching.com.']
+    ]
+  },
+  terms: {
+    eyebrow: 'Platform terms',
+    intro: 'These terms set the baseline rules for using BIFC Careers.',
+    sections: [
+      ['Use of the platform', 'Candidates and employers must provide accurate information and use BIFC Careers only for genuine fitness-industry career and recruitment activity.'],
+      ['Candidate information', 'Candidate data may not be exported, copied or used outside the approved role workflow.'],
+      ['Availability', 'BIFC may update, pause or moderate platform access to protect candidates, employers and the integrity of the service.'],
+      ['Support', 'Questions about platform access can be sent to support@beinspiredfitnessandcoaching.com.']
+    ]
+  },
+  candidateTerms: {
+    eyebrow: 'Candidate terms',
+    intro: 'These terms apply when you create or use a BIFC Careers candidate profile.',
+    sections: [
+      ['Your profile', 'You are responsible for keeping your profile accurate and can update or withdraw your information when your goals change.'],
+      ['Employer disclosure', 'Employers receive limited previews first. You choose when additional details are shared for a specific opportunity.'],
+      ['Opportunities', 'BIFC may contact you about roles that appear relevant to your preferences, qualifications, location or availability.'],
+      ['Contact', 'Candidate support is available at support@beinspiredfitnessandcoaching.com.']
+    ]
+  },
+  employerTerms: {
+    eyebrow: 'Employer terms',
+    intro: 'These terms apply when an employer creates an account, posts roles or reviews candidate previews through BIFC Careers.',
+    sections: [
+      ['Employer use', 'Employers must use BIFC Careers only for genuine hiring activity and provide accurate role and organisation information.'],
+      ['Candidate data', 'Candidate previews are confidential, limited and must not be exported, scraped or used outside the approved role workflow.'],
+      ['Disclosure', 'Direct candidate contact details are available only when a candidate approves disclosure for a specific opportunity.'],
+      ['Moderation', 'BIFC may review, edit, pause or remove employer access, job ads or interest requests to protect candidates and platform integrity.']
+    ]
+  },
+  collectionNotice: {
+    eyebrow: 'Collection notice',
+    intro: 'This collection notice summarises what BIFC Careers collects at registration and why.',
+    sections: [
+      ['Why we collect information', 'BIFC collects your details to create your account, operate your profile, identify relevant opportunities and manage candidate-employer workflows.'],
+      ['What employers see', 'Employers initially see limited information only. Your contact details are not shared until you approve disclosure for a specific opportunity.'],
+      ['Optional information', 'Some fields, such as phone and suburb, help BIFC understand fit and availability but can be completed later where marked optional.'],
+      ['Access and correction', 'You can ask to access, correct or withdraw your profile by contacting support@beinspiredfitnessandcoaching.com.']
+    ]
+  }
+};
+
+function LegalContent({ title, page }: { title: string; page: keyof typeof LEGAL_PAGE_COPY }) {
+  const content = LEGAL_PAGE_COPY[page];
+
   return (
     <>
       <Helmet>
         <title>{title} | BIFC Careers</title>
-        <meta name="robots" content="noindex" />
       </Helmet>
       <CareersHeader
-        eyebrow="Legal review required"
+        eyebrow={content.eyebrow}
         title={title}
-        intro="Placeholder content only. Final wording must be reviewed by Australian legal and privacy advisers before production use."
+        intro={content.intro}
       />
       <section className="py-16">
-        <div className="mx-auto max-w-4xl px-4 text-text-secondary sm:px-6 lg:px-8">
-          <p>
-            This page marks the required policy surface for BIFC Careers. The implementation records policy versions and acceptances, but this placeholder must not be treated as final legal wording.
-          </p>
+        <div className="mx-auto grid max-w-4xl gap-5 px-4 sm:px-6 lg:px-8">
+          {content.sections.map(([heading, body]) => (
+            <section key={heading} className="border border-ui-border bg-background-card p-6">
+              <h2 className="text-2xl font-bold text-text-primary">{heading}</h2>
+              <p className="mt-3 text-text-secondary">{body}</p>
+            </section>
+          ))}
         </div>
       </section>
     </>
@@ -1183,14 +1348,15 @@ export default function Careers({ mode = 'home' }: CareersProps) {
       {mode === 'employerRegister' && <EmployerRegister />}
       {mode === 'employerJobPost' && <EmployerJobPost />}
       {mode === 'login' && <Login />}
+      {mode === 'forgotPassword' && <ForgotPassword />}
       {mode === 'candidate' && <CandidateDashboard />}
       {mode === 'employer' && <EmployerDashboard />}
       {mode === 'admin' && <AdminDashboard />}
-      {mode === 'privacy' && <LegalPlaceholder title="BIFC Careers Privacy Notice" />}
-      {mode === 'terms' && <LegalPlaceholder title="BIFC Careers Platform Terms" />}
-      {mode === 'candidateTerms' && <LegalPlaceholder title="BIFC Careers Candidate Terms" />}
-      {mode === 'employerTerms' && <LegalPlaceholder title="BIFC Careers Employer Terms" />}
-      {mode === 'collectionNotice' && <LegalPlaceholder title="BIFC Careers Collection Notice" />}
+      {mode === 'privacy' && <LegalContent title="BIFC Careers Privacy Notice" page="privacy" />}
+      {mode === 'terms' && <LegalContent title="BIFC Careers Platform Terms" page="terms" />}
+      {mode === 'candidateTerms' && <LegalContent title="BIFC Careers Candidate Terms" page="candidateTerms" />}
+      {mode === 'employerTerms' && <LegalContent title="BIFC Careers Employer Terms" page="employerTerms" />}
+      {mode === 'collectionNotice' && <LegalContent title="BIFC Careers Collection Notice" page="collectionNotice" />}
     </div>
   );
 }
