@@ -5,7 +5,7 @@
 - Framework: Vite, React 18, TypeScript, React Router and Tailwind CSS.
 - Hosting: static assets plus Cloudflare Pages Functions. The repo is deployed from GitHub to Cloudflare Pages.
 - Current application type: React marketing website with a small full-stack Cloudflare API layer.
-- Authentication: lightweight Cloudflare Access/session bridge for admin operations. No production marketplace password authentication exists yet.
+- Authentication: Cloudflare Access remains available for admin operations. Marketplace users use server-side password hashing and secure HTTP-only sessions.
 - Database: Cloudflare D1 migrations for contacts, jobs, applications and blog posts. No ORM is used.
 - Storage: Cloudflare R2 binding is used for resume uploads through `RESUME_BUCKET`.
 - Design system: dark BIFC theme, `background.*`, `text.*`, `accent.*`, `ui.border`, lucide icons, shared navbar and route pages.
@@ -20,7 +20,7 @@ Use a hybrid inside the existing site:
 - Cloudflare Pages Functions provide server-side access control and workflow APIs.
 - D1 stores relational marketplace records.
 - R2 stores private resumes, qualification documents and media.
-- Cloudflare Access can protect admin routes during the first release; production candidate/employer auth should use an established auth provider or a hardened Workers-compatible auth library.
+- Cloudflare Access can protect admin routes during the first release. Candidate/employer auth uses Workers Web Crypto password hashing and D1-backed session records.
 
 This preserves the marketing website and adds a secure application surface without a rebuild.
 
@@ -47,7 +47,7 @@ D1 is suitable for the first marketplace foundation because records are relation
 
 ## Authentication strategy
 
-Current admin auth can remain Cloudflare Access. Candidate and employer auth should be implemented with verified email, reset tokens, secure cookies, rate limits and optional MFA before live candidate data is accepted. Do not ship custom cryptography.
+Current admin auth can remain Cloudflare Access. Candidate and employer auth now uses secure cookies and server-side password hashing. Email verification, reset tokens, rate limits and optional MFA remain production-hardening items before live candidate data is accepted.
 
 ## Storage strategy
 
@@ -60,7 +60,6 @@ Cloudflare Pages should deploy from GitHub main. Apply D1 migrations before enab
 ## Risks and assumptions
 
 - Final legal, privacy and employer terms are not written here and must be externally reviewed.
-- Candidate/employer password auth is not production-complete.
+- Candidate/employer email verification and password reset flows are not production-complete.
 - Billing, CRM, SMS and calendar integrations are adapter-ready only.
 - Matching is currently deterministic seed/demo logic; background recalculation is a later production phase.
-

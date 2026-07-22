@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
+import { signIn as apiSignIn, signOut as apiSignOut } from '../lib/cloudflare';
 
 interface AuthContextType {
   user: { email: string } | null;
@@ -14,14 +15,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading] = useState(false);
 
   const signIn = async (email: string, password: string) => {
-    if (email === 'admin@beinspired.fitness' && password === 'Beinspired1!') {
-      setUser({ email });
-    } else {
-      throw new Error('Invalid credentials');
-    }
+    const signedInUser = await apiSignIn(email, password);
+    if (!signedInUser?.email) throw new Error('Invalid credentials');
+    setUser({ email: signedInUser.email });
   };
 
   const signOut = async () => {
+    await apiSignOut();
     setUser(null);
   };
 

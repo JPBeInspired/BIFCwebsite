@@ -1,17 +1,16 @@
+import { getSessionUser } from '../../_lib/auth';
 import { Env, json, requireAdmin } from '../../_lib/http';
-
-function userEmail(request: Request) {
-  return (
-    request.headers.get('cf-access-authenticated-user-email') ||
-    request.headers.get('x-user-email') ||
-    ''
-  ).toLowerCase();
-}
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const url = new URL(request.url);
   const role = url.searchParams.get('role') || 'candidate';
-  const email = userEmail(request);
+  const sessionUser = await getSessionUser(request, env);
+  const email = (
+    sessionUser?.email ||
+    request.headers.get('cf-access-authenticated-user-email') ||
+    request.headers.get('x-user-email') ||
+    ''
+  ).toLowerCase();
 
   if (role === 'admin') {
     const unauthorized = requireAdmin(request, env);
@@ -19,7 +18,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 
     const [candidates, employers, jobs, interests, audit] = await Promise.all([
       env.DB.prepare('SELECT COUNT(*) AS count FROM candidate_profiles WHERE archived_at IS NULL').first<{ count: number }>(),
-      env.DB.prepare("SELECT COUNT(*) AS count FROM employer_organisations WHERE verification_status = 'pending'").first<{ count: number }>(),
+      env.DB.prepare("SELECT COUNT(*) AS count FROM employer_organisations WHERE verification_status = 'self_registered'").first<{ count: number }>(),
       env.DB.prepare("SELECT COUNT(*) AS count FROM marketplace_jobs WHERE status IN ('submitted', 'pending_review')").first<{ count: number }>(),
       env.DB.prepare("SELECT COUNT(*) AS count FROM employer_interest_requests WHERE status = 'new'").first<{ count: number }>(),
       env.DB.prepare("SELECT COUNT(*) AS count FROM audit_events WHERE created_at >= datetime('now', '-1 day')").first<{ count: number }>()
@@ -28,7 +27,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     return json({
       cards: [
         `${candidates?.count || 0} active candidates`,
-        `${employers?.count || 0} pending employer approvals`,
+        `${employers?.count || 0} self-registered employers`,
         `${jobs?.count || 0} jobs awaiting review`,
         `${interests?.count || 0} new employer interests`,
         `${audit?.count || 0} audit events today`
@@ -37,7 +36,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   if (role === 'employer') {
-    const employer = email
+    const employer = sessionUser?.employer_id
+      ? { id: sessionUser.employer_id }
+      : email
       ? await env.DB.prepare(`
           SELECT eo.id
           FROM employer_organisations eo
@@ -46,7 +47,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
           WHERE lower(u.email) = ?
           LIMIT 1
         `).bind(email).first<{ id: string }>()
-      : null;
+        : null;
 
     if (!employer) {
       return json({
@@ -71,7 +72,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     });
   }
 
-  const candidate = email
+  const candidate = sessionUser?.candidate_id
+    ? await env.DB.prepare('SELECT id, profile_completion FROM candidate_profiles WHERE id = ? LIMIT 1')
+        .bind(sessionUser.candidate_id)
+        .first<{ id: string; profile_completion: number }>()
+    : email
     ? await env.DB.prepare(`
         SELECT cp.id, cp.profile_completion
         FROM candidate_profiles cp
@@ -79,7 +84,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
         WHERE lower(u.email) = ?
         LIMIT 1
       `).bind(email).first<{ id: string; profile_completion: number }>()
-    : null;
+      : null;
 
   if (!candidate) {
     return json({
@@ -101,4 +106,3 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     ]
   });
 };
-

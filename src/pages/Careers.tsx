@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
   BadgeCheck,
@@ -34,6 +34,7 @@ import {
   getCareersDashboard,
   registerCareersCandidate,
   registerCareersEmployer,
+  signIn,
   submitEmployerInterest
 } from '../lib/cloudflare';
 
@@ -465,7 +466,7 @@ function EmployerRegister() {
       <CareersHeader
         eyebrow="Employer registration"
         title="Advertise your opportunity through BIFC Careers"
-        intro="Employer accounts require BIFC approval before publishing jobs or viewing candidate previews."
+        intro="Create your employer account, start your dashboard immediately, and keep candidate contact details protected until the proper interest and disclosure workflow is complete."
       />
       <FormShell type="employer" />
     </>
@@ -473,6 +474,36 @@ function EmployerRegister() {
 }
 
 function Login() {
+  const navigate = useNavigate();
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    setStatus('submitting');
+    setMessage('');
+
+    try {
+      const user = await signIn(String(form.get('email') || ''), String(form.get('password') || ''));
+
+      if (user?.employer_id) {
+        navigate('/careers/employer');
+        return;
+      }
+
+      if (user?.candidate_id) {
+        navigate('/careers/candidate');
+        return;
+      }
+
+      navigate('/careers');
+    } catch (error) {
+      setStatus('error');
+      setMessage(error instanceof Error ? error.message : 'Sign in failed.');
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -482,23 +513,24 @@ function Login() {
       <CareersHeader
         eyebrow="Secure access"
         title="Sign in to BIFC Careers"
-        intro="Candidate, employer and BIFC dashboards are designed for server-side role checks through Cloudflare Access and the marketplace API."
+        intro="Use the password you created during registration. Candidate information remains protected behind server-side workflow checks."
       />
       <section className="py-16">
-        <div className="mx-auto max-w-xl border border-ui-border bg-background-card p-8">
+        <form onSubmit={handleSubmit} className="mx-auto max-w-xl border border-ui-border bg-background-card p-8">
           <label className="grid gap-2 text-sm font-semibold text-text-secondary">
             Email
-            <input type="email" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+            <input name="email" type="email" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
           </label>
           <label className="mt-4 grid gap-2 text-sm font-semibold text-text-secondary">
             Password
-            <input type="password" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+            <input name="password" type="password" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
           </label>
-          <button className="mt-6 w-full bg-accent-primary px-6 py-3 font-semibold text-background-main">Continue</button>
-          <p className="mt-4 text-sm text-text-secondary">
-            Production authentication must use established password hashing, email verification, reset tokens and MFA for administrators.
-          </p>
-        </div>
+          <button disabled={status === 'submitting'} className="mt-6 w-full bg-accent-primary px-6 py-3 font-semibold text-background-main disabled:opacity-60">
+            {status === 'submitting' ? 'Signing in...' : 'Continue'}
+          </button>
+          {message && <p className="mt-4 text-sm text-red-300" role="status">{message}</p>}
+          <p className="mt-4 text-sm text-text-secondary">Employer access starts immediately. Candidate contact details remain unavailable until candidate-approved disclosure.</p>
+        </form>
       </section>
     </>
   );
@@ -506,6 +538,7 @@ function Login() {
 
 function FormShell({ type }: { type: 'candidate' | 'employer' }) {
   const isCandidate = type === 'candidate';
+  const navigate = useNavigate();
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
 
@@ -525,9 +558,11 @@ function FormShell({ type }: { type: 'candidate' | 'employer' }) {
           state: String(form.get('state') || ''),
           suburb: String(form.get('suburb') || ''),
           career_status: 'open_to_suitable_opportunities',
+          password: String(form.get('password') || ''),
           accepted_terms: form.get('accepted_terms') === 'on'
         });
-        setMessage('Candidate profile started. The next production step is email verification and progressive profile completion.');
+        setMessage('Candidate account created.');
+        navigate('/careers/candidate');
       } else {
         const tradingName = String(form.get('trading_name') || '');
         await registerCareersEmployer({
@@ -538,9 +573,11 @@ function FormShell({ type }: { type: 'candidate' | 'employer' }) {
           contact_name: String(form.get('contact_name') || ''),
           contact_title: 'Owner',
           employer_type: 'Fitness employer',
+          password: String(form.get('password') || ''),
           accepted_terms: form.get('accepted_terms') === 'on'
         });
-        setMessage('Employer registration submitted for BIFC approval.');
+        setMessage('Employer account created.');
+        navigate('/careers/employer');
       }
 
       setStatus('success');
@@ -595,7 +632,7 @@ function FormShell({ type }: { type: 'candidate' | 'employer' }) {
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-text-secondary">
                   Main contact
-                  <input name="contact_name" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+                  <input name="contact_name" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
                 </label>
               </>
             )}
@@ -606,6 +643,10 @@ function FormShell({ type }: { type: 'candidate' | 'employer' }) {
             <label className="grid gap-2 text-sm font-semibold text-text-secondary">
               Mobile
               <input name="mobile" type="tel" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+            </label>
+            <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+              Password
+              <input name="password" type="password" minLength={10} autoComplete="new-password" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
             </label>
             {isCandidate && (
               <>
@@ -659,7 +700,7 @@ function Dashboard({ title, role }: { title: string; role: 'candidate' | 'employ
         ? ['Profile completion 64%', '2 employer interest requests', '3 recommended jobs', '1 qualification expiry alert']
         : role === 'employer'
           ? ['2 active jobs', '6 matched previews', '3 interests awaiting response', 'No candidate exports available']
-          : ['18 active candidates', '4 pending employer approvals', '3 jobs awaiting review', '25 audit events today'],
+          : ['18 active candidates', '4 self-registered employers', '3 jobs awaiting review', '25 audit events today'],
     [role]
   );
   const [cards, setCards] = useState(fallbackCards);

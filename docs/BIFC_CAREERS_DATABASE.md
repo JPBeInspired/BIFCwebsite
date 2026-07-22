@@ -4,6 +4,7 @@ Migrations:
 
 - `migrations/0002_bifc_careers_marketplace.sql`
 - `migrations/0003_bifc_careers_policy_seed.sql`
+- `migrations/0004_bifc_careers_password_auth.sql`
 
 Core tables:
 
@@ -14,6 +15,7 @@ Core tables:
 - Matching: `candidate_job_matches`
 - Recruitment: `applications`, `employer_interest_requests`, `candidate_disclosure_approvals`, `recruitment_conversations`, `messages`, `interviews`, `placements`
 - Trust: `policy_versions`, `consent_records`, `audit_events`
+- Auth: `auth_sessions`
 
 Important constraints:
 
@@ -21,3 +23,5 @@ Important constraints:
 - Employer interest is tied to one employer, one job and one candidate.
 - Disclosure approval is tied to one employer and one job.
 - Audit events are append-only operational records.
+- Passwords are stored only as salted PBKDF2-SHA256 hashes.
+- Session tokens are stored only as SHA-256 token hashes.

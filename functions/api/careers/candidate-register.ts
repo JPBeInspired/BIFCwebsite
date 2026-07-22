@@ -1,9 +1,10 @@
+import { createSession, hashPassword, validatePassword } from '../../_lib/auth';
 import { Env, error, json, readJson } from '../../_lib/http';
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const body = await readJson<Record<string, any>>(request);
 
-  if (!body.email || !body.first_name || !body.surname || !body.policy_version_id) {
+  if (!body.email || !body.first_name || !body.surname || !body.password || !body.policy_version_id) {
     return error('Missing required candidate registration fields', 400);
   }
 
@@ -11,17 +12,31 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return error('Candidate collection notice and terms must be accepted', 400);
   }
 
+  const email = String(body.email).trim().toLowerCase();
+  const password = String(body.password);
+  const passwordError = validatePassword(password);
+  if (passwordError) return error(passwordError, 400);
+
+  const existingUser = await env.DB.prepare('SELECT id FROM users WHERE lower(email) = ? LIMIT 1')
+    .bind(email)
+    .first<{ id: string }>();
+
+  if (existingUser) {
+    return error('An account already exists for this email address', 409);
+  }
+
   const userId = crypto.randomUUID();
   const candidateId = crypto.randomUUID();
   const consentId = crypto.randomUUID();
   const auditId = crypto.randomUUID();
   const now = new Date().toISOString();
+  const passwordHash = await hashPassword(password);
 
   await env.DB.batch([
     env.DB.prepare(`
-      INSERT INTO users (id, email, display_name, status, created_at, updated_at)
-      VALUES (?, ?, ?, 'pending_verification', ?, ?)
-    `).bind(userId, String(body.email).toLowerCase(), `${body.first_name} ${body.surname}`, now, now),
+      INSERT INTO users (id, email, password_hash, display_name, status, created_at, updated_at)
+      VALUES (?, ?, ?, ?, 'active', ?, ?)
+    `).bind(userId, email, passwordHash, `${body.first_name} ${body.surname}`, now, now),
     env.DB.prepare(`
       INSERT INTO candidate_profiles (
         id, user_id, first_name, surname, email, mobile, state, suburb,
@@ -33,7 +48,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       userId,
       body.first_name,
       body.surname,
-      String(body.email).toLowerCase(),
+      email,
       body.mobile || null,
       body.state || null,
       body.suburb || null,
@@ -65,5 +80,15 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     `).bind(auditId, userId, candidateId, JSON.stringify({ source: body.source_attribution || 'bifc_careers_registration' }), now)
   ]);
 
-  return json({ success: true, user_id: userId, candidate_id: candidateId }, { status: 201 });
+  const session = await createSession(env, userId);
+
+  return json(
+    { success: true, user_id: userId, candidate_id: candidateId },
+    {
+      status: 201,
+      headers: {
+        'Set-Cookie': session.cookie
+      }
+    }
+  );
 };

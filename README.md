@@ -47,6 +47,7 @@ Current migrations:
 - `migrations/0001_cloudflare_core.sql`
 - `migrations/0002_bifc_careers_marketplace.sql`
 - `migrations/0003_bifc_careers_policy_seed.sql`
+- `migrations/0004_bifc_careers_password_auth.sql`
 
 ## Seed instructions
 

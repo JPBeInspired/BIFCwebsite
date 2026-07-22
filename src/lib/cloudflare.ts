@@ -1,6 +1,7 @@
 async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(path, {
     ...init,
+    credentials: 'same-origin',
     headers: {
       ...(init.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
       ...(init.headers || {})
@@ -33,22 +34,38 @@ export async function submitContactForm(data: ContactSubmission) {
   });
 }
 
-export async function signIn(_email: string, _password: string) {
+export async function signIn(email: string, password: string) {
+  await apiRequest<{ authenticated: boolean; email: string | null }>('/api/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password })
+  });
+
   return getUser();
 }
 
 export async function signOut() {
-  window.location.href = '/cdn-cgi/access/logout';
+  await apiRequest<{ success: boolean }>('/api/logout', { method: 'POST' });
 }
 
 export async function getUser() {
-  const session = await apiRequest<{ authenticated: boolean; email: string | null }>('/api/session');
+  const session = await apiRequest<{
+    authenticated: boolean;
+    admin?: boolean;
+    email: string | null;
+    employer_id?: string | null;
+    candidate_id?: string | null;
+  }>('/api/session');
 
   if (!session.authenticated) {
     return null;
   }
 
-  return { email: session.email };
+  return {
+    email: session.email,
+    admin: Boolean(session.admin),
+    employer_id: session.employer_id || null,
+    candidate_id: session.candidate_id || null
+  };
 }
 
 export async function getPublicJobListings() {
@@ -117,6 +134,7 @@ export async function registerCareersCandidate(data: {
   state?: string;
   suburb?: string;
   career_status?: string;
+  password: string;
   accepted_terms: boolean;
 }) {
   return apiRequest<{ success: boolean; user_id: string; candidate_id: string }>('/api/careers/candidate-register', {
@@ -138,6 +156,7 @@ export async function registerCareersEmployer(data: {
   website?: string;
   employer_type?: string;
   public_description?: string;
+  password: string;
   accepted_terms: boolean;
 }) {
   return apiRequest<{ success: boolean; user_id: string; employer_id: string }>('/api/careers/employer-register', {
