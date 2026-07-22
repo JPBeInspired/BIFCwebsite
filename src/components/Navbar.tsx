@@ -52,8 +52,15 @@ export default function Navbar() {
               width="170"
               height="96"
               decoding="async"
+              onError={(event) => {
+                event.currentTarget.style.display = 'none';
+                event.currentTarget.nextElementSibling?.classList.remove('sr-only');
+              }}
               className="h-12 w-auto"
             />
+            <span className="sr-only text-lg font-bold leading-tight tracking-wider text-text-primary">
+              BE<br />INSPIRED
+            </span>
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">
