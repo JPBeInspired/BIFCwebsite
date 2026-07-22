@@ -44,31 +44,31 @@ interface CareersProps {
 }
 
 const STATES = ['all', 'VIC', 'NSW', 'QLD', 'WA', 'SA', 'ACT', 'TAS', 'NT'];
-const JOB_STEPS = ['Classify', 'Ad Type', 'Write', 'Manage'];
-const AD_PACKAGES = [
+const ROLE_STEPS = ['Role Brief', 'Fit Signals', 'Role Story', 'Review'];
+const ROLE_SUPPORT_LEVELS = [
   {
-    id: 'standard',
-    name: 'Standard',
-    caption: 'Core job ad',
-    price: 'Included',
-    multiplier: '1x reach',
-    features: ['Public marketplace listing', 'Applicant management', 'Candidate privacy workflow']
+    id: 'self_service',
+    name: 'Direct Listing',
+    caption: 'Employer-led',
+    reach: 'Core marketplace visibility',
+    bestFor: 'Straightforward roles with a clear candidate profile.',
+    features: ['BIFC marketplace listing', 'Applicant workflow', 'Candidate privacy controls']
   },
   {
-    id: 'featured',
-    name: 'Featured',
+    id: 'bifc_boost',
+    name: 'BIFC Boost',
     caption: 'Recommended',
-    price: 'Review first',
-    multiplier: '2x reach',
-    features: ['Highlighted listing', 'Matched candidate previews', 'Priority BIFC review']
+    reach: 'Curated visibility',
+    bestFor: 'Roles where fit, culture and timing matter.',
+    features: ['Matched preview review', 'Priority BIFC check', 'Role positioning support']
   },
   {
-    id: 'concierge',
-    name: 'Concierge',
-    caption: 'BIFC writes it with you',
-    price: 'Contact BIFC',
-    multiplier: 'Managed',
-    features: ['BIFC copy support', 'Shortlist assistance', 'Recruitment workflow support']
+    id: 'partner_search',
+    name: 'Partner Search',
+    caption: 'Guided support',
+    reach: 'BIFC assisted',
+    bestFor: 'Hard-to-fill roles or multi-site hiring needs.',
+    features: ['Role copy support', 'Candidate invitation support', 'Shortlist coordination']
   }
 ];
 
@@ -763,10 +763,10 @@ function Dashboard({ title, role }: { title: string; role: 'candidate' | 'employ
             <div className="mt-8 border border-accent-primary bg-accent-primary/10 p-6">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-text-primary">Create a job ad</h2>
-                  <p className="mt-2 text-text-secondary">Classify the role, choose visibility, write the ad, and submit it into the BIFC review queue.</p>
+                  <h2 className="text-2xl font-bold text-text-primary">Build a fitness role</h2>
+                  <p className="mt-2 text-text-secondary">Shape the role brief, define candidate fit signals, add the role story, and send it to BIFC for review.</p>
                 </div>
-                <PrimaryLink to="/careers/employer/jobs/new">Start job ad</PrimaryLink>
+                <PrimaryLink to="/careers/employer/jobs/new">Start role brief</PrimaryLink>
               </div>
             </div>
           )}
@@ -812,7 +812,7 @@ const INITIAL_JOB_DRAFT: JobDraft = {
   pay_max: '',
   pay_shown: true,
   compensation_summary: '',
-  ad_package: 'featured',
+  ad_package: 'bifc_boost',
   description: '',
   summary: '',
   selling_points: ['', '', ''],
@@ -833,7 +833,7 @@ function EmployerJobPost() {
   const [message, setMessage] = useState('');
 
   const updateDraft = (patch: Partial<JobDraft>) => setDraft(current => ({ ...current, ...patch }));
-  const selectedPackage = AD_PACKAGES.find(item => item.id === draft.ad_package) || AD_PACKAGES[0];
+  const selectedSupport = ROLE_SUPPORT_LEVELS.find(item => item.id === draft.ad_package) || ROLE_SUPPORT_LEVELS[0];
 
   const payload = (action: 'draft' | 'submit') => ({
     ...draft,
@@ -842,7 +842,7 @@ function EmployerJobPost() {
     pay_max: draft.pay_max ? Number(draft.pay_max) : null,
     responsibilities: draft.selling_points.filter(Boolean).join('\n'),
     required_qualifications: draft.application_questions.filter(Boolean).join('\n'),
-    support_and_onboarding: `Ad package: ${selectedPackage.name}`
+    support_and_onboarding: `Support level: ${selectedSupport.name}`
   });
 
   const saveJob = async (action: 'draft' | 'submit') => {
@@ -852,7 +852,7 @@ function EmployerJobPost() {
     try {
       await createEmployerMarketplaceJob(payload(action));
       setStatus(action === 'submit' ? 'submitted' : 'idle');
-      setMessage(action === 'submit' ? 'Job submitted for BIFC review.' : 'Draft saved.');
+      setMessage(action === 'submit' ? 'Role submitted for BIFC review.' : 'Draft saved.');
       if (action === 'submit') {
         setTimeout(() => navigate('/careers/employer'), 900);
       }
@@ -867,7 +867,7 @@ function EmployerJobPost() {
     const location = draft.location || 'your club';
     updateDraft({
       summary: `Join a growing fitness team in ${location} and help members build confidence through structured coaching, accountability and great service.`,
-      description: `We are looking for a ${title} to support members with safe, effective and motivating coaching. This role suits someone who communicates clearly, cares about member outcomes and wants to grow inside a professional fitness environment.`,
+      description: `This ${title} role is for a coach who can build trust quickly, keep members moving safely, and contribute to a professional training floor. The right person will communicate clearly, care about member outcomes, and bring steady energy to the team in ${location}.`,
       selling_points: ['Supportive team and onboarding', 'Opportunity to grow your client base', 'Member-focused coaching environment']
     });
   };
@@ -875,15 +875,15 @@ function EmployerJobPost() {
   return (
     <>
       <Helmet>
-        <title>Create a Job Ad | BIFC Careers</title>
+        <title>Build a Fitness Role | BIFC Careers</title>
         <meta name="robots" content="noindex" />
       </Helmet>
       <section className="border-b border-ui-border bg-background-section pt-32 pb-10">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-primary">Employer workflow</p>
-          <h1 className="mt-4 text-4xl font-bold text-text-primary md:text-6xl">Create a job ad</h1>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-primary">BIFC employer workspace</p>
+          <h1 className="mt-4 text-4xl font-bold text-text-primary md:text-6xl">Build a fitness role</h1>
           <div className="mt-8 grid gap-3 md:grid-cols-4">
-            {JOB_STEPS.map((label, index) => (
+            {ROLE_STEPS.map((label, index) => (
               <button
                 key={label}
                 type="button"
@@ -902,18 +902,18 @@ function EmployerJobPost() {
           <div className="border border-ui-border bg-background-card p-6">
             {step === 0 && (
               <div className="grid gap-5">
-                <h2 className="text-3xl font-bold text-text-primary">Classify the role</h2>
+                <h2 className="text-3xl font-bold text-text-primary">Role brief</h2>
                 <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                  Job title
+                  Role title
                   <input value={draft.title} onChange={event => updateDraft({ title: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" placeholder="e.g. Personal Trainer" />
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                  Location
+                  Club or work location
                   <input value={draft.location} onChange={event => updateDraft({ location: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" placeholder="e.g. Coburg, VIC" />
                 </label>
                 <div className="grid gap-4 md:grid-cols-2">
                   <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                    Workplace option
+                    Delivery model
                     <select value={draft.workplace_type} onChange={event => updateDraft({ workplace_type: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary">
                       <option value="onsite">On-site</option>
                       <option value="hybrid">Hybrid</option>
@@ -921,7 +921,7 @@ function EmployerJobPost() {
                     </select>
                   </label>
                   <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                    Work type
+                    Engagement model
                     <select value={draft.engagement_model} onChange={event => updateDraft({ engagement_model: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary">
                       {ENGAGEMENT_MODELS.map(model => <option key={model}>{model}</option>)}
                     </select>
@@ -933,7 +933,7 @@ function EmployerJobPost() {
                     </select>
                   </label>
                   <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                    Experience level
+                    Candidate experience
                     <select value={draft.experience_level} onChange={event => updateDraft({ experience_level: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary">
                       {['Open', 'Entry level', 'Experienced', 'Manager', 'Senior'].map(level => <option key={level}>{level}</option>)}
                     </select>
@@ -941,7 +941,7 @@ function EmployerJobPost() {
                 </div>
                 <div className="grid gap-4 md:grid-cols-4">
                   <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                    Pay type
+                    Pay rhythm
                     <select value={draft.pay_type} onChange={event => updateDraft({ pay_type: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary">
                       <option value="hourly">Hourly</option>
                       <option value="monthly">Monthly</option>
@@ -949,15 +949,15 @@ function EmployerJobPost() {
                     </select>
                   </label>
                   <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                    From
+                    Lower guide
                     <input value={draft.pay_min} onChange={event => updateDraft({ pay_min: event.target.value })} inputMode="numeric" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
                   </label>
                   <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                    To
+                    Upper guide
                     <input value={draft.pay_max} onChange={event => updateDraft({ pay_max: event.target.value })} inputMode="numeric" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
                   </label>
                   <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                    Show pay
+                    Display pay guide
                     <select value={draft.pay_shown ? 'yes' : 'no'} onChange={event => updateDraft({ pay_shown: event.target.value === 'yes' })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary">
                       <option value="yes">Yes</option>
                       <option value="no">No</option>
@@ -965,16 +965,16 @@ function EmployerJobPost() {
                   </label>
                 </div>
                 <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                  Pay shown on ad
+                  Public pay note
                   <input value={draft.compensation_summary} onChange={event => updateDraft({ compensation_summary: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" placeholder="e.g. $70,000 + bonus" />
                 </label>
               </div>
             )}
             {step === 1 && (
               <div>
-                <h2 className="text-3xl font-bold text-text-primary">Choose visibility</h2>
+                <h2 className="text-3xl font-bold text-text-primary">Candidate fit signals</h2>
                 <div className="mt-6 grid gap-4 lg:grid-cols-3">
-                  {AD_PACKAGES.map(item => (
+                  {ROLE_SUPPORT_LEVELS.map(item => (
                     <button
                       key={item.id}
                       type="button"
@@ -983,10 +983,10 @@ function EmployerJobPost() {
                     >
                       <span className="text-sm font-semibold text-accent-primary">{item.caption}</span>
                       <h3 className="mt-3 text-2xl font-bold text-text-primary">{item.name}</h3>
-                      <p className="mt-3 text-text-secondary">{item.multiplier}</p>
-                      <p className="mt-6 text-2xl font-bold text-text-primary">{item.price}</p>
+                      <p className="mt-3 text-text-secondary">{item.reach}</p>
+                      <p className="mt-6 text-lg font-semibold text-text-primary">{item.bestFor}</p>
                       <div className="mt-6 grid gap-3 text-sm text-text-secondary">
-                        {item.features.map(feature => <span key={feature}>Included: {feature}</span>)}
+                        {item.features.map(feature => <span key={feature}>BIFC: {feature}</span>)}
                       </div>
                     </button>
                   ))}
@@ -996,19 +996,19 @@ function EmployerJobPost() {
             {step === 2 && (
               <div className="grid gap-5">
                 <div className="flex flex-wrap items-center justify-between gap-4 bg-accent-primary/10 p-5">
-                  <p className="font-semibold text-text-primary">Generate a practical first draft from your role details.</p>
-                  <button type="button" onClick={writeWithTemplate} className="bg-accent-primary px-5 py-3 font-semibold text-background-main">Write with template</button>
+                  <p className="font-semibold text-text-primary">Draft a practical role story from your role brief.</p>
+                  <button type="button" onClick={writeWithTemplate} className="bg-accent-primary px-5 py-3 font-semibold text-background-main">Draft role story</button>
                 </div>
                 <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                  Job description
+                  Role description
                   <textarea value={draft.description} onChange={event => updateDraft({ description: event.target.value })} rows={10} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                  Job summary
+                  Short marketplace summary
                   <textarea value={draft.summary} onChange={event => updateDraft({ summary: event.target.value })} rows={4} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
                 </label>
                 <div className="grid gap-3">
-                  <p className="font-semibold text-text-secondary">Key selling points</p>
+                  <p className="font-semibold text-text-secondary">Why this role is worth considering</p>
                   {draft.selling_points.map((point, index) => (
                     <input
                       key={index}
@@ -1025,11 +1025,11 @@ function EmployerJobPost() {
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                    Company brand
+                    Employer brand
                     <input value={draft.brand_name} onChange={event => updateDraft({ brand_name: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
                   </label>
                   <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                    Video URL
+                    Video link
                     <input value={draft.video_url} onChange={event => updateDraft({ video_url: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" placeholder="https://youtube.com/..." />
                   </label>
                 </div>
@@ -1037,11 +1037,11 @@ function EmployerJobPost() {
             )}
             {step === 3 && (
               <div className="grid gap-5">
-                <h2 className="text-3xl font-bold text-text-primary">Refine candidate preferences</h2>
+                <h2 className="text-3xl font-bold text-text-primary">Candidate fit checks</h2>
                 <div className="grid gap-3">
                   {draft.application_questions.map((question, index) => (
                     <label key={index} className="grid gap-2 text-sm font-semibold text-text-secondary">
-                      Question {index + 1}
+                      Fit check {index + 1}
                       <input
                         value={question}
                         onChange={event => {
@@ -1053,15 +1053,15 @@ function EmployerJobPost() {
                       />
                     </label>
                   ))}
-                  <button type="button" onClick={() => updateDraft({ application_questions: [...draft.application_questions, ''] })} className="border border-ui-border px-5 py-3 font-semibold text-text-primary">Add a question</button>
+                  <button type="button" onClick={() => updateDraft({ application_questions: [...draft.application_questions, ''] })} className="border border-ui-border px-5 py-3 font-semibold text-text-primary">Add a fit check</button>
                 </div>
                 <div className="border border-ui-border bg-background-main p-5">
                   <h3 className="text-2xl font-bold text-text-primary">Review</h3>
                   <dl className="mt-4 grid gap-3 text-sm text-text-secondary md:grid-cols-2">
                     <div><dt className="font-semibold text-text-primary">Role</dt><dd>{draft.title || 'Untitled job draft'}</dd></div>
                     <div><dt className="font-semibold text-text-primary">Location</dt><dd>{draft.location || 'Not set'}</dd></div>
-                    <div><dt className="font-semibold text-text-primary">Work type</dt><dd>{draft.engagement_model}</dd></div>
-                    <div><dt className="font-semibold text-text-primary">Package</dt><dd>{selectedPackage.name}</dd></div>
+                    <div><dt className="font-semibold text-text-primary">Engagement</dt><dd>{draft.engagement_model}</dd></div>
+                    <div><dt className="font-semibold text-text-primary">Support level</dt><dd>{selectedSupport.name}</dd></div>
                   </dl>
                 </div>
               </div>
@@ -1070,7 +1070,7 @@ function EmployerJobPost() {
               <button type="button" onClick={() => setStep(Math.max(0, step - 1))} className="border border-ui-border px-5 py-3 font-semibold text-text-primary">Back</button>
               <div className="flex flex-wrap gap-3">
                 <button type="button" onClick={() => void saveJob('draft')} disabled={status === 'saving'} className="px-5 py-3 font-semibold text-text-secondary disabled:opacity-60">Save draft</button>
-                {step < JOB_STEPS.length - 1 ? (
+                {step < ROLE_STEPS.length - 1 ? (
                   <button type="button" onClick={() => setStep(step + 1)} className="bg-accent-primary px-6 py-3 font-semibold text-background-main">Continue</button>
                 ) : (
                   <button type="button" onClick={() => void saveJob('submit')} disabled={status === 'saving'} className="bg-accent-primary px-6 py-3 font-semibold text-background-main disabled:opacity-60">Submit for review</button>
@@ -1080,12 +1080,12 @@ function EmployerJobPost() {
             {message && <p className={`mt-4 text-sm ${status === 'error' ? 'text-red-300' : 'text-accent-primary'}`} role="status">{message}</p>}
           </div>
           <aside className="h-fit border border-ui-border bg-background-card p-5">
-            <h2 className="text-xl font-bold text-text-primary">Ad preview</h2>
+            <h2 className="text-xl font-bold text-text-primary">Marketplace preview</h2>
             <div className="mt-5 border border-ui-border bg-background-main p-5">
-              <Badge>{selectedPackage.name}</Badge>
-              <h3 className="mt-4 text-2xl font-bold text-text-primary">{draft.title || 'Your job title'}</h3>
+              <Badge>{selectedSupport.name}</Badge>
+              <h3 className="mt-4 text-2xl font-bold text-text-primary">{draft.title || 'Role title'}</h3>
               <p className="mt-2 text-text-secondary">{draft.brand_name || 'Your brand'} · {draft.location || 'Location'}</p>
-              <p className="mt-4 text-text-secondary">{draft.summary || 'Your short role summary will appear here.'}</p>
+              <p className="mt-4 text-text-secondary">{draft.summary || 'The candidate-facing summary will appear here.'}</p>
               {draft.compensation_summary && <p className="mt-4 font-semibold text-accent-primary">{draft.compensation_summary}</p>}
             </div>
           </aside>
