@@ -174,6 +174,7 @@ function CareersHome() {
             <div className="mt-8 flex flex-wrap gap-4">
               <PrimaryLink to="/careers/jobs">Find Fitness Jobs</PrimaryLink>
               <SecondaryLink to="/careers/register">Create Your Career Profile</SecondaryLink>
+              <SecondaryLink to="/careers/login">Login</SecondaryLink>
               <SecondaryLink to="/careers/employers">Find Fitness Professionals</SecondaryLink>
             </div>
           </div>
@@ -278,8 +279,9 @@ function CareersHome() {
             <div className="border border-accent-primary bg-accent-primary/10 p-6">
               <h3 className="text-2xl font-bold text-text-primary">Build your fitness team</h3>
               <p className="mt-3 text-text-secondary">Advertise your opportunity and discover fitness professionals who may suit your team.</p>
-              <div className="mt-6">
+              <div className="mt-6 flex flex-wrap gap-3">
                 <PrimaryLink to="/careers/employers/register">Post a Job</PrimaryLink>
+                <SecondaryLink to="/careers/login">Employer Login</SecondaryLink>
               </div>
             </div>
           </div>
@@ -532,6 +534,10 @@ function Login() {
           </button>
           {message && <p className="mt-4 text-sm text-red-300" role="status">{message}</p>}
           <p className="mt-4 text-sm text-text-secondary">Employer access starts immediately. Candidate contact details remain unavailable until candidate-approved disclosure.</p>
+          <div className="mt-6 grid gap-3 border-t border-ui-border pt-6 sm:grid-cols-2">
+            <SecondaryLink to="/careers/register">Candidate sign up</SecondaryLink>
+            <SecondaryLink to="/careers/employers/register">Employer sign up</SecondaryLink>
+          </div>
         </form>
       </section>
     </>

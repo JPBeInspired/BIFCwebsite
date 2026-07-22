@@ -79,6 +79,27 @@ export default function Navbar() {
             ))}
           </div>
 
+          <div className="hidden md:flex items-center gap-3">
+            <Link
+              to="/careers/login"
+              className="border border-ui-border px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:border-accent-primary hover:text-accent-primary"
+            >
+              Login
+            </Link>
+            <Link
+              to="/careers/register"
+              className="bg-accent-primary px-4 py-2 text-sm font-semibold text-background-main transition-colors hover:bg-accent-hover"
+            >
+              Sign up
+            </Link>
+            <Link
+              to="/careers/employers/register"
+              className="border border-accent-primary px-4 py-2 text-sm font-semibold text-accent-primary transition-colors hover:bg-accent-primary hover:text-background-main"
+            >
+              Post a job
+            </Link>
+          </div>
+
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -109,6 +130,29 @@ export default function Navbar() {
                   {item.name}
                 </Link>
               ))}
+              <div className="grid gap-2 border-t border-ui-border px-3 pt-3">
+                <Link
+                  to="/careers/login"
+                  className="border border-ui-border px-3 py-2 text-center text-base font-semibold text-text-primary transition-colors hover:border-accent-primary hover:text-accent-primary"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/careers/register"
+                  className="bg-accent-primary px-3 py-2 text-center text-base font-semibold text-background-main transition-colors hover:bg-accent-hover"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Sign up
+                </Link>
+                <Link
+                  to="/careers/employers/register"
+                  className="border border-accent-primary px-3 py-2 text-center text-base font-semibold text-accent-primary transition-colors hover:bg-accent-primary hover:text-background-main"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Post a job
+                </Link>
+              </div>
             </div>
           </div>
         )}
