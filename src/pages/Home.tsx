@@ -36,10 +36,10 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row gap-6">
                 <Link
-                  to="/products"
+                  to="/contact"
                   className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-text-primary bg-accent-primary hover:bg-accent-hover transition-colors duration-300 rounded-none group"
                 >
-                  Explore Collection
+                  Start a Conversation
                   <ArrowRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
@@ -127,7 +127,7 @@ export default function Home() {
                   </ul>
                 </div>
                 <Link
-                  to="/products"
+                  to="/contact"
                   className="block w-full text-center py-4 px-6 bg-accent-primary text-text-primary hover:bg-accent-hover transition-colors duration-300 mt-auto"
                 >
                   {card.buttonLabel}

@@ -1,25 +1,27 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
-import { signIn } from '../../lib/supabase';
+import { getUser } from '../../lib/cloudflare';
 import toast from 'react-hot-toast';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleContinue = async () => {
     setLoading(true);
 
     try {
-      await signIn(email, password);
+      const user = await getUser();
+
+      if (!user) {
+        throw new Error('Cloudflare Access session not found');
+      }
+
       navigate('/admin/dashboard');
-      toast.success('Welcome back!');
+      toast.success('Access verified');
     } catch (error) {
-      toast.error('Invalid credentials');
+      toast.error('Sign in through Cloudflare Access to continue');
     } finally {
       setLoading(false);
     }
@@ -31,48 +33,19 @@ export default function Login() {
         <div className="text-center mb-8">
           <Lock className="h-12 w-12 text-accent-primary mx-auto mb-4" />
           <h2 className="text-3xl font-bold text-text-primary">Admin Login</h2>
-          <p className="text-text-secondary mt-2">Sign in to access the admin dashboard</p>
+          <p className="text-text-secondary mt-2">Access is managed through Cloudflare</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-background-card p-8 border border-ui-border">
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-text-secondary mb-2">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-3 bg-background-main border border-ui-border text-text-primary focus:border-accent-primary transition-colors"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-text-secondary mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 bg-background-main border border-ui-border text-text-primary focus:border-accent-primary transition-colors"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-accent-primary text-text-primary hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </div>
-        </form>
+        <div className="bg-background-card p-8 border border-ui-border">
+          <button
+            type="button"
+            onClick={handleContinue}
+            disabled={loading}
+            className="w-full py-3 bg-accent-primary text-text-primary hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Checking access...' : 'Continue to Dashboard'}
+          </button>
+        </div>
       </div>
     </div>
   );

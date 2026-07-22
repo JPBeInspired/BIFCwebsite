@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save } from 'lucide-react';
-import { getUser, createJobListing, updateJobListing } from '../../lib/supabase';
+import { createJobListing, getAdminJobListing, getUser, updateJobListing } from '../../lib/cloudflare';
 import toast from 'react-hot-toast';
 
 interface JobFormData {
@@ -40,7 +40,31 @@ export default function JobForm() {
 
   useEffect(() => {
     checkAuth();
-  }, []);
+    if (id) {
+      fetchJob();
+    }
+  }, [id]);
+
+  const fetchJob = async () => {
+    try {
+      const job = await getAdminJobListing(id!);
+      setFormData({
+        title: job.title || '',
+        location: job.location || '',
+        club_name: job.club_name || '',
+        job_type: job.job_type || '',
+        tags: job.tags || '',
+        summary: job.summary || '',
+        headline: job.headline || '',
+        benefits: job.benefits || '',
+        requirements: job.requirements || '',
+        about_club: job.about_club || '',
+        published: Boolean(job.published)
+      });
+    } catch (error) {
+      toast.error('Failed to fetch job listing');
+    }
+  };
 
   const checkAuth = async () => {
     try {

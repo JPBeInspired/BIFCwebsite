@@ -16,8 +16,8 @@ const defaultContent = {
       subtitle: "Supporting the coaches who change lives — and the individuals ready to transform theirs.",
       backgroundImage: "https://i.imgur.com/ww7VKq5.jpeg",
       button1: {
-        label: "Explore Collection",
-        url: "/products"
+        label: "Start a Conversation",
+        url: "/contact"
       },
       button2: {
         label: "Get Coaching",
@@ -43,7 +43,7 @@ const defaultContent = {
           bullet2: "Professional certification",
           bullet3: "Employment and business opportunities",
           buttonLabel: "Start today",
-          buttonUrl: "/products"
+          buttonUrl: "/contact"
         },
         {
           title: "I'm Here to Get Fit & Feel Better",
@@ -52,7 +52,7 @@ const defaultContent = {
           bullet2: "Training equipment",
           bullet3: "Flexible workouts for home or gym",
           buttonLabel: "Start Training",
-          buttonUrl: "/products"
+          buttonUrl: "/contact"
         },
         {
           title: "I'm a Gym Owner",
@@ -61,7 +61,7 @@ const defaultContent = {
           bullet2: "Recruitment solutions",
           bullet3: "Take a hands off approach to PT",
           buttonLabel: "Partner With Us",
-          buttonUrl: "/products"
+          buttonUrl: "/contact"
         }
       ]
     },
@@ -82,7 +82,7 @@ const defaultContent = {
     },
     newsletter: {
       heading: "Stay Updated",
-      subheading: "Subscribe to our newsletter for exclusive offers, new product releases, and expert fitness advice.",
+      subheading: "Subscribe to our newsletter for updates, opportunities, and expert fitness advice.",
       placeholder: "Enter your email",
       buttonLabel: "Subscribe"
     }
@@ -94,7 +94,7 @@ const defaultContent = {
       backgroundImage: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48",
       button1: {
         label: "Contact us",
-        url: "/products"
+        url: "/contact"
       },
       button2: {
         label: "Meet the Team",
@@ -254,19 +254,12 @@ const defaultContent = {
       subheading: "Whether you're a trainer looking to grow your business, a gym owner seeking solutions, or someone passionate about fitness, there's a place for you in our community.",
       button1: {
         label: "Explore Our Solutions",
-        url: "/products"
+        url: "/contact"
       },
       button2: {
         label: "Get in Touch",
         url: "/contact"
       }
-    }
-  },
-  products: {
-    hero: {
-      title: "The Vault",
-      subtitle: "Tools to Build Your Body, Your Business, or Both.",
-      backgroundImage: "https://i.imgur.com/sjJ3lPF.jpeg"
     }
   },
   contact: {

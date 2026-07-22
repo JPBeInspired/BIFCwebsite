@@ -24,7 +24,6 @@ const CONTACT_TYPES = [
 
 const HELP_OPTIONS = {
   trainer: [
-    { value: 'product', label: 'Product Question' },
     { value: 'coaching', label: 'Coaching or Services' },
     { value: 'career', label: 'Career Opportunities' },
     { value: 'support', label: 'Support' },
@@ -38,7 +37,6 @@ const HELP_OPTIONS = {
     { value: 'other', label: 'Something Else' }
   ],
   general: [
-    { value: 'product', label: 'Product Question' },
     { value: 'training', label: 'Personal Training' },
     { value: 'feedback', label: 'Feedback' },
     { value: 'other', label: 'Something Else' }
@@ -50,21 +48,21 @@ const QUICK_LINKS = [
     title: 'Interested in Coaching?',
     description: 'Explore our coaching services and programs',
     icon: Users,
-    link: '/products',
+    link: '/contact',
     color: 'text-accent-primary'
   },
   {
     title: 'Interested in PT Management or recruitment',
     description: 'See what we offer',
     icon: Briefcase,
-    link: '/products',
+    link: '/contact',
     color: 'text-alt-purple'
   },
   {
     title: 'Ready to get fit?',
     description: 'Find out more',
     icon: Dumbbell,
-    link: '/products',
+    link: '/contact',
     color: 'text-alt-purple'
   }
 ];
@@ -138,7 +136,7 @@ export default function Contact() {
             </h1>
             <p className="text-xl text-text-secondary mb-8 max-w-2xl leading-relaxed">
               Whether you're a coach, gym owner, or just starting your journey — we're here for you.
-              From product questions to partnership opportunities, we'll get back to you within 24 hours.
+              From coaching questions to partnership opportunities, we'll get back to you within 24 hours.
             </p>
           </div>
         </div>

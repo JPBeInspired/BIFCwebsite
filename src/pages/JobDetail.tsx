@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, MapPin, Building2, Users, Star, Upload, ArrowRight } from 'lucide-react';
-import { supabase, uploadResume, submitJobApplication } from '../lib/supabase';
+import { getJobListing, submitJobApplication } from '../lib/cloudflare';
 import FileUpload from '../components/FileUpload';
 import toast from 'react-hot-toast';
 
@@ -26,13 +26,8 @@ export default function JobDetail() {
 
   const fetchJob = async () => {
     try {
-      const { data, error } = await supabase
-        .from('job_listings')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
+      if (!id) return;
+      const data = await getJobListing(id);
       setJob(data);
     } catch (error) {
       console.error('Error fetching job:', error);
@@ -53,16 +48,12 @@ export default function JobDetail() {
     setSubmitting(true);
 
     try {
-      // Upload resume file
-      const resumeUrl = await uploadResume(formData.resume_file);
-
-      // Submit application
       await submitJobApplication({
         job_id: id!,
         full_name: formData.full_name,
         email: formData.email,
         phone: formData.phone,
-        resume_file_url: resumeUrl,
+        resume_file: formData.resume_file,
         cover_letter: formData.cover_letter
       });
 

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2, Search, Filter, ArrowLeft, FileText, Briefcase } from 'lucide-react';
-import { getUser, getJobListings, unpublishJob } from '../../lib/supabase';
-import { supabase } from '../../lib/supabase';
+import { deleteBlogPost, getAdminBlogPosts, getJobListings, getUser, unpublishJob } from '../../lib/cloudflare';
 import toast from 'react-hot-toast';
 
 type ContentType = 'jobs' | 'blog';
@@ -47,12 +46,7 @@ export default function Dashboard() {
 
   const fetchPosts = async () => {
     try {
-      const { data, error } = await supabase
-        .from('blog_post')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const data = await getAdminBlogPosts();
       setPosts(data || []);
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -76,12 +70,7 @@ export default function Dashboard() {
     if (!window.confirm('Are you sure you want to delete this blog post?')) return;
 
     try {
-      const { error } = await supabase
-        .from('blog_post')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await deleteBlogPost(id);
       toast.success('Blog post deleted');
       fetchPosts();
     } catch (error) {

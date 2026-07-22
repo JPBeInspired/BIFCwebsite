@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Eye, Image as ImageIcon } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { createBlogPost, getAdminBlogPost, getUser, updateBlogPost } from '../../lib/cloudflare';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import slugify from 'slugify';
@@ -70,7 +70,7 @@ export default function BlogForm() {
 
   const checkAuth = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = await getUser();
       if (!user || user.email !== 'jakep@beinspired.fitness') {
         navigate('/admin');
       }
@@ -81,16 +81,8 @@ export default function BlogForm() {
 
   const fetchPost = async () => {
     try {
-      const { data: post, error } = await supabase
-        .from('blog_post')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      if (post) {
-        setFormData(post);
-      }
+      const post = await getAdminBlogPost(id!);
+      setFormData(post);
     } catch (error) {
       console.error('Error fetching post:', error);
       toast.error('Failed to fetch post');
@@ -118,19 +110,10 @@ export default function BlogForm() {
       };
 
       if (id) {
-        const { error } = await supabase
-          .from('blog_post')
-          .update(postData)
-          .eq('id', id);
-
-        if (error) throw error;
+        await updateBlogPost(id, postData);
         toast.success('Post updated successfully');
       } else {
-        const { error } = await supabase
-          .from('blog_post')
-          .insert([postData]);
-
-        if (error) throw error;
+        await createBlogPost(postData);
         toast.success('Post created successfully');
       }
 

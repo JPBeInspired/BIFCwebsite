@@ -4,7 +4,7 @@ import { Search, MapPin, Building2, Users, Star, ArrowRight, Brain, Trophy, Targ
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import DynamicCounter from '../components/DynamicCounter';
-import { getPublicJobListings } from '../lib/supabase';
+import { getPublicJobListings } from '../lib/cloudflare';
 import { JobFilter } from '../types/careers';
 import toast from 'react-hot-toast';
 
