@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { ArrowRight, Users, Dumbbell, Brain, Star, Trophy, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import DynamicCounter from '../components/DynamicCounter';
-import { BRAND } from '../constants/assets';
 
 const TEAM = [
   {
@@ -209,18 +209,20 @@ const BELIEFS = [
   }
 ];
 
+function imgurVariant(url: string, suffix: 'm' | 'l' | 'h') {
+  return url.replace(/\/([^/.]+)\.(png|jpe?g|webp)$/i, (_match, id, ext) => `/${id}${suffix}.${ext}`);
+}
+
+function imgurSrcSet(url: string) {
+  return [
+    `${imgurVariant(url, 'm')} 320w`,
+    `${imgurVariant(url, 'l')} 640w`,
+    `${imgurVariant(url, 'h')} 1024w`,
+    `${url} 1200w`
+  ].join(', ');
+}
+
 export default function About() {
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   useEffect(() => {
     // Handle scroll to sections with offset
     const hash = window.location.hash;
@@ -240,14 +242,34 @@ export default function About() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background-main pt-20">
+    <>
+      <Helmet>
+        <title>About Be Inspired Fitness and Coaching</title>
+        <meta
+          name="description"
+          content="Meet the Be Inspired Fitness and Coaching team and learn how BIFC supports personal trainers, gym owners, and fitness professionals across Australia and beyond."
+        />
+        <link rel="canonical" href="https://www.beinspiredfitnessandcoaching.com/about" />
+      </Helmet>
+      <div className="min-h-screen bg-background-main pt-20">
       {/* Hero Section */}
       <section className="relative min-h-[80vh] flex items-center">
         <div className="absolute inset-0">
           <div className="relative h-full">
             <img
-              src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=1920"
+              src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=1280"
+              srcSet="
+                https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=75&w=640 640w,
+                https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=1280 1280w,
+                https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=1920 1920w
+              "
+              sizes="100vw"
               alt="Team working together"
+              width="1920"
+              height="1080"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
               className="absolute inset-0 w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-background-main/95 via-background-main/80 to-transparent" />
@@ -266,7 +288,7 @@ export default function About() {
             <div className="flex flex-wrap gap-6">
               <Link
                 to="/contact"
-                className="inline-flex items-center px-8 py-4 bg-accent-primary text-text-primary hover:bg-accent-hover transition-colors group"
+                className="inline-flex items-center px-8 py-4 bg-accent-primary text-background-main font-semibold hover:bg-accent-hover transition-colors group"
               >
                 Contact us
                 <ArrowRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
@@ -396,7 +418,13 @@ export default function About() {
                 <div className="relative overflow-hidden mb-6">
                   <img
                     src={member.image}
+                    srcSet={imgurSrcSet(member.image)}
+                    sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
                     alt={member.name}
+                    width="800"
+                    height="800"
+                    loading="lazy"
+                    decoding="async"
                     className="w-full aspect-square object-cover"
                   />
                   <div className="absolute inset-0 bg-accent-primary/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-6 flex items-center justify-center">
@@ -426,7 +454,7 @@ export default function About() {
           <div className="flex flex-wrap justify-center gap-6">
             <Link
               to="/contact"
-              className="px-8 py-4 bg-accent-primary text-text-primary hover:bg-accent-hover transition-colors"
+              className="px-8 py-4 bg-accent-primary text-background-main font-semibold hover:bg-accent-hover transition-colors"
             >
               Join the Movement
             </Link>
@@ -439,6 +467,7 @@ export default function About() {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }
