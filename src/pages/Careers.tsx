@@ -4,20 +4,18 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
   BadgeCheck,
+  Bookmark,
   Briefcase,
   Building2,
+  CalendarDays,
   CheckCircle,
+  Eye,
   EyeOff,
-  FileText,
   Lock,
-  Mail,
   MapPin,
-  MessageSquare,
   Search,
   ShieldCheck,
-  SlidersHorizontal,
-  Sparkles,
-  Users
+  SlidersHorizontal
 } from 'lucide-react';
 import { CareersRouteMode } from '../types/careers';
 import {
@@ -46,6 +44,27 @@ interface CareersProps {
 const STATES = ['all', 'VIC', 'NSW', 'QLD', 'WA', 'SA', 'ACT', 'TAS', 'NT'];
 const ROLE_STEPS = ['Job Details', 'Job Ad', 'Review'];
 
+function trackCareersEvent(action: string, params: Record<string, string | number | boolean> = {}) {
+  if (typeof window === 'undefined') return;
+
+  const gtag = (window as Window & { gtag?: (event: 'event', action: string, params?: Record<string, string | number | boolean>) => void }).gtag;
+  gtag?.('event', action, {
+    page_path: window.location.pathname,
+    viewport: window.matchMedia('(max-width: 767px)').matches ? 'mobile' : 'desktop',
+    ...params
+  });
+}
+
+function formatCareersDate(date: string) {
+  return new Intl.DateTimeFormat('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(`${date}T00:00:00`));
+}
+
+function managementNote(type: (typeof FEATURED_CAREERS_JOBS)[number]['managementType']) {
+  if (type === 'BIFC Managed') return 'Managed by BIFC';
+  if (type === 'BIFC Recruitment Partner') return 'Recruitment supported by BIFC';
+  return 'Posted directly by the employer';
+}
+
 function Badge({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center gap-1 border border-accent-primary/40 bg-accent-primary/10 px-3 py-1 text-sm font-semibold text-accent-primary">
@@ -54,11 +73,24 @@ function Badge({ children }: { children: React.ReactNode }) {
   );
 }
 
-function PrimaryLink({ to, children }: { to: string; children: React.ReactNode }) {
+function PrimaryLink({
+  to,
+  children,
+  className = '',
+  eventName,
+  eventParams = {}
+}: {
+  to: string;
+  children: React.ReactNode;
+  className?: string;
+  eventName?: string;
+  eventParams?: Record<string, string | number | boolean>;
+}) {
   return (
     <Link
       to={to}
-      className="inline-flex items-center justify-center gap-2 bg-accent-primary px-6 py-3 font-semibold text-background-main hover:bg-accent-hover transition-colors"
+      onClick={() => eventName && trackCareersEvent(eventName, eventParams)}
+      className={`inline-flex min-h-11 items-center justify-center gap-2 bg-accent-primary px-6 py-3 font-semibold text-background-main hover:bg-accent-hover transition-colors ${className}`}
     >
       {children}
       <ArrowRight className="h-4 w-4" />
@@ -66,11 +98,12 @@ function PrimaryLink({ to, children }: { to: string; children: React.ReactNode }
   );
 }
 
-function SecondaryLink({ to, children }: { to: string; children: React.ReactNode }) {
+function SecondaryLink({ to, children, className = '', eventName }: { to: string; children: React.ReactNode; className?: string; eventName?: string }) {
   return (
     <Link
       to={to}
-      className="inline-flex items-center justify-center gap-2 border border-ui-border px-6 py-3 font-semibold text-text-primary hover:border-accent-primary hover:text-accent-primary transition-colors"
+      onClick={() => eventName && trackCareersEvent(eventName)}
+      className={`inline-flex min-h-11 items-center justify-center gap-2 border border-ui-border px-6 py-3 font-semibold text-text-primary hover:border-accent-primary hover:text-accent-primary transition-colors ${className}`}
     >
       {children}
     </Link>
@@ -91,17 +124,23 @@ function CareersHeader({ eyebrow, title, intro }: { eyebrow: string; title: stri
 
 function JobCard({ job }: { job: (typeof FEATURED_CAREERS_JOBS)[number] }) {
   return (
-    <article className="border border-ui-border bg-background-card p-6 transition-colors hover:border-accent-primary">
-      <div className="mb-4 flex flex-wrap gap-2">
-        <Badge>{job.managementType}</Badge>
-        {job.verifiedEmployer && <Badge>Verified Employer</Badge>}
-        {job.featured && <Badge>Featured</Badge>}
+    <article className="flex h-full flex-col border border-ui-border bg-background-card p-6 transition-colors hover:border-accent-primary">
+      <div className="mb-4">
+        {job.verifiedEmployer && <Badge>Verified employer</Badge>}
       </div>
       <h2 className="text-2xl font-bold text-text-primary">{job.title}</h2>
-      <div className="mt-4 grid gap-3 text-sm text-text-secondary sm:grid-cols-2">
+      <p className="mt-2 text-sm text-text-secondary">
+        <span className="font-semibold text-text-primary">{job.employerName}</span>
+        <span className="block">{managementNote(job.managementType)}</span>
+      </p>
+      <div className="mt-4 grid gap-3 text-sm text-text-secondary">
         <span className="flex items-center gap-2">
-          <Building2 className="h-4 w-4 text-accent-primary" />
-          {job.employerName}
+          <CalendarDays className="h-4 w-4 text-accent-primary" />
+          Posted {formatCareersDate(job.postedDate)}
+        </span>
+        <span className="flex items-center gap-2">
+          <CalendarDays className="h-4 w-4 text-accent-primary" />
+          Closes {formatCareersDate(job.closingDate)}
         </span>
         <span className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-accent-primary" />
@@ -112,8 +151,8 @@ function JobCard({ job }: { job: (typeof FEATURED_CAREERS_JOBS)[number] }) {
           {job.engagementModel}
         </span>
         <span className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-accent-primary" />
-          {job.experienceLevel}
+          <Building2 className="h-4 w-4 text-accent-primary" />
+          {job.workplaceType}
         </span>
       </div>
       <p className="mt-5 text-text-secondary">{job.summary}</p>
@@ -125,9 +164,16 @@ function JobCard({ job }: { job: (typeof FEATURED_CAREERS_JOBS)[number] }) {
           </span>
         ))}
       </div>
-      <div className="mt-6 flex flex-wrap items-center gap-4">
-        <PrimaryLink to={`/careers/jobs/${job.slug}`}>View role</PrimaryLink>
-        <button className="text-sm font-semibold text-text-secondary hover:text-accent-primary">Save job</button>
+      <div className="mt-auto flex flex-wrap items-center gap-4 pt-6">
+        <PrimaryLink to={`/careers/jobs/${job.slug}`} eventName="job_viewed" eventParams={{ job_id: job.id }}>View role</PrimaryLink>
+        <button
+          type="button"
+          onClick={() => trackCareersEvent('job_saved', { job_id: job.id })}
+          className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-text-secondary hover:text-accent-primary"
+        >
+          <Bookmark className="h-4 w-4" />
+          Save job
+        </button>
       </div>
     </article>
   );
@@ -159,7 +205,7 @@ function CareersHome() {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background-main via-background-main/90 to-background-main/60" />
         </div>
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 pb-20 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
+        <div className="relative mx-auto grid max-w-7xl gap-10 px-5 pb-16 sm:px-6 md:pb-[4.5rem] lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
           <div>
             <Badge>Australia's Fitness Career Network</Badge>
             <h1 className="mt-6 max-w-4xl text-5xl font-bold leading-tight text-text-primary md:text-7xl">
@@ -168,16 +214,14 @@ function CareersHome() {
             <p className="mt-6 max-w-2xl text-xl leading-relaxed text-text-secondary">
               Create one private career profile, discover relevant fitness opportunities and hear from verified employers. You control when your personal details are shared.
             </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <PrimaryLink to="/careers/register">Create my free profile</PrimaryLink>
-              <SecondaryLink to="/careers/jobs">Browse fitness jobs</SecondaryLink>
+            <div className="mt-8 grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
+              <PrimaryLink to="/careers/register" className="w-full sm:w-auto" eventName="create_profile_button_clicked">Create my free profile</PrimaryLink>
+              <SecondaryLink to="/careers/jobs" className="w-full sm:w-auto" eventName="browse_jobs_button_clicked">Browse fitness jobs</SecondaryLink>
             </div>
-            <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-sm text-text-secondary">
-              <span>Free to join</span>
-              <span>Private by default</span>
-              <span>Complete it at your own pace</span>
+            <p className="mt-5 text-sm text-text-secondary">Free to join · Private by default · Complete it at your own pace</p>
+            <p className="mt-2 text-sm text-text-secondary">
               <Link to="/careers/login" className="font-semibold text-accent-primary hover:text-accent-hover">Already have a profile? Sign in</Link>
-            </div>
+            </p>
             <p className="mt-8 text-sm text-text-secondary">
               Hiring? <Link to="/careers/employers" className="font-semibold text-accent-primary hover:text-accent-hover">Find fitness professionals</Link>
             </p>
@@ -186,10 +230,10 @@ function CareersHome() {
             <h2 className="text-2xl font-bold text-text-primary">Why create a profile?</h2>
             <div className="mt-6 grid gap-4">
               {[
-                'Create one profile instead of repeatedly applying from scratch.',
-                'Be considered for relevant fitness roles, even when you are not actively job hunting.',
-                'Keep your identity and contact details hidden until you choose to share them.',
-                'Update or withdraw your profile when your goals change.'
+                'Create one profile and use it across relevant BIFC opportunities.',
+                'Be considered for suitable roles even when you are not actively job hunting.',
+                'Keep your identity and contact details hidden until you approve sharing.',
+                'Update or withdraw your profile when your circumstances change.'
               ].map(item => (
                 <p key={item} className="flex gap-3 text-text-secondary">
                   <CheckCircle className="mt-1 h-5 w-5 shrink-0 text-accent-primary" />
@@ -201,29 +245,10 @@ function CareersHome() {
         </div>
       </section>
 
-      <section className="border-b border-ui-border bg-background-section py-8">
-        <div className="mx-auto grid max-w-7xl gap-4 px-4 sm:px-6 md:grid-cols-4 lg:px-8">
-          {[
-            ['Private by default', 'Employers see limited previews first.'],
-            ['Fitness specialist', 'Built for coaches, trainers, managers and studios.'],
-            ['Human support', 'BIFC can help connect the right people to the right roles.'],
-            ['You stay in control', 'Choose when your details are shared.']
-          ].map(([title, body]) => (
-            <div key={title} className="border border-ui-border bg-background-card p-5">
-              <p className="font-bold text-text-primary">{title}</p>
-              <p className="mt-2 text-sm text-text-secondary">{body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-background-section py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-primary">Featured jobs</p>
-              <h2 className="mt-3 text-4xl font-bold text-text-primary">Current fitness opportunities</h2>
-            </div>
+      <section className="bg-background-section py-12 md:py-16">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-6">
+            <h2 className="text-4xl font-bold text-text-primary">Current fitness opportunities</h2>
             <SecondaryLink to="/careers/jobs">View all jobs</SecondaryLink>
           </div>
           <div className="grid gap-6 lg:grid-cols-3">
@@ -232,31 +257,24 @@ function CareersHome() {
         </div>
       </section>
 
-      <section className="py-20">
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+      <section className="py-12 md:py-16">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <ProcessBlock
-            title="How it works for fitness professionals"
+            title="How BIFC Careers works"
             steps={[
-              'Create your BIFC career profile.',
-              'Find and receive suitable opportunities.',
-              'Control which employers receive your information.',
-              'Connect and progress through the recruitment process.'
+              'Create your private profile. Tell us about your experience, qualifications, interests and preferred locations.',
+              'Discover suitable opportunities. Browse roles and receive information about opportunities that may suit your profile.',
+              'Choose when to share your details. Your personal contact details remain hidden until you approve sharing for a specific opportunity.'
             ]}
           />
-          <ProcessBlock
-            title="How it works for employers"
-            steps={[
-              'Create your employer profile.',
-              'Advertise a fitness-industry opportunity.',
-              'Review applicants and matched profile previews.',
-              'Invite suitable professionals to consider the role.'
-            ]}
-          />
+          <Link to="/careers/employers" className="mt-6 inline-flex items-center gap-2 font-semibold text-accent-primary hover:text-accent-hover">
+            Hiring fitness professionals? See how BIFC works for employers <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </section>
 
-      <section className="border-y border-ui-border bg-background-section py-20">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+      <section className="border-y border-ui-border bg-background-section py-12 md:py-14">
+        <div className="mx-auto grid max-w-7xl gap-8 px-5 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
           <div>
             <ShieldCheck className="h-12 w-12 text-accent-primary" />
             <h2 className="mt-5 text-4xl font-bold text-text-primary">Candidate privacy and control</h2>
@@ -266,9 +284,9 @@ function CareersHome() {
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             {[
-              'Employers see limited previews only.',
-              'Direct contact details stay hidden by default.',
-              'Each disclosure is tied to a specific employer and role.',
+              'Employers initially see a limited profile preview.',
+              'Your name and direct contact details remain hidden by default.',
+              'Sharing approval applies to a specific employer and opportunity.',
               'You can update or withdraw your profile at any time.'
             ].map(item => (
               <div key={item} className="border border-ui-border bg-background-card p-5">
@@ -277,12 +295,15 @@ function CareersHome() {
               </div>
             ))}
           </div>
+          <Link to="/careers/collection-notice" className="font-semibold text-accent-primary hover:text-accent-hover lg:col-start-2">
+            Read our candidate privacy and collection notice <ArrowRight className="inline h-4 w-4" />
+          </Link>
         </div>
       </section>
 
-      <section className="py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10 max-w-3xl">
+      <section className="py-12 md:py-16">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+          <div className="mb-8 max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-primary">Candidate FAQ</p>
             <h2 className="mt-3 text-4xl font-bold text-text-primary">Before you create a profile</h2>
           </div>
@@ -291,7 +312,9 @@ function CareersHome() {
               ['Does it cost anything?', 'No. Candidate profiles are free to create.'],
               ['Can employers see my contact details?', 'No. Employers receive limited previews first and only receive contact details after you approve disclosure for a specific opportunity.'],
               ['Can I join if I am already employed?', 'Yes. You can keep your profile private and only consider suitable opportunities.'],
-              ['Can I change or remove my profile?', 'Yes. You can update your details or ask BIFC to withdraw your profile when your circumstances change.']
+              ['Can I change or remove my profile?', 'Yes. You can update your details or request the withdrawal of your profile at any time.'],
+              ['Will my current employer know that I have joined?', 'Your identity and contact details remain hidden unless you approve sharing for a specific opportunity.'],
+              ['What information will I need to provide?', 'You can start with basic account details and complete your experience, qualifications and preferences afterwards.']
             ].map(([question, answer]) => (
               <div key={question} className="border border-ui-border bg-background-card p-6">
                 <h3 className="text-xl font-bold text-text-primary">{question}</h3>
@@ -301,28 +324,28 @@ function CareersHome() {
           </div>
           <div className="mt-10 border border-accent-primary bg-accent-primary/10 p-8">
             <h2 className="text-3xl font-bold text-text-primary">Ready for your next opportunity?</h2>
-            <p className="mt-3 text-text-secondary">Create one private profile and decide when employers receive your details.</p>
+            <p className="mt-3 text-text-secondary">Create your private career profile and choose when employers receive your details.</p>
             <div className="mt-6">
-              <PrimaryLink to="/careers/register">Create my free profile</PrimaryLink>
+              <PrimaryLink to="/careers/register" eventName="create_profile_button_clicked">Create my free profile</PrimaryLink>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="py-12 md:py-16">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <h2 className="text-4xl font-bold text-text-primary">Fitness recruitment support, built around your control</h2>
               <p className="mt-5 max-w-3xl text-lg leading-relaxed text-text-secondary">
-                BIFC Careers is owned and operated by Be Inspired Fitness and Coaching. Your profile stays under your control while BIFC helps you discover suitable roles and manage employer disclosure through a clear approval process.
+                BIFC Careers is operated by Be Inspired Fitness and Coaching. We help fitness professionals discover suitable opportunities while keeping profile visibility and employer disclosure under the candidate's control.
               </p>
             </div>
-            <div className="border border-accent-primary bg-accent-primary/10 p-6">
+            <div className="border border-ui-border bg-background-card p-5">
               <h3 className="text-2xl font-bold text-text-primary">Build your fitness team</h3>
-              <p className="mt-3 text-text-secondary">Advertise your opportunity and discover fitness professionals who may suit your team.</p>
+              <p className="mt-3 text-text-secondary">Advertise an opportunity and connect with fitness professionals who may suit your organisation.</p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <PrimaryLink to="/careers/employers/register">Post a Job</PrimaryLink>
+                <PrimaryLink to="/careers/employers/register">Post a job</PrimaryLink>
                 <SecondaryLink to="/careers/login">Employer sign in</SecondaryLink>
               </div>
             </div>
@@ -495,7 +518,7 @@ function Register() {
       <CareersHeader
         eyebrow="Registration"
         title="Create your private fitness career profile"
-        intro="Start with a few basic details. You can complete the rest of your profile later."
+        intro="Start with a few basic details. You can complete the rest of your profile afterwards."
       />
       <FormShell type="candidate" />
     </>
@@ -523,6 +546,7 @@ function Login() {
   const navigate = useNavigate();
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -539,14 +563,15 @@ function Login() {
       }
 
       if (user?.candidate_id) {
+        trackCareersEvent('returning_candidate_signed_in');
         navigate('/careers/candidate');
         return;
       }
 
       navigate('/careers');
-    } catch (error) {
+    } catch {
       setStatus('error');
-      setMessage(error instanceof Error ? error.message : 'Sign in failed.');
+      setMessage('Sign in failed. Please check your details and try again.');
     }
   };
 
@@ -565,11 +590,27 @@ function Login() {
         <form onSubmit={handleSubmit} className="mx-auto max-w-xl border border-ui-border bg-background-card p-8">
           <label className="grid gap-2 text-sm font-semibold text-text-secondary">
             Email
-            <input name="email" type="email" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
+            <input name="email" type="email" autoComplete="email" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
           </label>
           <label className="mt-4 grid gap-2 text-sm font-semibold text-text-secondary">
             Password
-            <input name="password" type="password" autoComplete="current-password" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
+            <span className="flex border border-ui-border bg-background-main">
+              <input
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                className="min-h-11 flex-1 bg-transparent px-4 py-3 text-text-primary"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(value => !value)}
+                className="min-h-11 px-4 text-text-secondary hover:text-accent-primary"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </span>
           </label>
           <div className="mt-3 text-right">
             <Link to="/careers/forgot-password" className="text-sm font-semibold text-accent-primary hover:text-accent-hover">
@@ -577,13 +618,13 @@ function Login() {
             </Link>
           </div>
           <button disabled={status === 'submitting'} className="mt-6 w-full bg-accent-primary px-6 py-3 font-semibold text-background-main disabled:opacity-60">
-            {status === 'submitting' ? 'Signing in...' : 'Continue'}
+            {status === 'submitting' ? 'Signing in...' : 'Sign in'}
           </button>
           {message && <p className="mt-4 text-sm text-red-300" role="status">{message}</p>}
           <p className="mt-4 text-sm text-text-secondary">Employer access starts immediately. Candidate contact details remain unavailable until candidate-approved disclosure.</p>
           <div className="mt-6 grid gap-3 border-t border-ui-border pt-6 sm:grid-cols-2">
-            <SecondaryLink to="/careers/register">Create candidate profile</SecondaryLink>
-            <SecondaryLink to="/careers/employers/register">Create employer account</SecondaryLink>
+            <SecondaryLink to="/careers/register">Candidate sign up</SecondaryLink>
+            <SecondaryLink to="/careers/employers/register">Employer sign up</SecondaryLink>
           </div>
         </form>
       </section>
@@ -639,26 +680,35 @@ function FormShell({ type }: { type: 'candidate' | 'employer' }) {
   const navigate = useNavigate();
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const [registrationStarted, setRegistrationStarted] = useState(false);
+
+  const trackRegistrationStarted = () => {
+    if (registrationStarted) return;
+    setRegistrationStarted(true);
+    trackCareersEvent('registration_started', { account_type: isCandidate ? 'candidate' : 'employer' });
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     setStatus('submitting');
     setMessage('');
+    trackRegistrationStarted();
 
     try {
       if (isCandidate) {
         await registerCareersCandidate({
           first_name: String(form.get('first_name') || ''),
-          surname: String(form.get('surname') || ''),
+          surname: '',
           email: String(form.get('email') || ''),
-          mobile: String(form.get('mobile') || ''),
-          state: String(form.get('state') || ''),
-          suburb: String(form.get('suburb') || ''),
+          mobile: '',
+          state: '',
+          suburb: '',
           career_status: 'open_to_suitable_opportunities',
           password: String(form.get('password') || ''),
           accepted_terms: form.get('accepted_terms') === 'on'
         });
+        trackCareersEvent('account_created', { account_type: 'candidate' });
         setMessage('Candidate account created.');
         navigate('/careers/candidate');
       } else {
@@ -674,6 +724,7 @@ function FormShell({ type }: { type: 'candidate' | 'employer' }) {
           password: String(form.get('password') || ''),
           accepted_terms: form.get('accepted_terms') === 'on'
         });
+        trackCareersEvent('account_created', { account_type: 'employer' });
         setMessage('Employer account created.');
         navigate('/careers/employer');
       }
@@ -718,20 +769,37 @@ function FormShell({ type }: { type: 'candidate' | 'employer' }) {
               {isCandidate ? 'Candidate terms' : 'Employer terms'}
             </Link>
           </div>
+          {isCandidate && (
+            <div className="mt-6 grid gap-3 border-t border-ui-border pt-6 text-sm text-text-secondary">
+              {[
+                'Free to create',
+                'Your profile is private by default',
+                'Employers initially see a limited preview',
+                'Complete your profile at your own pace'
+              ].map(item => (
+                <p key={item} className="flex gap-3">
+                  <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-accent-primary" />
+                  <span>{item}</span>
+                </p>
+              ))}
+            </div>
+          )}
         </div>
-        <form onSubmit={handleSubmit} className="border border-ui-border bg-background-card p-8">
+        <form onSubmit={handleSubmit} onFocus={trackRegistrationStarted} className="border border-ui-border bg-background-card p-8">
           <h2 className="mb-5 text-2xl font-bold text-text-primary">
-            {isCandidate ? 'Start your profile' : 'Create employer account'}
+            {isCandidate ? 'Create my profile' : 'Create employer account'}
           </h2>
           <div className="grid gap-4 md:grid-cols-2">
             <label className="grid gap-2 text-sm font-semibold text-text-secondary">
               {isCandidate ? 'First name' : 'Trading name'}
               <input name={isCandidate ? 'first_name' : 'trading_name'} autoComplete={isCandidate ? 'given-name' : 'organization'} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
             </label>
-            <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-              {isCandidate ? 'Surname' : 'ABN'}
-              <input name={isCandidate ? 'surname' : 'abn'} autoComplete={isCandidate ? 'family-name' : 'off'} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required={isCandidate} />
-            </label>
+            {!isCandidate && (
+              <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                ABN
+                <input name="abn" autoComplete="off" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+              </label>
+            )}
             {!isCandidate && (
               <>
                 <label className="grid gap-2 text-sm font-semibold text-text-secondary">
@@ -748,44 +816,42 @@ function FormShell({ type }: { type: 'candidate' | 'employer' }) {
               Email
               <input name="email" type="email" autoComplete="email" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
             </label>
-            <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-              Mobile <span className="font-normal text-text-secondary">(optional)</span>
-              <input name="mobile" type="tel" autoComplete="tel" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
-              <span className="text-xs font-normal text-text-secondary">Helpful if BIFC needs to confirm a suitable opportunity with you.</span>
-            </label>
+            {!isCandidate && (
+              <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                Mobile <span className="font-normal text-text-secondary">(optional)</span>
+                <input name="mobile" type="tel" autoComplete="tel" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+              </label>
+            )}
             <label className="grid gap-2 text-sm font-semibold text-text-secondary">
               Password
               <input name="password" type="password" minLength={10} autoComplete="new-password" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
             </label>
-            {isCandidate && (
-              <>
-                <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                  State
-                  <select name="state" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary">
-                    {STATES.filter(state => state !== 'all').map(state => <option key={state}>{state}</option>)}
-                  </select>
-                </label>
-                <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                  Suburb <span className="font-normal text-text-secondary">(optional)</span>
-                  <input name="suburb" autoComplete="address-level2" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
-                </label>
-              </>
-            )}
           </div>
           <label className="mt-5 flex gap-3 text-sm text-text-secondary">
             <input name="accepted_terms" type="checkbox" className="mt-1" required />
             <span>
               I have read and accept the BIFC Careers{' '}
-              <Link to="/careers/collection-notice" className="font-semibold text-accent-primary hover:text-accent-hover">collection notice</Link>,{' '}
-              <Link to="/careers/privacy" className="font-semibold text-accent-primary hover:text-accent-hover">privacy notice</Link> and{' '}
+              <Link to="/careers/collection-notice" className="font-semibold text-accent-primary hover:text-accent-hover">{isCandidate ? 'candidate collection notice' : 'collection notice'}</Link>,{' '}
+              <Link to="/careers/privacy" className="font-semibold text-accent-primary hover:text-accent-hover">privacy policy</Link> and{' '}
               <Link to={isCandidate ? '/careers/candidate-terms' : '/careers/employer-terms'} className="font-semibold text-accent-primary hover:text-accent-hover">
-                {isCandidate ? 'candidate terms' : 'employer terms'}
+                {isCandidate ? 'terms of use' : 'employer terms'}
               </Link>.
             </span>
           </label>
-          <button type="submit" disabled={status === 'submitting'} className="mt-6 bg-accent-primary px-6 py-3 font-semibold text-background-main disabled:opacity-60">
-            {status === 'submitting' ? 'Submitting...' : isCandidate ? 'Start profile' : 'Submit employer registration'}
+          {isCandidate && (
+            <label className="mt-4 flex gap-3 text-sm text-text-secondary">
+              <input name="marketing_consent" type="checkbox" className="mt-1" />
+              <span>I would like to receive optional career updates, tips and marketing from BIFC.</span>
+            </label>
+          )}
+          <button type="submit" disabled={status === 'submitting'} className="mt-6 min-h-11 bg-accent-primary px-6 py-3 font-semibold text-background-main disabled:opacity-60">
+            {status === 'submitting' ? 'Submitting...' : isCandidate ? 'Create my profile' : 'Submit employer registration'}
           </button>
+          {isCandidate && (
+            <p className="mt-4 text-sm text-text-secondary">
+              Already have a profile? <Link to="/careers/login" className="font-semibold text-accent-primary hover:text-accent-hover">Sign in</Link>
+            </p>
+          )}
           {message && (
             <p className={`mt-4 text-sm ${status === 'error' ? 'text-red-300' : 'text-accent-primary'}`} role="status">
               {message}
@@ -1223,6 +1289,7 @@ function DisclosurePanel() {
       </div>
       <button
         onClick={() => {
+          trackCareersEvent('candidate_approved_employer_disclosure');
           void approveCandidateDisclosure({
             candidate_id: 'demo-candidate',
             employer_id: 'demo-employer',

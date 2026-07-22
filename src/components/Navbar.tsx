@@ -56,7 +56,7 @@ export default function Navbar() {
                 event.currentTarget.style.display = 'none';
                 event.currentTarget.nextElementSibling?.classList.remove('sr-only');
               }}
-              className="h-12 w-auto"
+              className="h-[3.75rem] w-auto"
             />
             <span className="sr-only text-lg font-bold leading-tight tracking-wider text-text-primary">
               BE<br />INSPIRED
