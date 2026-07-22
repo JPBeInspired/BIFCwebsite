@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -1070,89 +1070,302 @@ function EmployerRegister() {
 
 function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle');
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
+  const [authError, setAuthError] = useState('');
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    trackCareersEvent('sign_in_page_viewed');
+  }, []);
+
+  useEffect(() => {
+    if (authError) {
+      errorSummaryRef.current?.focus();
+    }
+  }, [authError]);
+
+  const safeReturnPath = () => {
+    const next = searchParams.get('next') || '';
+    if (!next.startsWith('/careers') || next.startsWith('//') || next.includes('://')) {
+      return '';
+    }
+    return next;
+  };
+
+  const validateLogin = () => {
+    const errors: { email?: string; password?: string } = {};
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      errors.email = 'Enter your email address.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      errors.email = 'Enter a valid email address.';
+    }
+
+    if (!password) {
+      errors.password = 'Enter your password.';
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    setAuthError('');
+
+    if (!validateLogin()) {
+      return;
+    }
+
     setStatus('submitting');
-    setMessage('');
+    trackCareersEvent('sign_in_submitted');
 
     try {
-      const user = await signIn(String(form.get('email') || ''), String(form.get('password') || ''));
+      const user = await signIn(email.trim(), password);
+      const next = safeReturnPath();
+      trackCareersEvent('sign_in_succeeded');
 
       if (user?.employer_id) {
-        navigate('/careers/employer');
+        navigate(next || '/careers/employer');
         return;
       }
 
       if (user?.candidate_id) {
         trackCareersEvent('returning_candidate_signed_in');
-        navigate('/careers/candidate');
+        navigate(next || '/careers/candidate');
         return;
       }
 
-      navigate('/careers');
+      navigate(next || '/careers');
     } catch {
       setStatus('error');
-      setMessage('Sign in failed. Please check your details and try again.');
+      setPassword('');
+      setAuthError('The email address or password is incorrect. Try again or reset your password.');
+      trackCareersEvent('sign_in_failed');
+    } finally {
+      setStatus(currentStatus => currentStatus === 'submitting' ? 'idle' : currentStatus);
     }
   };
+
+  const emailErrorId = fieldErrors.email ? 'careers-login-email-error' : undefined;
+  const passwordErrorId = fieldErrors.password ? 'careers-login-password-error' : undefined;
+  const isSubmitDisabled = status === 'submitting' || !email.trim() || !password;
 
   return (
     <>
       <Helmet>
-        <title>Login | BIFC Careers</title>
+        <title>Sign in | BIFC Careers</title>
+        <meta
+          name="description"
+          content="Sign in to your BIFC Careers account to manage your career profile, saved fitness jobs, applications or employer activity."
+        />
         <meta name="robots" content="noindex" />
       </Helmet>
-      <CareersHeader
-        eyebrow="Secure access"
-        title="Sign in to BIFC Careers"
-        intro="Use the password you created during registration. Candidate information remains protected behind server-side workflow checks."
-      />
-      <section className="py-16">
-        <form onSubmit={handleSubmit} className="mx-auto max-w-xl border border-ui-border bg-background-card p-8">
-          <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-            Email
-            <input name="email" type="email" autoComplete="email" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
-          </label>
-          <label className="mt-4 grid gap-2 text-sm font-semibold text-text-secondary">
-            Password
-            <span className="flex border border-ui-border bg-background-main">
-              <input
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="current-password"
-                className="min-h-11 flex-1 bg-transparent px-4 py-3 text-text-primary"
-                required
-              />
+      <section className="min-h-screen bg-background-main px-5 pb-10 pt-24 sm:px-6 md:pt-32 lg:px-8">
+        <div className="mx-auto grid max-w-6xl gap-7 lg:grid-cols-[minmax(0,0.9fr)_minmax(440px,480px)] lg:items-center lg:gap-10">
+          <div className="max-w-2xl">
+            <p className="text-sm font-semibold uppercase tracking-widest text-accent-primary">BIFC Careers</p>
+            <h1 className="mt-3 text-4xl font-black leading-tight text-text-primary sm:mt-4 sm:text-5xl">Welcome back</h1>
+            <p className="mt-3 text-base leading-7 text-text-secondary sm:mt-5 sm:text-lg sm:leading-8">
+              Sign in to access your career profile, saved jobs, applications or employer activity.
+            </p>
+            <div className="mt-6 hidden max-w-xl gap-3 rounded-lg border border-ui-border bg-background-card p-4 lg:flex">
+              <ShieldCheck className="mt-1 h-5 w-5 flex-none text-accent-primary" aria-hidden="true" />
+              <div>
+                <p className="text-sm font-semibold text-text-primary">Candidate privacy is protected</p>
+                <p className="mt-1 text-sm leading-6 text-text-secondary">
+                  Candidate contact details remain private until sharing is approved for a specific opportunity.
+                </p>
+                <Link
+                  to="/careers/collection-notice"
+                  className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-accent-primary hover:text-accent-hover"
+                >
+                  Learn how candidate privacy works
+                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <form
+              method="post"
+              noValidate
+              onSubmit={handleSubmit}
+              className="rounded-lg border border-ui-border bg-background-card p-6 sm:p-8"
+              aria-describedby={authError ? 'careers-login-error-summary' : undefined}
+            >
+              <h2 className="text-2xl font-bold text-text-primary">Sign in</h2>
+              <p className="mt-2 text-sm leading-6 text-text-secondary">
+                Use the email address and password associated with your BIFC Careers account.
+              </p>
+
+              {authError && (
+                <div
+                  ref={errorSummaryRef}
+                  id="careers-login-error-summary"
+                  role="alert"
+                  tabIndex={-1}
+                  className="mt-5 border border-red-400/40 bg-red-950/30 p-4 text-sm leading-6 text-red-100 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-background-card"
+                >
+                  <p>{authError}</p>
+                  <div className="mt-3 flex flex-wrap gap-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStatus('idle');
+                        setAuthError('');
+                      }}
+                      className="font-semibold text-red-100 underline-offset-4 hover:underline"
+                    >
+                      Try again
+                    </button>
+                    <Link to="/contact" className="font-semibold text-red-100 underline-offset-4 hover:underline">
+                      Contact BIFC support
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-6">
+                <label htmlFor="careers-login-email" className="block text-sm font-semibold text-text-secondary">
+                  Email address
+                </label>
+                <input
+                  id="careers-login-email"
+                  name="email"
+                  type="email"
+                  value={email}
+                  onChange={event => {
+                    setEmail(event.target.value);
+                    setFieldErrors(errors => ({ ...errors, email: undefined }));
+                  }}
+                  autoComplete="email"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  placeholder="you@example.com"
+                  className={`mt-2 min-h-12 w-full rounded-md border bg-background-main px-4 py-3 text-base text-text-primary outline-none transition focus:ring-2 focus:ring-accent-primary focus:ring-offset-2 focus:ring-offset-background-card ${
+                    fieldErrors.email ? 'border-red-300' : 'border-ui-border'
+                  }`}
+                  aria-invalid={Boolean(fieldErrors.email)}
+                  aria-describedby={emailErrorId}
+                  required
+                />
+                {fieldErrors.email && (
+                  <p id="careers-login-email-error" className="mt-2 text-sm text-red-200">
+                    {fieldErrors.email}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-5">
+                <label htmlFor="careers-login-password" className="block text-sm font-semibold text-text-secondary">
+                  Password
+                </label>
+                <div
+                  className={`mt-2 flex rounded-md border bg-background-main transition focus-within:ring-2 focus-within:ring-accent-primary focus-within:ring-offset-2 focus-within:ring-offset-background-card ${
+                    fieldErrors.password ? 'border-red-300' : 'border-ui-border'
+                  }`}
+                >
+                  <input
+                    id="careers-login-password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={event => {
+                      setPassword(event.target.value);
+                      setFieldErrors(errors => ({ ...errors, password: undefined }));
+                    }}
+                    autoComplete="current-password"
+                    className="min-h-12 flex-1 rounded-l-md bg-transparent px-4 py-3 text-base text-text-primary outline-none"
+                    aria-invalid={Boolean(fieldErrors.password)}
+                    aria-describedby={passwordErrorId}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(value => !value)}
+                    className="min-h-11 min-w-11 rounded-r-md px-4 text-text-secondary transition hover:text-accent-primary focus:outline-none focus:ring-2 focus:ring-accent-primary focus:ring-offset-2 focus:ring-offset-background-main"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPassword}
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" aria-hidden="true" /> : <Eye className="h-5 w-5" aria-hidden="true" />}
+                  </button>
+                </div>
+                {fieldErrors.password && (
+                  <p id="careers-login-password-error" className="mt-2 text-sm text-red-200">
+                    {fieldErrors.password}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-4 flex justify-end">
+                <Link
+                  to="/careers/forgot-password"
+                  onClick={() => trackCareersEvent('forgot_password_clicked')}
+                  className="inline-flex min-h-11 items-center text-sm font-semibold text-accent-primary hover:text-accent-hover"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+
               <button
-                type="button"
-                onClick={() => setShowPassword(value => !value)}
-                className="min-h-11 px-4 text-text-secondary hover:text-accent-primary"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                type="submit"
+                disabled={isSubmitDisabled}
+                aria-busy={status === 'submitting'}
+                className="mt-3 flex min-h-12 w-full items-center justify-center gap-3 bg-accent-primary px-6 py-3 font-semibold text-background-main transition hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent-primary focus:ring-offset-2 focus:ring-offset-background-card active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                {status === 'submitting' && (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-background-main/30 border-t-background-main" aria-hidden="true" />
+                )}
+                <span>{status === 'submitting' ? 'Signing in...' : 'Sign in'}</span>
               </button>
-            </span>
-          </label>
-          <div className="mt-3 text-right">
-            <Link to="/careers/forgot-password" className="text-sm font-semibold text-accent-primary hover:text-accent-hover">
-              Forgot password?
-            </Link>
+
+              <div className="mt-7 border-t border-ui-border pt-6">
+                <h3 className="text-base font-bold text-text-primary">New to BIFC Careers?</h3>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-sm font-semibold text-text-primary">Looking for fitness opportunities?</p>
+                    <p className="mt-1 text-sm leading-6 text-text-secondary">Create a free private career profile.</p>
+                    <Link
+                      to="/careers/register"
+                      onClick={() => trackCareersEvent('candidate_registration_clicked')}
+                      className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-accent-primary hover:text-accent-hover"
+                    >
+                      Create candidate profile
+                      <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-text-primary">Hiring fitness professionals?</p>
+                    <p className="mt-1 text-sm leading-6 text-text-secondary">Create an employer account and advertise an opportunity.</p>
+                    <Link
+                      to="/careers/employers/register"
+                      onClick={() => trackCareersEvent('employer_registration_clicked')}
+                      className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-accent-primary hover:text-accent-hover"
+                    >
+                      Create employer account
+                      <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <div className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-3 text-sm text-text-secondary">
+              <Link to="/careers/privacy" className="hover:text-accent-primary">Privacy policy</Link>
+              <Link to="/careers/collection-notice" className="hover:text-accent-primary">Candidate collection notice</Link>
+              <Link to="/careers/terms" className="hover:text-accent-primary">Terms of use</Link>
+              <Link to="/contact" className="hover:text-accent-primary">Contact support</Link>
+            </div>
           </div>
-          <button disabled={status === 'submitting'} className="mt-6 w-full bg-accent-primary px-6 py-3 font-semibold text-background-main disabled:opacity-60">
-            {status === 'submitting' ? 'Signing in...' : 'Sign in'}
-          </button>
-          {message && <p className="mt-4 text-sm text-red-300" role="status">{message}</p>}
-          <p className="mt-4 text-sm text-text-secondary">Employer access starts immediately. Candidate contact details remain unavailable until candidate-approved disclosure.</p>
-          <div className="mt-6 grid gap-3 border-t border-ui-border pt-6 sm:grid-cols-2">
-            <SecondaryLink to="/careers/register">Candidate sign up</SecondaryLink>
-            <SecondaryLink to="/careers/employers/register">Employer sign up</SecondaryLink>
-          </div>
-        </form>
+        </div>
       </section>
     </>
   );
@@ -1160,42 +1373,111 @@ function Login() {
 
 function ForgotPassword() {
   const [submitted, setSubmitted] = useState(false);
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  const handlePasswordReset = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      setEmailError('Enter your email address.');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setEmailError('Enter a valid email address.');
+      return;
+    }
+
+    setEmailError('');
+    setSubmitted(true);
+    trackCareersEvent('password_reset_requested');
+  };
 
   return (
     <>
       <Helmet>
-        <title>Reset Password | BIFC Careers</title>
+        <title>Reset your password | BIFC Careers</title>
+        <meta
+          name="description"
+          content="Reset the password for your BIFC Careers account."
+        />
         <meta name="robots" content="noindex" />
       </Helmet>
-      <CareersHeader
-        eyebrow="Account recovery"
-        title="Reset your BIFC Careers password"
-        intro="Enter the email connected to your profile and BIFC support will help you regain access."
-      />
-      <section className="py-16">
+      <section className="min-h-screen bg-background-main px-5 pb-10 pt-28 sm:px-6 md:pt-32 lg:px-8">
         <form
-          onSubmit={event => {
-            event.preventDefault();
-            setSubmitted(true);
-          }}
-          className="mx-auto max-w-xl border border-ui-border bg-background-card p-8"
+          method="post"
+          noValidate
+          onSubmit={handlePasswordReset}
+          className="mx-auto max-w-xl rounded-lg border border-ui-border bg-background-card p-6 sm:p-8"
         >
-          <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-            Email
-            <input name="email" type="email" autoComplete="email" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
-          </label>
-          <button className="mt-6 w-full bg-accent-primary px-6 py-3 font-semibold text-background-main">
-            Request password help
-          </button>
-          {submitted && (
-            <p className="mt-4 text-sm text-accent-primary" role="status">
-              Thanks. Please email support@beinspiredfitnessandcoaching.com from the same address so BIFC can verify and reset your access.
-            </p>
-          )}
-          <p className="mt-4 text-sm text-text-secondary">
-            For your security, account access requests are checked before a password is reset.
+          <p className="text-sm font-semibold uppercase tracking-widest text-accent-primary">Account recovery</p>
+          <h1 className="mt-3 text-3xl font-black leading-tight text-text-primary sm:text-4xl">Reset your password</h1>
+          <p className="mt-3 text-sm leading-6 text-text-secondary">
+            Enter the email address associated with your BIFC Careers account.
           </p>
+
+          {submitted && (
+            <div className="mt-6 border border-accent-primary/40 bg-accent-primary/10 p-4" role="status" aria-live="polite">
+              <p className="font-semibold text-text-primary">Check your email</p>
+              <p className="mt-2 text-sm leading-6 text-text-secondary">
+                If a BIFC Careers account exists for that email address, we've sent password-reset instructions.
+              </p>
+            </div>
+          )}
+
+          <div className="mt-6">
+            <label htmlFor="careers-reset-email" className="block text-sm font-semibold text-text-secondary">
+              Email address
+            </label>
+            <input
+              id="careers-reset-email"
+              name="email"
+              type="email"
+              value={email}
+              onChange={event => {
+                setEmail(event.target.value);
+                setEmailError('');
+              }}
+              autoComplete="email"
+              autoCapitalize="none"
+              spellCheck={false}
+              className={`mt-2 min-h-12 w-full rounded-md border bg-background-main px-4 py-3 text-base text-text-primary outline-none transition focus:ring-2 focus:ring-accent-primary focus:ring-offset-2 focus:ring-offset-background-card ${
+                emailError ? 'border-red-300' : 'border-ui-border'
+              }`}
+              aria-invalid={Boolean(emailError)}
+              aria-describedby={emailError ? 'careers-reset-email-error' : undefined}
+              required
+            />
+            {emailError && (
+              <p id="careers-reset-email-error" className="mt-2 text-sm text-red-200">
+                {emailError}
+              </p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            className="mt-6 min-h-12 w-full bg-accent-primary px-6 py-3 font-semibold text-background-main transition hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent-primary focus:ring-offset-2 focus:ring-offset-background-card active:translate-y-px"
+          >
+            Send reset link
+          </button>
+
+          <div className="mt-6 border-t border-ui-border pt-5">
+            <Link to="/careers/login" className="inline-flex min-h-11 items-center text-sm font-semibold text-accent-primary hover:text-accent-hover">
+              Return to sign in
+              <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
         </form>
+
+        <div className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-3 text-sm text-text-secondary">
+          <Link to="/careers/privacy" className="hover:text-accent-primary">Privacy policy</Link>
+          <Link to="/careers/collection-notice" className="hover:text-accent-primary">Candidate collection notice</Link>
+          <Link to="/careers/terms" className="hover:text-accent-primary">Terms of use</Link>
+          <Link to="/contact" className="hover:text-accent-primary">Contact support</Link>
+        </div>
       </section>
     </>
   );

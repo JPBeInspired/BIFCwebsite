@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { HelmetProvider } from 'react-helmet-async';
 import Navbar from './components/Navbar';
 import SimpleNav from './components/SimpleNav';
+import AuthNavbar from './components/AuthNavbar';
 import Home from './pages/Home';
 import { PromotionalProvider, usePromotional } from './contexts/PromotionalContext';
 import { ContentProvider } from './contexts/ContentContext';
@@ -38,6 +39,7 @@ function AppContent() {
 
   // Determine which navigation to show
   const isPTIntroOffer = location.pathname.toLowerCase() === '/ptintrooffer' || location.pathname.toLowerCase() === '/ptintroofferf';
+  const isCareersAuth = ['/careers/login', '/careers/forgot-password'].includes(location.pathname.toLowerCase());
   
   // Get color scheme based on route
   const getNavColors = () => {
@@ -61,7 +63,7 @@ function AppContent() {
     };
   };
 
-  const Navigation = isPTIntroOffer ? () => <SimpleNav {...getNavColors()} /> : Navbar;
+  const Navigation = isCareersAuth ? AuthNavbar : isPTIntroOffer ? () => <SimpleNav {...getNavColors()} /> : Navbar;
 
   return (
     <>
