@@ -12,7 +12,7 @@ export default {
         },
         text: {
           primary: '#E6E6E6', // Soft White
-          secondary: '#9A9A9A', // Muted Grey
+          secondary: '#B8B8B8', // Muted Grey
         },
         // Primary Accent
         accent: {
@@ -63,7 +63,7 @@ export default {
               fontWeight: '600',
             },
             p: {
-              color: '#9A9A9A',
+              color: '#B8B8B8',
               fontSize: '1.125rem',
               lineHeight: '1.75',
               marginTop: '1.25rem',
@@ -74,7 +74,7 @@ export default {
               fontWeight: '600',
             },
             blockquote: {
-              color: '#9A9A9A',
+              color: '#B8B8B8',
               borderLeftColor: '#00B4D8',
               borderLeftWidth: '4px',
               paddingLeft: '1.5rem',
@@ -105,13 +105,13 @@ export default {
               },
             },
             ul: {
-              color: '#9A9A9A',
+              color: '#B8B8B8',
               marginTop: '1.25rem',
               marginBottom: '1.25rem',
               paddingLeft: '1.625rem',
             },
             ol: {
-              color: '#9A9A9A',
+              color: '#B8B8B8',
               marginTop: '1.25rem',
               marginBottom: '1.25rem',
               paddingLeft: '1.625rem',

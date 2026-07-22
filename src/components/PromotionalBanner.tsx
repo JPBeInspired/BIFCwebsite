@@ -19,9 +19,10 @@ export default function PromotionalBanner() {
         </div>
         <button
           onClick={hidePromotion}
+          aria-label="Dismiss promotion"
           className="absolute right-4 top-1/2 transform -translate-y-1/2 text-text-primary hover:opacity-75 transition-opacity"
         >
-          <X className="h-5 w-5" />
+          <X className="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
     </div>

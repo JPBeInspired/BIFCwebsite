@@ -9,6 +9,10 @@ export default function BrandLogo({ name, logo }: BrandLogoProps) {
       <img
         src={logo}
         alt={`${name} logo`}
+        width="180"
+        height="80"
+        loading="lazy"
+        decoding="async"
         className="max-w-full max-h-full object-contain brightness-0 invert opacity-50 hover:opacity-100 transition-opacity"
       />
     </div>

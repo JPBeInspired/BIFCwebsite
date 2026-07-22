@@ -20,6 +20,9 @@ export default function SimpleNav({
             <img 
               src={BRAND.LOGO} 
               alt={BRAND.LOGO_TEXT}
+              width="170"
+              height="96"
+              decoding="async"
               className="h-12 w-auto"
             />
           </Link>

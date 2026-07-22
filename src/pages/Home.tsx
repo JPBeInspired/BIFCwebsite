@@ -17,7 +17,13 @@ export default function Home() {
           <div className="relative h-full">
             <img
               src={hero.backgroundImage}
+              srcSet="https://i.imgur.com/ww7VKq5l.jpeg 640w, https://i.imgur.com/ww7VKq5h.jpeg 1024w, https://i.imgur.com/ww7VKq5.jpeg 1920w"
+              sizes="100vw"
               alt="Professional athlete training"
+              width="1920"
+              height="1080"
+              loading="eager"
+              decoding="async"
               className="absolute inset-0 w-full h-full object-cover object-center"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-background-main/95 via-background-main/80 to-transparent" />
@@ -37,7 +43,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-6">
                 <Link
                   to="/contact"
-                  className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-text-primary bg-accent-primary hover:bg-accent-hover transition-colors duration-300 rounded-none group"
+                  className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-background-main bg-accent-primary hover:bg-accent-hover transition-colors duration-300 rounded-none group"
                 >
                   Start a Conversation
                   <ArrowRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
@@ -70,7 +76,7 @@ export default function Home() {
         </div>
 
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-text-primary animate-bounce">
-          <ArrowDown className="h-8 w-8" />
+          <ArrowDown className="h-8 w-8" aria-hidden="true" />
         </div>
       </section>
 
@@ -128,7 +134,7 @@ export default function Home() {
                 </div>
                 <Link
                   to="/contact"
-                  className="block w-full text-center py-4 px-6 bg-accent-primary text-text-primary hover:bg-accent-hover transition-colors duration-300 mt-auto"
+                  className="block w-full text-center py-4 px-6 bg-accent-primary text-background-main font-semibold hover:bg-accent-hover transition-colors duration-300 mt-auto"
                 >
                   {card.buttonLabel}
                 </Link>
@@ -149,7 +155,7 @@ export default function Home() {
             <div className="flex justify-center gap-6">
               <Link
                 to="/about#team-section"
-                className="px-6 py-3 bg-accent-primary text-text-primary hover:bg-accent-hover transition-colors duration-300"
+                className="px-6 py-3 bg-accent-primary text-background-main font-semibold hover:bg-accent-hover transition-colors duration-300"
               >
                 Meet the Team
               </Link>

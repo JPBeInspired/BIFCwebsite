@@ -49,6 +49,9 @@ export default function Navbar() {
             <img 
               src={BRAND.LOGO} 
               alt={BRAND.LOGO_TEXT}
+              width="170"
+              height="96"
+              decoding="async"
               className="h-12 w-auto"
             />
           </Link>
@@ -72,9 +75,11 @@ export default function Navbar() {
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
+              aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={isOpen}
               className="p-2 text-text-primary hover:text-accent-primary transition-colors"
             >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
             </button>
           </div>
         </div>
