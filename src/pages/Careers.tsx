@@ -44,33 +44,7 @@ interface CareersProps {
 }
 
 const STATES = ['all', 'VIC', 'NSW', 'QLD', 'WA', 'SA', 'ACT', 'TAS', 'NT'];
-const ROLE_STEPS = ['Role Brief', 'Fit Signals', 'Role Story', 'Review'];
-const ROLE_SUPPORT_LEVELS = [
-  {
-    id: 'self_service',
-    name: 'Direct Listing',
-    caption: 'Employer-led',
-    reach: 'Core marketplace visibility',
-    bestFor: 'Straightforward roles with a clear candidate profile.',
-    features: ['BIFC marketplace listing', 'Applicant workflow', 'Candidate privacy controls']
-  },
-  {
-    id: 'bifc_boost',
-    name: 'BIFC Boost',
-    caption: 'Recommended',
-    reach: 'Curated visibility',
-    bestFor: 'Roles where fit, culture and timing matter.',
-    features: ['Matched preview review', 'Priority BIFC check', 'Role positioning support']
-  },
-  {
-    id: 'partner_search',
-    name: 'Partner Search',
-    caption: 'Guided support',
-    reach: 'BIFC assisted',
-    bestFor: 'Hard-to-fill roles or multi-site hiring needs.',
-    features: ['Role copy support', 'Candidate invitation support', 'Shortlist coordination']
-  }
-];
+const ROLE_STEPS = ['Role Brief', 'Role Story', 'Review'];
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
@@ -764,7 +738,7 @@ function Dashboard({ title, role }: { title: string; role: 'candidate' | 'employ
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <h2 className="text-2xl font-bold text-text-primary">Build a fitness role</h2>
-                  <p className="mt-2 text-text-secondary">Shape the role brief, define candidate fit signals, add the role story, and send it to BIFC for review.</p>
+                  <p className="mt-2 text-text-secondary">Shape the role brief, add the role story, and send it to BIFC for review.</p>
                 </div>
                 <PrimaryLink to="/careers/employer/jobs/new">Start role brief</PrimaryLink>
               </div>
@@ -812,7 +786,7 @@ const INITIAL_JOB_DRAFT: JobDraft = {
   pay_max: '',
   pay_shown: true,
   compensation_summary: '',
-  ad_package: 'bifc_boost',
+  ad_package: 'free_listing',
   description: '',
   summary: '',
   selling_points: ['', '', ''],
@@ -833,7 +807,6 @@ function EmployerJobPost() {
   const [message, setMessage] = useState('');
 
   const updateDraft = (patch: Partial<JobDraft>) => setDraft(current => ({ ...current, ...patch }));
-  const selectedSupport = ROLE_SUPPORT_LEVELS.find(item => item.id === draft.ad_package) || ROLE_SUPPORT_LEVELS[0];
 
   const payload = (action: 'draft' | 'submit') => ({
     ...draft,
@@ -842,7 +815,8 @@ function EmployerJobPost() {
     pay_max: draft.pay_max ? Number(draft.pay_max) : null,
     responsibilities: draft.selling_points.filter(Boolean).join('\n'),
     required_qualifications: draft.application_questions.filter(Boolean).join('\n'),
-    support_and_onboarding: `Support level: ${selectedSupport.name}`
+    ad_package: 'free_listing',
+    support_and_onboarding: 'Free marketplace listing'
   });
 
   const saveJob = async (action: 'draft' | 'submit') => {
@@ -858,7 +832,7 @@ function EmployerJobPost() {
       }
     } catch (error) {
       setStatus('error');
-      setMessage(error instanceof Error ? error.message : 'Unable to save this job ad.');
+      setMessage(error instanceof Error ? error.message : 'Unable to save this role.');
     }
   };
 
@@ -882,7 +856,7 @@ function EmployerJobPost() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-primary">BIFC employer workspace</p>
           <h1 className="mt-4 text-4xl font-bold text-text-primary md:text-6xl">Build a fitness role</h1>
-          <div className="mt-8 grid gap-3 md:grid-cols-4">
+          <div className="mt-8 grid gap-3 md:grid-cols-3">
             {ROLE_STEPS.map((label, index) => (
               <button
                 key={label}
@@ -971,29 +945,6 @@ function EmployerJobPost() {
               </div>
             )}
             {step === 1 && (
-              <div>
-                <h2 className="text-3xl font-bold text-text-primary">Candidate fit signals</h2>
-                <div className="mt-6 grid gap-4 lg:grid-cols-3">
-                  {ROLE_SUPPORT_LEVELS.map(item => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => updateDraft({ ad_package: item.id })}
-                      className={`min-h-80 border p-5 text-left transition-colors ${draft.ad_package === item.id ? 'border-accent-primary bg-accent-primary/10' : 'border-ui-border bg-background-main'}`}
-                    >
-                      <span className="text-sm font-semibold text-accent-primary">{item.caption}</span>
-                      <h3 className="mt-3 text-2xl font-bold text-text-primary">{item.name}</h3>
-                      <p className="mt-3 text-text-secondary">{item.reach}</p>
-                      <p className="mt-6 text-lg font-semibold text-text-primary">{item.bestFor}</p>
-                      <div className="mt-6 grid gap-3 text-sm text-text-secondary">
-                        {item.features.map(feature => <span key={feature}>BIFC: {feature}</span>)}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            {step === 2 && (
               <div className="grid gap-5">
                 <div className="flex flex-wrap items-center justify-between gap-4 bg-accent-primary/10 p-5">
                   <p className="font-semibold text-text-primary">Draft a practical role story from your role brief.</p>
@@ -1035,7 +986,7 @@ function EmployerJobPost() {
                 </div>
               </div>
             )}
-            {step === 3 && (
+            {step === 2 && (
               <div className="grid gap-5">
                 <h2 className="text-3xl font-bold text-text-primary">Candidate fit checks</h2>
                 <div className="grid gap-3">
@@ -1061,7 +1012,7 @@ function EmployerJobPost() {
                     <div><dt className="font-semibold text-text-primary">Role</dt><dd>{draft.title || 'Untitled job draft'}</dd></div>
                     <div><dt className="font-semibold text-text-primary">Location</dt><dd>{draft.location || 'Not set'}</dd></div>
                     <div><dt className="font-semibold text-text-primary">Engagement</dt><dd>{draft.engagement_model}</dd></div>
-                    <div><dt className="font-semibold text-text-primary">Support level</dt><dd>{selectedSupport.name}</dd></div>
+                    <div><dt className="font-semibold text-text-primary">Listing</dt><dd>Free marketplace listing</dd></div>
                   </dl>
                 </div>
               </div>
@@ -1082,7 +1033,7 @@ function EmployerJobPost() {
           <aside className="h-fit border border-ui-border bg-background-card p-5">
             <h2 className="text-xl font-bold text-text-primary">Marketplace preview</h2>
             <div className="mt-5 border border-ui-border bg-background-main p-5">
-              <Badge>{selectedSupport.name}</Badge>
+              <Badge>Free listing</Badge>
               <h3 className="mt-4 text-2xl font-bold text-text-primary">{draft.title || 'Role title'}</h3>
               <p className="mt-2 text-text-secondary">{draft.brand_name || 'Your brand'} · {draft.location || 'Location'}</p>
               <p className="mt-4 text-text-secondary">{draft.summary || 'The candidate-facing summary will appear here.'}</p>
