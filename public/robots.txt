@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /admin/
+Disallow: /test
+Disallow: /websitecreation/payment-confirmation
+
+Sitemap: https://www.beinspiredfitnessandcoaching.com/sitemap.xml
