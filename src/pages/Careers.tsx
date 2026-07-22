@@ -44,7 +44,7 @@ interface CareersProps {
 }
 
 const STATES = ['all', 'VIC', 'NSW', 'QLD', 'WA', 'SA', 'ACT', 'TAS', 'NT'];
-const ROLE_STEPS = ['Role Brief', 'Role Story', 'Review'];
+const ROLE_STEPS = ['Job Details', 'Job Ad', 'Review'];
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
@@ -737,10 +737,10 @@ function Dashboard({ title, role }: { title: string; role: 'candidate' | 'employ
             <div className="mt-8 border border-accent-primary bg-accent-primary/10 p-6">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-text-primary">Build a fitness role</h2>
-                  <p className="mt-2 text-text-secondary">Shape the role brief, add the role story, and send it to BIFC for review.</p>
+                  <h2 className="text-2xl font-bold text-text-primary">Create a fitness job ad</h2>
+                  <p className="mt-2 text-text-secondary">Add the job details, write the ad, and send it to BIFC for review.</p>
                 </div>
-                <PrimaryLink to="/careers/employer/jobs/new">Start role brief</PrimaryLink>
+                <PrimaryLink to="/careers/employer/jobs/new">Start job ad</PrimaryLink>
               </div>
             </div>
           )}
@@ -826,13 +826,13 @@ function EmployerJobPost() {
     try {
       await createEmployerMarketplaceJob(payload(action));
       setStatus(action === 'submit' ? 'submitted' : 'idle');
-      setMessage(action === 'submit' ? 'Role submitted for BIFC review.' : 'Draft saved.');
+      setMessage(action === 'submit' ? 'Job ad submitted for BIFC review.' : 'Draft saved.');
       if (action === 'submit') {
         setTimeout(() => navigate('/careers/employer'), 900);
       }
     } catch (error) {
       setStatus('error');
-      setMessage(error instanceof Error ? error.message : 'Unable to save this role.');
+      setMessage(error instanceof Error ? error.message : 'Unable to save this job ad.');
     }
   };
 
@@ -849,13 +849,13 @@ function EmployerJobPost() {
   return (
     <>
       <Helmet>
-        <title>Build a Fitness Role | BIFC Careers</title>
+        <title>Create a Fitness Job Ad | BIFC Careers</title>
         <meta name="robots" content="noindex" />
       </Helmet>
       <section className="border-b border-ui-border bg-background-section pt-32 pb-10">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-primary">BIFC employer workspace</p>
-          <h1 className="mt-4 text-4xl font-bold text-text-primary md:text-6xl">Build a fitness role</h1>
+          <h1 className="mt-4 text-4xl font-bold text-text-primary md:text-6xl">Create a fitness job ad</h1>
           <div className="mt-8 grid gap-3 md:grid-cols-3">
             {ROLE_STEPS.map((label, index) => (
               <button
@@ -876,9 +876,9 @@ function EmployerJobPost() {
           <div className="border border-ui-border bg-background-card p-6">
             {step === 0 && (
               <div className="grid gap-5">
-                <h2 className="text-3xl font-bold text-text-primary">Role brief</h2>
+                <h2 className="text-3xl font-bold text-text-primary">Job details</h2>
                 <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                  Role title
+                  Job title
                   <input value={draft.title} onChange={event => updateDraft({ title: event.target.value })} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" placeholder="e.g. Personal Trainer" />
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-text-secondary">
@@ -947,11 +947,11 @@ function EmployerJobPost() {
             {step === 1 && (
               <div className="grid gap-5">
                 <div className="flex flex-wrap items-center justify-between gap-4 bg-accent-primary/10 p-5">
-                  <p className="font-semibold text-text-primary">Draft a practical role story from your role brief.</p>
-                  <button type="button" onClick={writeWithTemplate} className="bg-accent-primary px-5 py-3 font-semibold text-background-main">Draft role story</button>
+                  <p className="font-semibold text-text-primary">Draft a practical job ad from your job details.</p>
+                  <button type="button" onClick={writeWithTemplate} className="bg-accent-primary px-5 py-3 font-semibold text-background-main">Draft job ad</button>
                 </div>
                 <label className="grid gap-2 text-sm font-semibold text-text-secondary">
-                  Role description
+                  Job description
                   <textarea value={draft.description} onChange={event => updateDraft({ description: event.target.value })} rows={10} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-text-secondary">
@@ -1009,7 +1009,7 @@ function EmployerJobPost() {
                 <div className="border border-ui-border bg-background-main p-5">
                   <h3 className="text-2xl font-bold text-text-primary">Review</h3>
                   <dl className="mt-4 grid gap-3 text-sm text-text-secondary md:grid-cols-2">
-                    <div><dt className="font-semibold text-text-primary">Role</dt><dd>{draft.title || 'Untitled job draft'}</dd></div>
+                    <div><dt className="font-semibold text-text-primary">Job</dt><dd>{draft.title || 'Untitled job draft'}</dd></div>
                     <div><dt className="font-semibold text-text-primary">Location</dt><dd>{draft.location || 'Not set'}</dd></div>
                     <div><dt className="font-semibold text-text-primary">Engagement</dt><dd>{draft.engagement_model}</dd></div>
                     <div><dt className="font-semibold text-text-primary">Listing</dt><dd>Free marketplace listing</dd></div>
@@ -1034,7 +1034,7 @@ function EmployerJobPost() {
             <h2 className="text-xl font-bold text-text-primary">Marketplace preview</h2>
             <div className="mt-5 border border-ui-border bg-background-main p-5">
               <Badge>Free listing</Badge>
-              <h3 className="mt-4 text-2xl font-bold text-text-primary">{draft.title || 'Role title'}</h3>
+              <h3 className="mt-4 text-2xl font-bold text-text-primary">{draft.title || 'Job title'}</h3>
               <p className="mt-2 text-text-secondary">{draft.brand_name || 'Your brand'} · {draft.location || 'Location'}</p>
               <p className="mt-4 text-text-secondary">{draft.summary || 'The candidate-facing summary will appear here.'}</p>
               {draft.compensation_summary && <p className="mt-4 font-semibold text-accent-primary">{draft.compensation_summary}</p>}
