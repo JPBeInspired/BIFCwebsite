@@ -7,6 +7,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return error('Missing required candidate registration fields', 400);
   }
 
+  if (body.accepted_terms !== true) {
+    return error('Candidate collection notice and terms must be accepted', 400);
+  }
+
   const userId = crypto.randomUUID();
   const candidateId = crypto.randomUUID();
   const consentId = crypto.randomUUID();
@@ -63,4 +67,3 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   return json({ success: true, user_id: userId, candidate_id: candidateId }, { status: 201 });
 };
-

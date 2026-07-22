@@ -46,6 +46,7 @@ Current migrations:
 
 - `migrations/0001_cloudflare_core.sql`
 - `migrations/0002_bifc_careers_marketplace.sql`
+- `migrations/0003_bifc_careers_policy_seed.sql`
 
 ## Seed instructions
 
@@ -62,4 +63,3 @@ Seed data is documented in `docs/BIFC_CAREERS_DEMO_ACCOUNTS.md`. Production cred
 - `docs/BIFC_CAREERS_DEPLOYMENT.md`
 - `docs/BIFC_CAREERS_TESTING.md`
 - `docs/BIFC_CAREERS_DEMO_ACCOUNTS.md`
-

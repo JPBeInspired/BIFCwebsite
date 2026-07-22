@@ -11,6 +11,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return error('Missing required employer registration fields', 400);
   }
 
+  if (body.accepted_terms !== true) {
+    return error('Employer terms and candidate-use obligations must be accepted', 400);
+  }
+
   const userId = crypto.randomUUID();
   const employerId = crypto.randomUUID();
   const consentId = crypto.randomUUID();
@@ -65,4 +69,3 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   return json({ success: true, user_id: userId, employer_id: employerId }, { status: 201 });
 };
-

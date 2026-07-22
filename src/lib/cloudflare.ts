@@ -109,6 +109,84 @@ export async function submitJobApplication(applicationData: {
   });
 }
 
+export async function registerCareersCandidate(data: {
+  first_name: string;
+  surname: string;
+  email: string;
+  mobile?: string;
+  state?: string;
+  suburb?: string;
+  career_status?: string;
+  accepted_terms: boolean;
+}) {
+  return apiRequest<{ success: boolean; user_id: string; candidate_id: string }>('/api/careers/candidate-register', {
+    method: 'POST',
+    body: JSON.stringify({
+      ...data,
+      policy_version_id: 'collection-notice-v0'
+    })
+  });
+}
+
+export async function registerCareersEmployer(data: {
+  trading_name: string;
+  legal_business_name: string;
+  abn?: string;
+  contact_name?: string;
+  contact_email: string;
+  contact_title?: string;
+  website?: string;
+  employer_type?: string;
+  public_description?: string;
+  accepted_terms: boolean;
+}) {
+  return apiRequest<{ success: boolean; user_id: string; employer_id: string }>('/api/careers/employer-register', {
+    method: 'POST',
+    body: JSON.stringify({
+      ...data,
+      policy_version_id: 'employer-terms-v0'
+    })
+  });
+}
+
+export async function getCareersDashboard(role: 'candidate' | 'employer' | 'admin') {
+  return apiRequest<{ cards: string[]; recent?: any[] }>(`/api/careers/dashboard?role=${encodeURIComponent(role)}`);
+}
+
+export async function getLimitedCandidatePreviews(jobId = 'demo') {
+  return apiRequest<any[]>(`/api/careers/previews?job_id=${encodeURIComponent(jobId)}`);
+}
+
+export async function submitEmployerInterest(data: {
+  employer_id: string;
+  job_id: string;
+  candidate_id: string;
+  requested_by_user_id: string;
+  message?: string;
+}) {
+  return apiRequest<{ success: boolean; id: string }>('/api/careers/interest', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+}
+
+export async function approveCandidateDisclosure(data: {
+  candidate_id: string;
+  employer_id: string;
+  job_id: string;
+  interest_request_id?: string;
+  approved_fields: string[];
+  optional_fields?: string[];
+}) {
+  return apiRequest<{ success: boolean; id: string }>('/api/careers/disclosures', {
+    method: 'POST',
+    body: JSON.stringify({
+      ...data,
+      statement_version: 'candidate-disclosure-v0'
+    })
+  });
+}
+
 export async function getAdminBlogPosts() {
   return apiRequest<any[]>('/api/admin/blog');
 }

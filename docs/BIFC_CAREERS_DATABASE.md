@@ -1,6 +1,9 @@
 # BIFC Careers Database
 
-Migration: `migrations/0002_bifc_careers_marketplace.sql`
+Migrations:
+
+- `migrations/0002_bifc_careers_marketplace.sql`
+- `migrations/0003_bifc_careers_policy_seed.sql`
 
 Core tables:
 
@@ -18,4 +21,3 @@ Important constraints:
 - Employer interest is tied to one employer, one job and one candidate.
 - Disclosure approval is tied to one employer and one job.
 - Audit events are append-only operational records.
-

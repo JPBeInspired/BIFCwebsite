@@ -37,6 +37,7 @@ export type CareersRouteMode =
   | 'employers'
   | 'talent'
   | 'register'
+  | 'employerRegister'
   | 'login'
   | 'candidate'
   | 'employer'

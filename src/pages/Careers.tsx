@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import {
@@ -29,6 +29,13 @@ import {
   WORKFLOW_STAGES,
   filterCareersJobs
 } from '../lib/careersMarketplace';
+import {
+  approveCandidateDisclosure,
+  getCareersDashboard,
+  registerCareersCandidate,
+  registerCareersEmployer,
+  submitEmployerInterest
+} from '../lib/cloudflare';
 
 interface CareersProps {
   mode?: CareersRouteMode;
@@ -269,7 +276,7 @@ function CareersHome() {
               <h3 className="text-2xl font-bold text-text-primary">Build your fitness team</h3>
               <p className="mt-3 text-text-secondary">Advertise your opportunity and discover fitness professionals who may suit your team.</p>
               <div className="mt-6">
-                <PrimaryLink to="/careers/employer">Post a Job</PrimaryLink>
+                <PrimaryLink to="/careers/employers/register">Post a Job</PrimaryLink>
               </div>
             </div>
           </div>
@@ -448,6 +455,23 @@ function Register() {
   );
 }
 
+function EmployerRegister() {
+  return (
+    <>
+      <Helmet>
+        <title>Employer Registration | BIFC Careers</title>
+        <meta name="robots" content="noindex" />
+      </Helmet>
+      <CareersHeader
+        eyebrow="Employer registration"
+        title="Advertise your opportunity through BIFC Careers"
+        intro="Employer accounts require BIFC approval before publishing jobs or viewing candidate previews."
+      />
+      <FormShell type="employer" />
+    </>
+  );
+}
+
 function Login() {
   return (
     <>
@@ -482,6 +506,51 @@ function Login() {
 
 function FormShell({ type }: { type: 'candidate' | 'employer' }) {
   const isCandidate = type === 'candidate';
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    setStatus('submitting');
+    setMessage('');
+
+    try {
+      if (isCandidate) {
+        await registerCareersCandidate({
+          first_name: String(form.get('first_name') || ''),
+          surname: String(form.get('surname') || ''),
+          email: String(form.get('email') || ''),
+          mobile: String(form.get('mobile') || ''),
+          state: String(form.get('state') || ''),
+          suburb: String(form.get('suburb') || ''),
+          career_status: 'open_to_suitable_opportunities',
+          accepted_terms: form.get('accepted_terms') === 'on'
+        });
+        setMessage('Candidate profile started. The next production step is email verification and progressive profile completion.');
+      } else {
+        const tradingName = String(form.get('trading_name') || '');
+        await registerCareersEmployer({
+          trading_name: tradingName,
+          legal_business_name: String(form.get('legal_business_name') || tradingName),
+          abn: String(form.get('abn') || ''),
+          contact_email: String(form.get('email') || ''),
+          contact_name: String(form.get('contact_name') || ''),
+          contact_title: 'Owner',
+          employer_type: 'Fitness employer',
+          accepted_terms: form.get('accepted_terms') === 'on'
+        });
+        setMessage('Employer registration submitted for BIFC approval.');
+      }
+
+      setStatus('success');
+      event.currentTarget.reset();
+    } catch (error) {
+      setStatus('error');
+      setMessage(error instanceof Error ? error.message : 'Registration failed. Please try again.');
+    }
+  };
+
   return (
     <section className="py-16">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
@@ -508,32 +577,63 @@ function FormShell({ type }: { type: 'candidate' | 'employer' }) {
             ))}
           </div>
         </div>
-        <form className="border border-ui-border bg-background-card p-8">
+        <form onSubmit={handleSubmit} className="border border-ui-border bg-background-card p-8">
           <div className="grid gap-4 md:grid-cols-2">
             <label className="grid gap-2 text-sm font-semibold text-text-secondary">
               {isCandidate ? 'First name' : 'Trading name'}
-              <input className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+              <input name={isCandidate ? 'first_name' : 'trading_name'} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
             </label>
             <label className="grid gap-2 text-sm font-semibold text-text-secondary">
               {isCandidate ? 'Surname' : 'ABN'}
-              <input className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+              <input name={isCandidate ? 'surname' : 'abn'} className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required={isCandidate} />
             </label>
+            {!isCandidate && (
+              <>
+                <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                  Legal business name
+                  <input name="legal_business_name" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
+                </label>
+                <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                  Main contact
+                  <input name="contact_name" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+                </label>
+              </>
+            )}
             <label className="grid gap-2 text-sm font-semibold text-text-secondary">
               Email
-              <input type="email" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+              <input name="email" type="email" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" required />
             </label>
             <label className="grid gap-2 text-sm font-semibold text-text-secondary">
               Mobile
-              <input type="tel" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+              <input name="mobile" type="tel" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
             </label>
+            {isCandidate && (
+              <>
+                <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                  State
+                  <select name="state" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary">
+                    {STATES.filter(state => state !== 'all').map(state => <option key={state}>{state}</option>)}
+                  </select>
+                </label>
+                <label className="grid gap-2 text-sm font-semibold text-text-secondary">
+                  Suburb
+                  <input name="suburb" className="border border-ui-border bg-background-main px-4 py-3 text-text-primary" />
+                </label>
+              </>
+            )}
           </div>
           <label className="mt-5 flex gap-3 text-sm text-text-secondary">
-            <input type="checkbox" className="mt-1" />
+            <input name="accepted_terms" type="checkbox" className="mt-1" required />
             <span>I accept the current BIFC Careers collection notice, terms and privacy acknowledgement. Final wording requires Australian legal review before production launch.</span>
           </label>
-          <button type="button" className="mt-6 bg-accent-primary px-6 py-3 font-semibold text-background-main">
-            {isCandidate ? 'Start profile' : 'Submit employer registration'}
+          <button type="submit" disabled={status === 'submitting'} className="mt-6 bg-accent-primary px-6 py-3 font-semibold text-background-main disabled:opacity-60">
+            {status === 'submitting' ? 'Submitting...' : isCandidate ? 'Start profile' : 'Submit employer registration'}
           </button>
+          {message && (
+            <p className={`mt-4 text-sm ${status === 'error' ? 'text-red-300' : 'text-accent-primary'}`} role="status">
+              {message}
+            </p>
+          )}
         </form>
       </div>
     </section>
@@ -553,12 +653,22 @@ function AdminDashboard() {
 }
 
 function Dashboard({ title, role }: { title: string; role: 'candidate' | 'employer' | 'admin' }) {
-  const cards =
-    role === 'candidate'
-      ? ['Profile completion 64%', '2 employer interest requests', '3 recommended jobs', '1 qualification expiry alert']
-      : role === 'employer'
-        ? ['2 active jobs', '6 matched previews', '3 interests awaiting response', 'No candidate exports available']
-        : ['18 active candidates', '4 pending employer approvals', '3 jobs awaiting review', '25 audit events today'];
+  const fallbackCards = useMemo(
+    () =>
+      role === 'candidate'
+        ? ['Profile completion 64%', '2 employer interest requests', '3 recommended jobs', '1 qualification expiry alert']
+        : role === 'employer'
+          ? ['2 active jobs', '6 matched previews', '3 interests awaiting response', 'No candidate exports available']
+          : ['18 active candidates', '4 pending employer approvals', '3 jobs awaiting review', '25 audit events today'],
+    [role]
+  );
+  const [cards, setCards] = useState(fallbackCards);
+
+  useEffect(() => {
+    getCareersDashboard(role)
+      .then(data => setCards(data.cards.length ? data.cards : fallbackCards))
+      .catch(() => setCards(fallbackCards));
+  }, [fallbackCards, role]);
 
   return (
     <>
@@ -614,7 +724,18 @@ function CandidatePreviewPanel() {
             <div className="mt-4 flex flex-wrap gap-2">
               {candidate.specialisations.map(item => <span key={item} className="bg-background-section px-3 py-1 text-sm text-text-secondary">{item}</span>)}
             </div>
-            <button className="mt-6 w-full bg-accent-primary px-5 py-3 font-semibold text-background-main">
+            <button
+              onClick={() => {
+                void submitEmployerInterest({
+                  employer_id: 'demo-employer',
+                  job_id: 'demo-job',
+                  candidate_id: candidate.id,
+                  requested_by_user_id: 'demo-user',
+                  message: 'This candidate may suit our active role.'
+                }).catch(() => undefined);
+              }}
+              className="mt-6 w-full bg-accent-primary px-5 py-3 font-semibold text-background-main"
+            >
               This person may be a good fit
             </button>
           </article>
@@ -639,7 +760,19 @@ function DisclosurePanel() {
           </label>
         ))}
       </div>
-      <button className="mt-6 bg-accent-primary px-6 py-3 font-semibold text-background-main">Approve selected information</button>
+      <button
+        onClick={() => {
+          void approveCandidateDisclosure({
+            candidate_id: 'demo-candidate',
+            employer_id: 'demo-employer',
+            job_id: 'demo-job',
+            approved_fields: ['Full name', 'Professional headline', 'Career summary', 'Relevant employment history', 'Qualifications', 'General availability']
+          }).catch(() => undefined);
+        }}
+        className="mt-6 bg-accent-primary px-6 py-3 font-semibold text-background-main"
+      >
+        Approve selected information
+      </button>
     </div>
   );
 }
@@ -694,6 +827,7 @@ export default function Careers({ mode = 'home' }: CareersProps) {
       {mode === 'employers' && <Employers />}
       {mode === 'talent' && <Talent />}
       {mode === 'register' && <Register />}
+      {mode === 'employerRegister' && <EmployerRegister />}
       {mode === 'login' && <Login />}
       {mode === 'candidate' && <CandidateDashboard />}
       {mode === 'employer' && <EmployerDashboard />}
