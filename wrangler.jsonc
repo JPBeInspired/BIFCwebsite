@@ -4,19 +4,5 @@
   "pages_build_output_dir": "./dist",
   "vars": {
     "ADMIN_EMAIL": "jakep@beinspired.fitness"
-  },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "bifcwebsite",
-      "database_id": "REPLACE_WITH_CLOUDFLARE_D1_DATABASE_ID",
-      "migrations_dir": "migrations"
-    }
-  ],
-  "r2_buckets": [
-    {
-      "binding": "RESUME_BUCKET",
-      "bucket_name": "bifc-resumes"
-    }
-  ]
+  }
 }

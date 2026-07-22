@@ -12,13 +12,13 @@ This repo is ready to deploy as a Cloudflare Pages project.
 
 ## Cloudflare Bindings
 
-Create and bind these Cloudflare resources before deploying the migrated backend:
+Create and bind these Cloudflare resources in the Cloudflare Pages dashboard before using the migrated backend:
 
 - D1 database: `bifcwebsite`, bound as `DB`
 - R2 bucket: `bifc-resumes`, bound as `RESUME_BUCKET`
 - Environment variable: `ADMIN_EMAIL=jakep@beinspired.fitness`
 
-After creating the D1 database, replace `REPLACE_WITH_CLOUDFLARE_D1_DATABASE_ID` in `wrangler.jsonc` with the database ID from Cloudflare.
+The repository `wrangler.jsonc` intentionally does not include D1/R2 bindings until the real Cloudflare resource IDs exist. A placeholder `database_id` will make Cloudflare Pages Git deployments fail. If you want to manage bindings through Wrangler instead of the dashboard, add the D1/R2 binding blocks only with the real D1 database ID from Cloudflare.
 
 Apply the schema with:
 
