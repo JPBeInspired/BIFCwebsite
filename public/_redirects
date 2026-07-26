@@ -1,3 +1,9 @@
 /sitemap.xml  /sitemap.xml  200
 /robots.txt   /robots.txt   200
+/fitness-coaching/  /  301
+/fitness-coaching   /  301
+/home               /  301
+/contact/           /contact  301
+/about/             /about  301
+/branches/*         /about  301
 /*    /index.html   200

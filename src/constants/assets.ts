@@ -1,7 +1,7 @@
 // Brand Assets
 export const BRAND = {
-  NAME: 'BE INSPIRED',
-  LOGO_TEXT: 'BE INSPIRED FITNESS',
+  NAME: 'Be Inspired Fitness and Coaching',
+  LOGO_TEXT: 'Be Inspired Fitness and Coaching',
   LOGO: 'https://i.imgur.com/BbTeAmk.png',
   HERO_IMAGE: 'https://i.imgur.com/ww7VKq5.jpeg',
 };

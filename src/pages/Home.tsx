@@ -1,16 +1,64 @@
 import { ArrowRight, ArrowDown, Users, Dumbbell, User, Building2 } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import TestimonialCard from '../components/TestimonialCard';
 import BrandLogo from '../components/BrandLogo';
 import DynamicCounter from '../components/DynamicCounter';
 import { useContent } from '../contexts/ContentContext';
+import { BRAND } from '../constants/assets';
 
 export default function Home() {
   const { content } = useContent();
   const { hero, counters, brands, journey, mission, testimonials } = content.home;
+  const pageTitle = 'Be Inspired Fitness and Coaching | PT Management, Recruitment and Coaching';
+  const pageDescription = 'Be Inspired Fitness and Coaching helps personal trainers, gym owners and fitness businesses grow through PT management, recruitment, coaching and practical business support across Australia.';
+  const canonicalUrl = 'https://www.beinspiredfitnessandcoaching.com/';
+  const organizationJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Be Inspired Fitness and Coaching',
+    alternateName: ['BIFC', 'Be Inspired Fitness & Coaching'],
+    url: canonicalUrl,
+    logo: BRAND.LOGO,
+    description: pageDescription,
+    areaServed: 'AU',
+    knowsAbout: [
+      'PT management',
+      'Personal trainer recruitment',
+      'Fitness business coaching',
+      'Gym owner support',
+      'Personal trainer education'
+    ],
+    contactPoint: [
+      {
+        '@type': 'ContactPoint',
+        contactType: 'customer support',
+        url: 'https://www.beinspiredfitnessandcoaching.com/contact'
+      }
+    ]
+  };
 
   return (
     <div className="min-h-screen bg-background-main">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:site_name" content="Be Inspired Fitness and Coaching" />
+        <meta property="og:image" content={hero.backgroundImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={hero.backgroundImage} />
+        <script type="application/ld+json">
+          {JSON.stringify(organizationJsonLd)}
+        </script>
+      </Helmet>
+
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center">
         <div className="absolute inset-0">
@@ -19,7 +67,7 @@ export default function Home() {
               src={hero.backgroundImage}
               srcSet="https://i.imgur.com/ww7VKq5l.jpeg 640w, https://i.imgur.com/ww7VKq5h.jpeg 1024w, https://i.imgur.com/ww7VKq5.jpeg 1920w"
               sizes="100vw"
-              alt="Professional athlete training"
+              alt="Be Inspired Fitness and Coaching personal trainer coaching in a gym"
               width="1920"
               height="1080"
               loading="eager"
@@ -34,6 +82,9 @@ export default function Home() {
         <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="pt-20 lg:pt-0">
+              <p className="mb-4 text-sm font-semibold uppercase text-accent-primary">
+                Be Inspired Fitness and Coaching
+              </p>
               <h1 className="text-5xl md:text-7xl font-bold text-text-primary mb-6 leading-tight">
                 {hero.title}
               </h1>

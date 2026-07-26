@@ -12,8 +12,8 @@ interface ContentContextType {
 const defaultContent = {
   home: {
     hero: {
-      title: "Transform Your Vision Into Reality",
-      subtitle: "Supporting the coaches who change lives — and the individuals ready to transform theirs.",
+      title: "Be Inspired Fitness and Coaching",
+      subtitle: "Australia-wide PT management, recruitment, coaching and business support for personal trainers, gym owners and fitness professionals.",
       backgroundImage: "https://i.imgur.com/ww7VKq5.jpeg",
       button1: {
         label: "Start a Conversation",
@@ -67,7 +67,7 @@ const defaultContent = {
     },
     mission: {
       heading: "Our Mission",
-      content: "We're on a mission to support Personal Trainers, Gym Owners, and everyday individuals with the knowledge, tools, and systems to thrive — in and out of the gym.",
+      content: "Be Inspired Fitness and Coaching supports Personal Trainers, Gym Owners, and everyday individuals with the knowledge, tools, and systems to thrive — in and out of the gym.",
       button1: {
         label: "Meet the Team",
         url: "/team"
