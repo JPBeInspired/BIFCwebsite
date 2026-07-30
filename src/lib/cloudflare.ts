@@ -47,6 +47,13 @@ export async function signOut() {
   await apiRequest<{ success: boolean }>('/api/logout', { method: 'POST' });
 }
 
+export async function requestPasswordReset(email: string) {
+  return apiRequest<{ success: boolean }>('/api/password-reset', {
+    method: 'POST',
+    body: JSON.stringify({ email })
+  });
+}
+
 export async function getUser() {
   const session = await apiRequest<{
     authenticated: boolean;

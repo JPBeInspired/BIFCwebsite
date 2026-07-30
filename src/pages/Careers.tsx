@@ -34,6 +34,7 @@ import {
   getCareersDashboard,
   registerCareersCandidate,
   registerCareersEmployer,
+  requestPasswordReset,
   signIn,
   submitEmployerInterest
 } from '../lib/cloudflare';
@@ -1399,10 +1400,11 @@ function ForgotPassword() {
   const [submitted, setSubmitted] = useState(false);
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [status, setStatus] = useState<'idle' | 'submitting'>('idle');
 
   useSingleMetaDescription(metaDescription);
 
-  const handlePasswordReset = (event: FormEvent<HTMLFormElement>) => {
+  const handlePasswordReset = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmedEmail = email.trim();
 
@@ -1417,8 +1419,17 @@ function ForgotPassword() {
     }
 
     setEmailError('');
-    setSubmitted(true);
-    trackCareersEvent('password_reset_requested');
+    setStatus('submitting');
+
+    try {
+      await requestPasswordReset(trimmedEmail);
+      setSubmitted(true);
+      trackCareersEvent('password_reset_requested');
+    } catch {
+      setEmailError("We couldn't send reset instructions right now. Please try again in a moment.");
+    } finally {
+      setStatus('idle');
+    }
   };
 
   return (
@@ -1485,9 +1496,11 @@ function ForgotPassword() {
 
           <button
             type="submit"
-            className="mt-6 min-h-12 w-full bg-accent-primary px-6 py-3 font-semibold text-background-main transition hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent-primary focus:ring-offset-2 focus:ring-offset-background-card active:translate-y-px"
+            disabled={status === 'submitting'}
+            aria-busy={status === 'submitting'}
+            className="mt-6 min-h-12 w-full bg-accent-primary px-6 py-3 font-semibold text-background-main transition hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent-primary focus:ring-offset-2 focus:ring-offset-background-card active:translate-y-px disabled:cursor-wait disabled:opacity-90"
           >
-            Send reset link
+            {status === 'submitting' ? 'Sending...' : 'Send reset link'}
           </button>
 
           <div className="mt-6 border-t border-ui-border pt-5">
