@@ -206,6 +206,15 @@
   opacity: 0; /* Hide initially */
 }
 
+@keyframes tbsSlowZoom {
+  from {
+    transform: scale(1.02);
+  }
+  to {
+    transform: scale(1.05);
+  }
+}
+
 /* Animation delays */
 .delay-100 {
   animation-delay: 0.1s;

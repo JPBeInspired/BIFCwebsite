@@ -26,6 +26,7 @@ const WebsiteCreationPaymentConfirmation = lazy(() => import('./pages/websitecre
 const PTStarterPack = lazy(() => import('./pages/PTStarterPack'));
 const PTIntroOffer = lazy(() => import('./pages/PTIntroOffer'));
 const PTIntroOfferF = lazy(() => import('./pages/PTIntroOfferPlum'));
+const TotalBusinessSolutions = lazy(() => import('./pages/TotalBusinessSolutions'));
 const TestPage = lazy(() => import('./pages/TestPage'));
 
 function AppContent() {
@@ -109,6 +110,7 @@ function AppContent() {
               <Route path="/pt-starter-pack" element={<PTStarterPack />} />
               <Route path="/ptintrooffer" element={<PTIntroOffer />} />
               <Route path="/ptintroofferf" element={<PTIntroOfferF />} />
+              <Route path="/total-business-solutions" element={<TotalBusinessSolutions />} />
               <Route path="/test" element={<TestPage />} />
             </Routes>
           </Suspense>

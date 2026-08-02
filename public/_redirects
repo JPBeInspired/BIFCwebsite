@@ -5,5 +5,7 @@
 /home               /  301
 /contact/           /contact  301
 /about/             /about  301
+/tbs                /total-business-solutions  301
+/total-business-solutions/  /total-business-solutions  301
 /branches/*         /about  301
 /*    /index.html   200
