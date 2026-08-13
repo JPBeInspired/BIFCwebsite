@@ -199,11 +199,18 @@ const defaultContent = {
           image: "https://i.imgur.com/bHwVB9Y.png"
         },
         {
-          name: "Zoe Castellenos",
-          role: "Head of Female Program Design",
-          bio: "Dedicated to elevating the standard of personal training worldwide.",
-          extendedBio: "20+ years in the fitness industry, having mentored more than 1,000 trainers to business success.",
-          image: "https://i.imgur.com/jmfgQqF.png"
+          name: "Chris Bottomley",
+          role: "VIC West Regional Manager",
+          bio: "Supports trainers and club partners across VIC West with practical guidance, operational structure, and regional leadership.",
+          extendedBio: "Chris works with trainers and fitness teams across VIC West to keep support local, practical, and aligned with the BIFC operating model.",
+          image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=900"
+        },
+        {
+          name: "Katerina Pizzorusso",
+          role: "VIC East Regional Manager",
+          bio: "Leads trainer support and regional development across VIC East, helping teams stay connected, consistent, and focused.",
+          extendedBio: "Katerina helps trainers and clubs across VIC East strengthen communication, development, and day-to-day execution.",
+          image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=900"
         },
         {
           name: "Dennis Tasiou",
@@ -213,13 +220,6 @@ const defaultContent = {
           image: "https://i.imgur.com/tcFTy2Y.png"
         },
         {
-          name: "Blair Sheppard",
-          role: "VIC State Manager",
-          bio: "Dedicated to elevating the standard of personal training worldwide.",
-          extendedBio: "20+ years in the fitness industry, having mentored more than 1,000 trainers to business success.",
-          image: "https://i.imgur.com/dBcDMNS.png"
-        },
-        {
           name: "Lucy Lay",
           role: "Admin Assistant",
           bio: "Dedicated to elevating the standard of personal training worldwide.",
@@ -227,18 +227,11 @@ const defaultContent = {
           image: "https://i.imgur.com/VRMZ1Cb.png"
         },
         {
-          name: "Rhett Spiller",
-          role: "VIC Regional Fitness Manager",
-          bio: "Dedicated to elevating the standard of personal training worldwide.",
-          extendedBio: "20+ years in the fitness industry, having mentored more than 1,000 trainers to business success.",
-          image: "https://i.imgur.com/rORp742.png"
-        },
-        {
-          name: "Tatum Wilder",
-          role: "Customer Success Manager",
-          bio: "Dedicated to elevating the standard of personal training worldwide.",
-          extendedBio: "20+ years in the fitness industry, having mentored more than 1,000 trainers to business success.",
-          image: "https://i.imgur.com/JHKf5YC.png"
+          name: "Dakota Wright",
+          role: "Social Media Manager",
+          bio: "Shapes BIFC's social presence, content rhythm, and community storytelling across digital channels.",
+          extendedBio: "Dakota supports the brand's digital voice, helping share trainer stories, education, and updates with the wider BIFC community.",
+          image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=900"
         },
         {
           name: "Isabella Bianchi",

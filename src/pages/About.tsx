@@ -4,6 +4,8 @@ import { ArrowRight, Users, Dumbbell, Brain, Star, Trophy, Globe } from 'lucide-
 import { Link } from 'react-router-dom';
 import DynamicCounter from '../components/DynamicCounter';
 
+const TEAM_PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=900';
+
 const TEAM = [
   {
     name: 'James Hunt',
@@ -27,18 +29,18 @@ const TEAM = [
     extended: 'From his early days managing sales and operations at Anytime Fitness to building recruitment pipelines and business development frameworks across the country, Jake has helped thousands of trainers thrive. He has built state-wide PT teams, led recruitment across multiple regions, and now shapes the national vision for Be Inspired Fitness & Coaching.'
   },
   {
-    name: 'Zoe Castellenos',
-    role: 'Head of Female Program Design',
-    image: 'https://i.imgur.com/jmfgQqF.png',
-    bio: 'Designs coaching systems tailored for female clients and leads our female performance initiatives.',
-    extended: 'As a former elite athlete and certified S&C coach, Zoe brings deep expertise in biomechanics and program periodisation. Dedicated to elevating the role of women in the gym'
+    name: 'Chris Bottomley',
+    role: 'VIC West Regional Manager',
+    image: TEAM_PLACEHOLDER_IMAGE,
+    bio: 'Supports trainers and club partners across VIC West with practical guidance, operational structure, and regional leadership.',
+    extended: 'Chris works with trainers and fitness teams across VIC West to keep support local, practical, and aligned with the BIFC operating model.'
   },
-   {
-    name: 'Brenden Clark',
-    role: 'National Recruitment Manager',
-    image: 'https://i.imgur.com/TPU3HQi.png',
-    bio: ' With a strong background in fitness, digital recruitment, and leadership, he connects the right talent with the right opportunities across Australia.',
-    extended: 'With a degree in Education and a deep understanding of both people and performance, Brenden has helped shape recruitment strategies for some of Australia’s leading fitness organisations, including Goodlife, Crunch Fitness, and HealthyPeople.com.au.'
+  {
+    name: 'Katerina Pizzorusso',
+    role: 'VIC East Regional Manager',
+    image: TEAM_PLACEHOLDER_IMAGE,
+    bio: 'Leads trainer support and regional development across VIC East, helping teams stay connected, consistent, and focused.',
+    extended: 'Katerina helps trainers and clubs across VIC East strengthen communication, development, and day-to-day execution.'
   },
   {
     name: 'Dennis Tasiou',
@@ -48,25 +50,11 @@ const TEAM = [
     extended: 'Dennis has built his reputation on consistency, clarity, and results—both for clients and for the trainers he supports. His ability to blend traditional discipline with modern tools makes him a standout figure in the fitness industry and a valued leader within the Be Inspired network.'
   },
   {
-    name: 'Blair Sheppard',
-    role: 'VIC State Manager',
-    image: 'https://i.imgur.com/dBcDMNS.png',
-    bio: 'Culture creator. Lifelong footy tragic. Blair empowers Personal Trainers to grow through connection, leadership and execution.',
-    extended: 'Known for his ability to build high-performing teams and thriving gym cultures, Blair thrives on mentoring trainers and empowering leaders. With a background spanning fitness management, coaching, and corporate partnerships, he blends business acumen with a deep understanding of what makes people tick.'
-  },
-  {
-    name: 'Rhett Spiller',
-    role: 'VIC Regional Fitness Manager',
-    image: 'https://i.imgur.com/rORp742.png',
-    bio: 'PT business mentor. Rowing coach. Strategy meets execution. Rhett helps trainers turn potential into performance—on and off the gym floor.',
-    extended: 'With a passion for performance and structure, Rhett brings a coaching mindset into everything he does—from team development to client retention strategies. He is as comfortable mentoring new trainers as he is collaborating with club owners to drive results.'
-  },
-  {
-    name: 'Tatum Wilder',
-    role: 'Customer Success Manager',
-    image: 'https://i.imgur.com/JHKf5YC.png',
-    bio: 'A powerhouse of insight and empathy, Tatum is the go-to mentor for fitness professionals who want clarity, confidence, and momentum in their career.',
-    extended: 'What sets her apart is not just experience — it is her unwavering belief in people. Tatum is passionate about simplifying complexity, removing roadblocks, and helping trainers unlock the version of themselves they know they are capable of becoming.'
+    name: 'Dakota Wright',
+    role: 'Social Media Manager',
+    image: TEAM_PLACEHOLDER_IMAGE,
+    bio: 'Shapes BIFC\'s social presence, content rhythm, and community storytelling across digital channels.',
+    extended: 'Dakota supports the brand\'s digital voice, helping share trainer stories, education, and updates with the wider BIFC community.'
   },
   {
     name: 'Isabella Bianchi',
