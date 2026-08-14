@@ -52,7 +52,7 @@ const TEAM = [
   {
     name: 'Dakota Wright',
     role: 'Social Media Manager',
-    image: 'https://i.imgur.com/M9yLmXI.jpeg',
+    image: 'https://i.imgur.com/gopGNDG.png',
     bio: 'Shapes BIFC\'s social presence, content rhythm, and community storytelling across digital channels.',
     extended: 'Dakota supports the brand\'s digital voice, helping share trainer stories, education, and updates with the wider BIFC community.'
   },
