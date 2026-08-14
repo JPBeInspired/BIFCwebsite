@@ -210,7 +210,7 @@ const defaultContent = {
           role: "VIC East Regional Manager",
           bio: "Leads trainer support and regional development across VIC East, helping teams stay connected, consistent, and focused.",
           extendedBio: "Katerina helps trainers and clubs across VIC East strengthen communication, development, and day-to-day execution.",
-          image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=900"
+          image: "/images/team/katerina-pizzorusso.png"
         },
         {
           name: "Dennis Tasiou",

@@ -38,7 +38,7 @@ const TEAM = [
   {
     name: 'Katerina Pizzorusso',
     role: 'VIC East Regional Manager',
-    image: TEAM_PLACEHOLDER_IMAGE,
+    image: '/images/team/katerina-pizzorusso.png',
     bio: 'Leads trainer support and regional development across VIC East, helping teams stay connected, consistent, and focused.',
     extended: 'Katerina helps trainers and clubs across VIC East strengthen communication, development, and day-to-day execution.'
   },
