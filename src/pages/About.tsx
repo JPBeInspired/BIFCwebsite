@@ -39,6 +39,7 @@ const TEAM = [
     name: 'Katerina Pizzorusso',
     role: 'VIC East Regional Manager',
     image: '/images/team/katerina-pizzorusso.png',
+    imagePosition: 'center 38%',
     bio: 'Leads trainer support and regional development across VIC East, helping teams stay connected, consistent, and focused.',
     extended: 'Katerina helps trainers and clubs across VIC East strengthen communication, development, and day-to-day execution.'
   },
@@ -417,7 +418,8 @@ export default function About() {
                     height="800"
                     loading="lazy"
                     decoding="async"
-                    className="h-full w-full object-cover object-top"
+                    className="h-full w-full object-cover"
+                    style={{ objectPosition: member.imagePosition ?? 'center top' }}
                   />
                   <div className="absolute inset-0 rounded-full bg-accent-primary/85 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-6 flex items-center justify-center">
                     <p className="text-sm leading-relaxed text-text-primary text-center">
