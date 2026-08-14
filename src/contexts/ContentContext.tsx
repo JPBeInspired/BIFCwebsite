@@ -203,7 +203,7 @@ const defaultContent = {
           role: "VIC West Regional Manager",
           bio: "Supports trainers and club partners across VIC West with practical guidance, operational structure, and regional leadership.",
           extendedBio: "Chris works with trainers and fitness teams across VIC West to keep support local, practical, and aligned with the BIFC operating model.",
-          image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=900"
+          image: "/images/team/chris-bottomley.png"
         },
         {
           name: "Katerina Pizzorusso",

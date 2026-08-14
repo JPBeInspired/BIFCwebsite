@@ -31,7 +31,8 @@ const TEAM = [
   {
     name: 'Chris Bottomley',
     role: 'VIC West Regional Manager',
-    image: TEAM_PLACEHOLDER_IMAGE,
+    image: '/images/team/chris-bottomley.png',
+    imagePosition: 'center 36%',
     bio: 'Supports trainers and club partners across VIC West with practical guidance, operational structure, and regional leadership.',
     extended: 'Chris works with trainers and fitness teams across VIC West to keep support local, practical, and aligned with the BIFC operating model.'
   },
