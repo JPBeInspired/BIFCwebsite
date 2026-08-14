@@ -231,7 +231,7 @@ const defaultContent = {
           role: "Social Media Manager",
           bio: "Shapes BIFC's social presence, content rhythm, and community storytelling across digital channels.",
           extendedBio: "Dakota supports the brand's digital voice, helping share trainer stories, education, and updates with the wider BIFC community.",
-          image: "https://i.imgur.com/gopGNDG.png"
+          image: "/images/team/dakota-wright.png"
         },
         {
           name: "Isabella Bianchi",

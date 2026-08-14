@@ -52,7 +52,7 @@ const TEAM = [
   {
     name: 'Dakota Wright',
     role: 'Social Media Manager',
-    image: 'https://i.imgur.com/gopGNDG.png',
+    image: '/images/team/dakota-wright.png',
     bio: 'Shapes BIFC\'s social presence, content rhythm, and community storytelling across digital channels.',
     extended: 'Dakota supports the brand\'s digital voice, helping share trainer stories, education, and updates with the wider BIFC community.'
   },
@@ -202,6 +202,10 @@ function imgurVariant(url: string, suffix: 'm' | 'l' | 'h') {
 }
 
 function imgurSrcSet(url: string) {
+  if (!url.startsWith('https://i.imgur.com/')) {
+    return undefined;
+  }
+
   return [
     `${imgurVariant(url, 'm')} 320w`,
     `${imgurVariant(url, 'l')} 640w`,
@@ -402,8 +406,8 @@ export default function About() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {TEAM.map((member, index) => (
-              <div key={index} className="group">
-                <div className="relative overflow-hidden mb-6">
+              <div key={index} className="group text-center">
+                <div className="relative mx-auto mb-6 h-56 w-56 overflow-hidden rounded-full border border-accent-primary/40 bg-background-card shadow-lg shadow-black/20 md:h-60 md:w-60">
                   <img
                     src={member.image}
                     srcSet={imgurSrcSet(member.image)}
@@ -413,10 +417,10 @@ export default function About() {
                     height="800"
                     loading="lazy"
                     decoding="async"
-                    className="w-full aspect-square object-cover"
+                    className="h-full w-full object-cover object-top"
                   />
-                  <div className="absolute inset-0 bg-accent-primary/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-6 flex items-center justify-center">
-                    <p className="text-text-primary text-center">
+                  <div className="absolute inset-0 rounded-full bg-accent-primary/85 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-6 flex items-center justify-center">
+                    <p className="text-sm leading-relaxed text-text-primary text-center">
                       {member.extended}
                     </p>
                   </div>
